@@ -16,53 +16,53 @@
 
 .include "c64.inc"
 
-	.setcpu	"6502"
+        .setcpu "6502"
 
-target	:=	$8000
+target  :=  $8000
 
-KERNEL_SETLFS	:=	$ffba
-KERNEL_SETNAM	:=	$ffbd
-KERNEL_LOAD		:=	$ffd5
+KERNEL_SETLFS   :=  $ffba
+KERNEL_SETNAM   :=  $ffbd
+KERNEL_LOAD     :=  $ffd5
 
 ; Ensure the first two bytes of the file are $02d7 so the c64 will read this
 ; into the correct location. For this to work, the linker will need to be
 ; configured so that the starting address is $02d7 (see u1.cfg).
 
-.segment	"LOADADDR"
+.segment    "LOADADDR"
 
-	.addr 	*
+        .addr   *
 
 .code
 
 main:
-	lda #$00
-	sta	VIC_CTRL1					; disable screen
-	sta VIC_BORDERCOLOR				; set border color to black
+        lda    #$00
+        sta    VIC_CTRL1            ; disable screen
+        sta    VIC_BORDERCOLOR      ; set border color to black
 
-	lda #$02						; logical number
-	ldx	#$08						; device number
-	ldy	#$00						; secondary address
-	jsr	KERNEL_SETLFS
+        lda    #$02                 ; logical number
+        ldx    #$08                 ; device number
+        ldy    #$00                 ; secondary address
+        jsr    KERNEL_SETLFS
 
-	lda #$05						; filename length
-	ldx #<filename
-	ldy #>filename
-	jsr	KERNEL_SETNAM
+        lda    #$05                 ; filename length
+        ldx    #<filename
+        ldy    #>filename
+        jsr    KERNEL_SETNAM
 
-	lda #$00						; load
-	ldx #<target			
-	ldy	#>target
-	jsr KERNEL_LOAD
+        lda    #$00                 ; load
+        ldx    #<target         
+        ldy    #>target
+        jsr    KERNEL_LOAD
 
-	jmp	target
+        jmp    target
 
 .data
 
 filename:
-	.byte "hello"
+       .byte   "hello"
 
 basic_idle_loop_vector:
-	.addr main
+       .addr   main
 
 basic_line_tokenizer_vector:
-	.byte $f1						; Not sure what this is for...
+       .byte   $f1                  ; Not sure what this is for...
