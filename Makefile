@@ -1,12 +1,13 @@
-all : build/u1.prg
+SUBDIRS = src
 
-builddir :
-	mkdir -p build
+all : subdirs
 
-build/u1.prg : builddir src/u1.cfg src/u1.s
-	cl65 -C src/u1.cfg src/u1.s -o build/u1.prg
+subdirs:
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir; \
+	done
 
 clean :
-	rm -Rf build
-	find . -name '*.o' -delete
-	
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir clean; \
+	done

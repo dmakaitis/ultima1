@@ -18,7 +18,7 @@
 
         .setcpu "6502"
 
-target  :=  $8000
+target          :=  $8000
 
 KERNEL_SETLFS   :=  $ffba
 KERNEL_SETNAM   :=  $ffbd
@@ -59,7 +59,7 @@ main:
 .data
 
 filename:
-       .byte   "hello"
+       .byte   "HELLO"
 
 basic_idle_loop_vector:
        .addr   main

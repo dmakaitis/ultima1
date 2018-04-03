@@ -1,2 +1,6 @@
 orig
 build
+tmp
+
+*.o
+*.prg
