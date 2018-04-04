@@ -6,6 +6,15 @@ u1.prg : u1.o u1.cfg
 hello.prg : hello.o hello.cfg
 	ld65 -C hello.cfg hello.o -o $@
 
+hello_1541_bootstrap.prg : hello_1541_bootstrap.o hello_1541_bootstrap.cfg
+	ld65 -C hello_1541_bootstrap.cfg hello_1541_bootstrap.o -o $@
+
+hello_1541_fastload.prg : hello_1541_fastload.o hello_1541_fastload.cfg
+	ld65 -C hello_1541_fastload.cfg hello_1541_fastload.o -o $@
+
+hello.o : hello.s hello_1541_bootstrap.prg hello_1541_fastload.prg
+	ca65 $<
+	
 .s.o :
 	ca65 $<
 
