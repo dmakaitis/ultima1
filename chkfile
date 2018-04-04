@@ -1,11 +1,28 @@
 #! /bin/bash
 
-mkdir tmp
+# This script will compare a compiled *.prg file against the original version
+# of the same file extracted from a *.d64 image of Ultima I to ensure the
+# compiled version matches the original exactly.
+#
+# The script will first use xxd to format the *.prg files as text so there's
+# some hope of a human being able to read the resulting diff if there are any
+# differences.
+
+# First, make sure we have a tmp directory to work with.
+
+if [ ! -d tmp ] ; then
+	mkdir tmp
+fi
+
+# Generate the hex dumps to compare
 
 xxd src/$1 > tmp/$1.new.xxd
 xxd orig/$1 > tmp/$1.old.xxd
 
 diff tmp/$1.old.xxd tmp/$1.new.xxd
+
+# If the files match, print a nice message so we know the comparison was
+# actually done.
 
 if [ $? -eq 0 ] ; then 
 	echo "Files match"

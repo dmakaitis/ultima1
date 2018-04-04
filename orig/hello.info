@@ -1,0 +1,70 @@
+GLOBAL {
+	INPUTNAME	"hello.prg";
+	OUTPUTNAME	"hello.s";
+	STARTADDR	$7FFE;
+	PAGELENGTH	0;
+	CPU			"6502";
+};
+
+ASMINC	{ FILE "c64.inc"; };
+
+RANGE	{ START $7FFE;	END $7FFF;	TYPE AddrTable; };
+RANGE	{ START $8000;	END $811C;	TYPE Code; };
+RANGE	{ START $811D;	END $8187;	TYPE TextTable; };
+RANGE	{ START $81C0;	END $835D;	TYPE TextTable; };
+RANGE	{ START $835E;	END $83A9;	TYPE Code; };
+RANGE	{ START $83AA;	END	$8441;	TYPE TextTable; };
+RANGE	{ START $8442;	END	$BFFF;	TYPE Skip; };
+
+LABEL	{ NAME "NMIVec_HI";				ADDR $0319; };
+
+LABEL	{ NAME "main";					ADDR $8000; };
+LABEL	{ NAME "reset_cia";				ADDR $8005; };
+LABEL	{ NAME "init_nmi";				ADDR $8027; };
+LABEL	{ NAME "init_text_display";		ADDR $803D; };
+LABEL	{ NAME "init_color_memory";		ADDR $8048; };
+LABEL	{ NAME "@loop_init_color";		ADDR $804A; };
+LABEL	{ NAME "display_title_page";	ADDR $805B; };
+LABEL	{ NAME "init_vic";				ADDR $8070; };
+LABEL	{ NAME "copy_code_to_c000";		ADDR $807F; };
+LABEL	{ NAME "@loop_copy_code";		ADDR $8090; };
+LABEL	{ NAME "reset_basic_idle_vec";	ADDR $80A3; };
+LABEL	{ NAME "reset_shift_key_vec";	ADDR $80AD; };
+LABEL	{ NAME "reset_load_vec";		ADDR $80B7; };
+LABEL	{ NAME "scan_for_space_bar";	ADDR $80C1; };
+LABEL	{ NAME "force_prompt_drive";	ADDR $80D0; };
+LABEL	{ NAME "drive_type_selected";	ADDR $80D3; };
+LABEL	{ NAME "enable_1541_driver";	ADDR $80DA; };
+LABEL	{ NAME "reset_drive";			ADDR $80E6; };
+LABEL	{ NAME "@loop_reset_delay";		ADDR $8102; };
+LABEL	{ NAME "title_page";			ADDR $811E; };
+LABEL	{ NAME "prompt_for_drive_type";	ADDR $8188; };
+LABEL	{ NAME "@loop_prompt_delay";	ADDR $818A; };
+LABEL	{ NAME "wait_for_drive_select";	ADDR $81A8; };
+LABEL	{ NAME "select_drive_page";		ADDR $81C0; };
+LABEL	{ NAME "reset_drive_command";	ADDR $835C; };
+LABEL	{ NAME "display_text_page";		ADDR $835E; };
+LABEL	{ NAME "@loop_display_text";	ADDR $8360; };
+LABEL	{ NAME "skip_characters";		ADDR $836B; };
+LABEL	{ NAME "advance_next_line";		ADDR $8370; };
+LABEL	{ NAME "mask_character";		ADDR $8381; };
+LABEL	{ NAME "print_character";		ADDR $8387; };
+LABEL	{ NAME "inc_text_src_ptr";		ADDR $838A; };
+LABEL	{ NAME "display_text_page_end";	ADDR $8394; };
+LABEL	{ NAME "clear_screen";			ADDR $8395; };
+LABEL	{ NAME "@loop_clear_screen";	ADDR $8398; };
+LABEL	{ NAME "unknown_data";			ADDR $83AA; };
+
+LABEL	{ NAME "HI_MEM_CODE";			ADDR $8400; };
+
+LABEL	{ NAME "selected_drive_type";	ADDR $B000; };
+
+LABEL	{ NAME "hi_routine_1";			ADDR $C480; };
+LABEL	{ NAME "hi_routine_2";			ADDR $C483; };
+
+LABEL	{ NAME "KERNEL_SCNKEY";			ADDR $FF9F; };
+LABEL	{ NAME "KERNEL_SETLFS";			ADDR $FFBA; };
+LABEL	{ NAME "KERNEL_SETNAM";			ADDR $FFBD; };
+LABEL	{ NAME "KERNEL_OPEN";			ADDR $FFC0; };
+LABEL	{ NAME "KERNEL_CLOSE";			ADDR $FFC3; };
+LABEL	{ NAME "KERNEL_GETIN";			ADDR $FFE4; };

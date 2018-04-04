@@ -45,7 +45,6 @@ LD945           := $D945
 DEFAULT_SHIFT_HANDLER:= $EB48
 DEFAULT_LOAD_HANDLER:= $F4A5
 
-LF5E9           := $F5E9
 LF8E0           := $F8E0
 LF934           := $F934
 
@@ -64,6 +63,10 @@ KERNEL_CHRIN    := $FFCF
 KERNEL_LOAD     := $FFD5
 KERNEL_SAVE     := $FFD8
 KERNEL_GETIN    := $FFE4
+
+__1541_TURN_ON_LED:= $C118
+__1541_READ_BAM := $D042
+__1541_CALCULATE_DATA_PARITY:= $F5E9
 
 ;-------------------------------------------------------------------------------
 ;
@@ -560,9 +563,9 @@ load_handler_1541:
 
         lda     #$02                    ; Write 64 bytes from $C22C to the 1541 drive at $0146
         sta     $FF
-        lda     #<_1541_drive_data
+        lda     #<_1541_fastload_bootstrap
         sta     _1541_data_addr
-        lda     #>_1541_drive_data
+        lda     #>_1541_fastload_bootstrap
         sta     _1541_data_addr + 1
         lda     #$46
         sta     _1541_mem_addr
@@ -584,10 +587,10 @@ load_handler_1541:
 
         sei                             ; Disable interrupts to ensure exact timing
 
-        ; Now send 512 bytes of data from _1541_drive_data_0500 to address $0500 on the 1541:
+        ; Now send 512 bytes of data from _1541_fastload_code to address $0500 on the 1541:
 
-        ldx     #<_1541_drive_data_0500 ; Write the first 256 bytes of data to $0500
-        ldy     #>_1541_drive_data_0500
+        ldx     #<_1541_fastload_code ; Write the first 256 bytes of data to $0500
+        ldy     #>_1541_fastload_code
         stx     _serial_data_vector
         sty     _serial_data_vector + 1
         lda     #$02
@@ -796,7 +799,20 @@ build_serial_control_stream:
 ; decode the value, the 1541 simply has to sample the two
 ; lines, shift the resulting bits left once, then sample the
 ; two lines again and OR them with the first value.
+;
+; Since we will be using both the CLOCK and DATA lines, we
+; can not depend on using the CLOCK line to synchronize the
+; serial communications. Instead, we will be assuming that
+; both the C64 and 1541 CPUs are running at the same clock
+; speed and that the 1541 will be reading at the same rate
+; the C64 is writing. To ensure this, we need to make sure
+; that interrupts are disabled on both devices so the
+; transfer code is not interrupted. We also need to ensure
+; that the C64s VIC chip is not rendering a 'bad' scan
+; line so it will not sieze control from the CPU during
+; transmission.
 ;-----------------------------------------------------------
+
 _serial_control_stream:
         .byte   $07,$07,$27,$27,$07,$07,$27,$27
         .byte   $17,$17,$37,$37,$17,$17
@@ -884,31 +900,59 @@ _serial_data_vector:= * + 1
 
 
 ;-----------------------------------------------------------
+;                _1541_fastload_bootstrap
 ;
 ; The following section will be copied out to the 1541 drive
-; to handle its end of the fast load protocol.
-;
+; to bootstrap the fastload code. It contains enough code to
+; handle receiving and decoding a 256 byte block of data
+; over the CLOCK and DATA lines of the serial port, then 
+; pass control to the received block.
 ;-----------------------------------------------------------
 
-_1541_drive_data:
+_1541_fastload_bootstrap:
 
         .org    $0146                   ; This code will be stored at $0146 on the 1541 drive, 
-                                        ;and need to be compiled accordingly
+                                        ; and needs to be compiled accordingly
 
         __1541_code_target:=  $0500
         __VIA1_PORTB:= $1800
 
-        __start_1541_drive_data:
+        __start_1541_fastload_bootstrap:
 
                 ldx     #$00                    ; Delay to allow C64 code to get ready to write
         @loop_delay:
                 dex
                 bne     @loop_delay
-                sei
-                jsr     @read_256_bytes
+
+                sei                             ; Disable interrupts to ensure exact timing
+
+                jsr     __read_256_bytes
                 jmp     __1541_code_target      ; Jump to code that was just received
 
-        @read_256_bytes:
+
+
+
+        ;-----------------------------------------------------------
+        ;                     __read_256_bytes
+        ;
+        ; Reads 256 bytes of data over the serial CLOCK and DATA
+        ; lines. Instead of reading the data normally, four samples
+        ; of both lines will be taken for each byte of data. Each
+        ; sample will read the following bits of data:
+        ;
+        ;     SAMPLE  CLOCK    DATA
+        ;       1       7       5
+        ;       2       6       4
+        ;       3       3       1
+        ;       4       2       0
+        ;
+        ; To ensure proper timing, interupts must be disabled prior
+        ; to calling this routine. 
+        ;-----------------------------------------------------------
+
+        __1541_read_buffer:= $103
+
+        __read_256_bytes:
                 ldy     #$00
 
                 lda     #$08                    ; set clock out to signal the C64 that we are ready to receive
@@ -923,7 +967,7 @@ _1541_drive_data:
 
                 stx     __VIA1_PORTB            ; initialize the serial port
 
-                lda     __VIA1_PORTB            ; read the first four bits
+                lda     __VIA1_PORTB            ; read the first four bits and store in buffer
                 asl
                 nop
                 eor     __VIA1_PORTB
@@ -931,17 +975,17 @@ _1541_drive_data:
                 asl
                 asl
                 asl
-                sta     $0103
+                sta     __1541_read_buffer
 
-                lda     __VIA1_PORTB            ; read the second four bits
+                lda     __VIA1_PORTB            ; read the second four bits and combine with buffer
                 asl
                 nop
                 eor     __VIA1_PORTB
-                eor     $0103
+                eor     __1541_read_buffer
 
         __1541_code_target_vector:= * + 1
 
-                sta     __1541_code_target,y
+                sta     __1541_code_target,y    ; Store the byte into the target memory.
                 iny
                 bne     __loop_read_bytes
                 rts
@@ -950,15 +994,17 @@ _1541_drive_data:
         ; generating code targeted at where we will end up in memory after having inserted the
         ; 1541 code:
 
-        __1541_drive_data_size:= * - __start_1541_drive_data
+        __1541_fastload_bootstrap_size:= * - __start_1541_fastload_bootstrap
 
-        .org    _1541_drive_data + __1541_drive_data_size
+        .org    _1541_fastload_bootstrap + __1541_fastload_bootstrap_size
 
 
 
 
 ;-----------------------------------------------------------
 ; Back to C64 code?
+;
+; This is probably the C64 receive code for the fastload:
 ;-----------------------------------------------------------
 
 LC26C:  ldy     #$00
@@ -1005,31 +1051,38 @@ LC284:  lda     $FC
         rts
 
 ;-----------------------------------------------------------
+;                    _1541_fastload_code
 ;
 ; The following section will be copied out to the 1541
-; drive.
-;
+; drive, and contains the fastload code that will be
+; executed on the 1541.
 ;-----------------------------------------------------------
 
-_1541_drive_data_0500:
+_1541_fastload_code:
 
         .org    $0500
 
-        __start_1541_drive_data_0500:
+        __start_1541_fastload_code:
 
-                inc     $0181
-                jsr     L0152
-                cli
-                jsr     LC118
-                jsr     LD042
-                sei
-                lda     #$15
+                inc     __1541_code_target_vector + 1   ; Load the next 256 bytes of code from the C64
+                jsr     __read_256_bytes
+
+                cli                             ; Enable interrupts
+
+                jsr     __1541_TURN_ON_LED
+                jsr     __1541_READ_BAM
+
+                sei                             ; Disable interrupts
+
+                lda     #$15                    ; Set timer latch?
                 sta     $1C07
+
                 lda     #$03
                 sta     $3C
                 lda     #$12
                 ldx     #$01
         L051B:  jsr     L05E7
+
                 ldx     #$07
         L0520:  lda     L0561,x
                 sta     $3B
@@ -1134,60 +1187,90 @@ _1541_drive_data_0500:
                 .byte   $07
                 asl     a
                 asl     $0F0B
-        L05E7:  stx     $07
+
+
+
+
+        ;-----------------------------------------------------------
+        ;
+        ; a => track?
+        ; x => sector?
+        ;-----------------------------------------------------------
+
+        L05E7:  stx     $07                     ; Store track/sector in buffer 0 track/status register
                 sta     $0300
                 cmp     $06
                 php
                 sta     $06
                 plp
-                beq     L0604
-                lda     #$B0
+                beq     @L0604                   ; Branch if the track has not changed since last time
+
+                lda     #$B0                    ; Set buffer 0 command/status to read in sector header
                 sta     $00
-                cli
-        L05F9:  bit     $00
-                bmi     L05F9
-                sei
-                lda     $00
+
+                cli                             ; Enable interrupts to allow command to execute
+
+        @loop_wait_read_sector_header:
+                bit     $00
+                bmi     @loop_wait_read_sector_header
+
+                sei                             ; Disable interrupts
+
+                lda     $00                     ; Make sure we read the data okay
                 cmp     #$01
-                bne     L0652
-        L0604:  lda     #$EE
+                bne     @handle_error
+
+        @L0604:  lda     #$EE                    ; Attach byte ready line to CPU overflow flag
                 sta     $1C0C
-                lda     #$06
+
+                lda     #$06                    ; Set buffer 0 to track 6, sector 0
                 sta     $32
                 lda     #$00
                 sta     $33
-                sta     $30
+
+                sta     $30                     ; Set read buffer to $0300 (empty memory)
                 lda     #$03
                 sta     $31
+
                 jsr     L0669
-        L061A:  bvc     L061A
+
+        @loop_read_bytes:
+                bvc     @loop_read_bytes        ; Wait for overflow flag to indicate data is ready
                 clv
-                lda     $1C01
+
+                lda     $1C01                   ; Read byte into buffer
                 sta     $0300,y
                 iny
-                bne     L061A
+                bne     @loop_read_bytes
+
                 ldy     #$BA
-        L0628:  bvc     L0628
+
+        @loop_read_bytes2:
+                bvc     @loop_read_bytes2       ; Read bytes into GCR-decoding buffer at $01BA-$01FF
                 clv
+
                 lda     $1C01
                 sta     $0100,y
                 iny
-                bne     L0628
+                bne     @loop_read_bytes2
+
                 jsr     LF8E0
                 lda     $38
                 cmp     $47
-                beq     L0641
+                beq     @L0641
                 lda     #$22
                 bne     L0655
-        L0641:  jsr     LF5E9
+        @L0641:  jsr     __1541_CALCULATE_DATA_PARITY
                 cmp     $3A
-                beq     L064C
+                beq     @L064C
                 lda     #$23
                 bne     L0655
-        L064C:  lda     #$EC
+        @L064C:  lda     #$EC
                 sta     $1C0C
                 rts
-        L0652:  clc
+
+        @handle_error:
+                clc
                 adc     #$18
         L0655:  sta     $44
                 lda     #$FF
@@ -1197,6 +1280,13 @@ _1541_drive_data_0500:
                 sta     $1C07
                 lda     $44
                 jmp     LC1C8
+
+
+
+
+        ;-----------------------------------------------------------
+        ;-----------------------------------------------------------
+
         L0669:  lda     $12
                 sta     $16
                 lda     $13
@@ -1243,9 +1333,9 @@ _1541_drive_data_0500:
         ; generating code targeted at where we will end up in memory after having inserted the
         ; 1541 code:
 
-        __1541_drive_data_0500_size:= * - __start_1541_drive_data_0500
+        __1541_fastload_code_size:= * - __start_1541_fastload_code
 
-        .org    _1541_drive_data_0500 + __1541_drive_data_0500_size
+        .org    _1541_fastload_code + __1541_fastload_code_size
 
 
 
