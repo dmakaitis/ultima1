@@ -22,12 +22,6 @@ SHIFT_HANDLER_VECTOR:= $028F
 BASIC_IDLE_LOOP_VECTOR:= $0302
 LOAD_VECTOR     := $0330
 
-L0500           := $0500
-L058D           := $058D
-L05E7           := $05E7
-L0669           := $0669
-L06A4           := $06A4
-
 L0C00           := $0C00
 
 L4946           := $4946
@@ -36,7 +30,7 @@ DEFAULT_BASIC_IDLE_LOOP:= $A483
 
 selected_drive_type:= $B000
 
-LC600           := $C600
+fast_serial_buffer:= $C600
 LC609           := $C609
 LC632           := $C632
 
@@ -557,7 +551,7 @@ load_handler_1541:
         dex
         bne     @loop_mask
         rol
-        sta     $FD
+        sta     $FD                     ; TODO: what is this for?
 
         ;   ^
         ;   |
@@ -588,19 +582,24 @@ load_handler_1541:
 
         jsr     build_serial_control_stream
 
-        sei
-        ldx     #$B2
-        ldy     #$C2
+        sei                             ; Disable interrupts to ensure exact timing
+
+        ; Now send 512 bytes of data from _1541_drive_data_0500 to address $0500 on the 1541:
+
+        ldx     #<_1541_drive_data_0500 ; Write the first 256 bytes of data to $0500
+        ldy     #>_1541_drive_data_0500
         stx     _serial_data_vector
         sty     _serial_data_vector + 1
         lda     #$02
         sta     $FF
-LC0DB:  jsr     write_page_to_serial_bus
-        inc     _serial_data_vector + 1
+@loop_send_1541_data:
+        jsr     write_page_to_serial_bus
+        inc     _serial_data_vector + 1 ; Advance to the next 256 bytes of data
         dec     $FF
-        bne     LC0DB
+        bne     @loop_send_1541_data
+
         jsr     LC26C
-        bit     LC600
+        bit     fast_serial_buffer
         bmi     LC140
         ldy     $C3
         ldx     $C4
@@ -611,10 +610,10 @@ LC0DB:  jsr     write_page_to_serial_bus
 LC0FB:  sty     LOAD_ADDRESS
         stx     LOAD_ADDRESS + 1
         ldx     #$04
-        lda     LC600
+        lda     fast_serial_buffer
         beq     LC120
 LC106:  ldy     #$00
-LC108:  lda     LC600,x
+LC108:  lda     fast_serial_buffer,x
         sta     (LOAD_ADDRESS),y
         iny
         inx
@@ -629,17 +628,17 @@ LC108:  lda     LC600,x
 ;-----------------------------------------------------------
 
 LC118:  .byte   $02
-        lda     LC600
+        lda     fast_serial_buffer
         bmi     LC143
         bne     LC106
 LC120:  ldy     #$00
-LC122:  lda     LC600,x
+LC122:  lda     fast_serial_buffer,x
         sta     (LOAD_ADDRESS),y
         iny
         inx
         cpx     $C601
         bcc     LC122
-        lda     LC600,x
+        lda     fast_serial_buffer,x
         sta     (LOAD_ADDRESS),y
         iny
         jsr     increase_load_addr
@@ -717,7 +716,7 @@ _1541_data_addr:= * + 1
         inc     _1541_data_addr + 1
 
 @increment_1541_address:
-        clc                             ; increement the source address by 32
+        clc                             ; increment the source address by 32
         lda     _1541_mem_addr
         adc     #$20
         sta     _1541_mem_addr
@@ -788,7 +787,16 @@ build_serial_control_stream:
 
 
 
-
+;-----------------------------------------------------------
+; The 'serial control streams' are coded in such a way so
+; that each four bit sequence can be transmitted as two
+; subsequent values on the CLOCK and DATA lines from the C64
+; to the 1541. On the VIA chip of the 1541, these can be
+; read as bits 0 and 2 on the serial bus port, so that to
+; decode the value, the 1541 simply has to sample the two
+; lines, shift the resulting bits left once, then sample the
+; two lines again and OR them with the first value.
+;-----------------------------------------------------------
 _serial_control_stream:
         .byte   $07,$07,$27,$27,$07,$07,$27,$27
         .byte   $17,$17,$37,$37,$17,$17
@@ -826,15 +834,15 @@ write_page_to_serial_bus:
 _serial_data_vector:= * + 1
 @loop_copy:                        
         lda     $FFFF,y                 ; lda $C2B2,y
-        sta     LC600,y
+        sta     fast_serial_buffer,y
         iny
         bne     @loop_copy
 
 @wait_for_clock_in_low:  
-        bit     CIA2_PRA                
+        bit     CIA2_PRA                ; wait for the 1541 to signal it is ready to receive data
         bvs     @wait_for_clock_in_low
 
-@loop:  lda     LC600,y                 ; get the high 4 bits stored at $C600,y and store in x
+@loop:  lda     fast_serial_buffer,y    ; get the high 4 bits stored at $C600,y and store in x
         lsr     a
         lsr     a
         lsr     a
@@ -857,7 +865,7 @@ _serial_data_vector:= * + 1
         sta     CIA2_PRA
         lda     _serial_control_stream2,x
         sta     CIA2_PRA
-        lda     LC600,y                     ; write lower four bits of data
+        lda     fast_serial_buffer,y    ; write lower four bits of data
         and     #$0F
         tax
         lda     _serial_control_stream,x
@@ -875,18 +883,83 @@ _serial_data_vector:= * + 1
 
 
 
+;-----------------------------------------------------------
+;
+; The following section will be copied out to the 1541 drive
+; to handle its end of the fast load protocol.
+;
+;-----------------------------------------------------------
+
 _1541_drive_data:
-        .byte   $A2,$00,$CA,$D0,$FD,$78,$20,$52
-        .byte   $01,$4C,$00,$05,$A0,$00,$A9,$08
-        .byte   $8D,$00,$18,$A2,$00,$A9,$01,$2C
-        .byte   $00,$18,$F0,$FB,$8E,$00,$18,$AD
-        .byte   $00,$18,$0A,$EA,$4D,$00,$18,$0A
-        .byte   $0A,$0A,$0A,$8D,$03,$01,$AD,$00
-        .byte   $18,$0A,$EA,$4D,$00,$18,$4D,$03
-        .byte   $01,$99,$00,$05,$C8,$D0,$D4,$60
+
+        .org    $0146                   ; This code will be stored at $0146 on the 1541 drive, 
+                                        ;and need to be compiled accordingly
+
+        __1541_code_target:=  $0500
+        __VIA1_PORTB:= $1800
+
+        __start_1541_drive_data:
+
+                ldx     #$00                    ; Delay to allow C64 code to get ready to write
+        @loop_delay:
+                dex
+                bne     @loop_delay
+                sei
+                jsr     @read_256_bytes
+                jmp     __1541_code_target      ; Jump to code that was just received
+
+        @read_256_bytes:
+                ldy     #$00
+
+                lda     #$08                    ; set clock out to signal the C64 that we are ready to receive
+                sta     __VIA1_PORTB
+
+        __loop_read_bytes:
+                ldx     #$00                    ; wait for DATA IN to indicate the C64 is ready to send a byte
+                lda     #$01
+        @loop_wait_for_c64:
+                bit     __VIA1_PORTB
+                beq     @loop_wait_for_c64
+
+                stx     __VIA1_PORTB            ; initialize the serial port
+
+                lda     __VIA1_PORTB            ; read the first four bits
+                asl
+                nop
+                eor     __VIA1_PORTB
+                asl
+                asl
+                asl
+                asl
+                sta     $0103
+
+                lda     __VIA1_PORTB            ; read the second four bits
+                asl
+                nop
+                eor     __VIA1_PORTB
+                eor     $0103
+
+        __1541_code_target_vector:= * + 1
+
+                sta     __1541_code_target,y
+                iny
+                bne     __loop_read_bytes
+                rts
+
+        ; Now have the compiler calculate the 1541 code size so we can reset the compiler to start
+        ; generating code targeted at where we will end up in memory after having inserted the
+        ; 1541 code:
+
+        __1541_drive_data_size:= * - __start_1541_drive_data
+
+        .org    _1541_drive_data + __1541_drive_data_size
 
 
 
+
+;-----------------------------------------------------------
+; Back to C64 code?
+;-----------------------------------------------------------
 
 LC26C:  ldy     #$00
 LC26E:  lda     $FE
@@ -926,233 +999,259 @@ LC284:  lda     $FC
         rol     a
         rol     a
         rol     a
-        sta     LC600,y
+        sta     fast_serial_buffer,y
         iny
         bne     LC26E
         rts
-        inc     $0181
-        jsr     L0152
-        cli
-        jsr     LC118
-        jsr     LD042
-        sei
-        lda     #$15
-        sta     $1C07
-        lda     #$03
-        sta     $3C
-        lda     #$12
-        ldx     #$01
-LC2CD:  jsr     L05E7
-        ldx     #$07
-LC2D2:  lda     $0561,x
-        sta     $3B
-        ldy     #$00
-        lda     ($3B),y
-        cmp     #$82
-        bne     LC2F7
-        ldy     #$03
-LC2E1:  lda     $06B9,y
-        cmp     #$2A
-        beq     LC31B
-        cmp     #$3F
-        beq     LC2F0
-        cmp     ($3B),y
-        bne     LC2F7
-LC2F0:  iny
-        cpy     #$12
-        bne     LC2E1
-        beq     LC31B
-LC2F7:  dex
-        bpl     LC2D2
-        ldx     $0301
-        lda     $0300
-        bne     LC2CD
-        lda     #$FF
-        sta     $0300
-        jsr     L058D
-        lda     #$3A
-        sta     $1C07
-        cli
-        jmp     LD945
-        .byte   $E2
-        .byte   $C2
-        ldx     #$82
-        .byte   $62
-        .byte   $42
-        .byte   $22
-        .byte   $02
-LC31B:  ldy     #$02
-        lda     ($3B),y
-        tax
-        dey
-        lda     ($3B),y
-LC323:  jsr     L05E7
-        jsr     L058D
-        ldx     $0301
-        lda     $0300
-        bne     LC323
-        lda     #$F7
-        and     $1C00
-        sta     $1C00
-        lda     #$3A
-        sta     $1C07
-        rts
-        ldy     #$00
-LC341:  lda     $0300,y
-        lsr     a
-        lsr     a
-        lsr     a
-        lsr     a
-        tax
-        lda     $05D7,x
-        tax
-        lda     #$01
-LC34F:  bit     $1800
-        beq     LC34F
-        lda     #$08
-        sta     $1800
-        lda     #$01
-LC35B:  bit     $1800
-        bne     LC35B
-        stx     $1800
-        txa
-        asl     a
-        and     #$0F
-        sta     $1800
-        lda     $0300,y
-        and     #$0F
-        tax
-        lda     $05D7,x
-        sta     $1800
-        asl     a
-        and     #$0F
-        nop
-        sta     $1800
-        nop
-        nop
-        nop
-        lda     #$00
-        sta     $1800
-        iny
-        bne     LC341
-        rts
-        brk
-        .byte   $04
-        ora     ($05,x)
-        php
-        .byte   $0C
-        ora     #$0D
-        .byte   $02
-        asl     $03
-        .byte   $07
-        asl     a
-        asl     $0F0B
-        stx     $07
-        sta     $0300
-        cmp     $06
-        php
-        sta     $06
-        plp
-        beq     LC3B6
-        lda     #$B0
-        sta     $00
-        cli
-LC3AB:  bit     $00
-        bmi     LC3AB
-        sei
-        lda     $00
-        cmp     #$01
-        bne     LC404
-LC3B6:  lda     #$EE
-        sta     $1C0C
-        lda     #$06
-        sta     $32
-        lda     #$00
-        sta     $33
-        sta     $30
-        lda     #$03
-        sta     $31
-        jsr     L0669
-LC3CC:  bvc     LC3CC
-        clv
-        lda     $1C01
-        sta     $0300,y
-        iny
-        bne     LC3CC
-        ldy     #$BA
-LC3DA:  bvc     LC3DA
-        clv
-        lda     $1C01
-        sta     $0100,y
-        iny
-        bne     LC3DA
-        jsr     LF8E0
-        lda     $38
-        cmp     $47
-        beq     LC3F3
-        lda     #$22
-        bne     LC407
-LC3F3:  jsr     LF5E9
-        cmp     $3A
-        beq     LC3FE
-        lda     #$23
-        bne     LC407
-LC3FE:  lda     #$EC
-        sta     $1C0C
-        rts
-LC404:  clc
-        adc     #$18
-LC407:  sta     $44
-        lda     #$FF
-        sta     $0300
-        jsr     L058D
-        lda     #$3A
-        sta     $1C07
-        lda     $44
-        jmp     LC1C8
-        lda     $12
-        sta     $16
-        lda     $13
-        sta     $17
-        lda     $06
-        sta     $18
-        lda     $07
-        sta     YSIZE
-        lda     #$00
-        eor     $16
-        eor     $17
-        eor     $18
-        eor     YSIZE
-        sta     $1A
-        jsr     LF934
-        ldx     #$5A
-LC43C:  jsr     L06A4
-LC43F:  bvc     LC43F
-        clv
-        lda     $1C01
-        cmp     $24,y
-        beq     LC451
-        dex
-        bne     LC43C
-        lda     #$20
-        bne     LC407
-LC451:  iny
-        cpy     #$08
-        bne     LC43F
-        lda     #$D0
-        sta     $1805
-        lda     #$21
-LC45D:  bit     $1805
-        bpl     LC407
-        bit     $1C00
-        bmi     LC45D
-        lda     $1C01
-        clv
-        ldy     #$00
-        rts
+
+;-----------------------------------------------------------
+;
+; The following section will be copied out to the 1541
+; drive.
+;
+;-----------------------------------------------------------
+
+_1541_drive_data_0500:
+
+        .org    $0500
+
+        __start_1541_drive_data_0500:
+
+                inc     $0181
+                jsr     L0152
+                cli
+                jsr     LC118
+                jsr     LD042
+                sei
+                lda     #$15
+                sta     $1C07
+                lda     #$03
+                sta     $3C
+                lda     #$12
+                ldx     #$01
+        L051B:  jsr     L05E7
+                ldx     #$07
+        L0520:  lda     L0561,x
+                sta     $3B
+                ldy     #$00
+                lda     ($3B),y
+                cmp     #$82
+                bne     L0545
+                ldy     #$03
+        L052F:  lda     L06B9,y
+                cmp     #$2A
+                beq     L0569
+                cmp     #$3F
+                beq     L053E
+                cmp     ($3B),y
+                bne     L0545
+        L053E:  iny
+                cpy     #$12
+                bne     L052F
+                beq     L0569
+        L0545:  dex
+                bpl     L0520
+                ldx     $0301
+                lda     $0300
+                bne     L051B
+                lda     #$FF
+                sta     $0300
+                jsr     L058D
+                lda     #$3A
+                sta     $1C07
+                cli
+                jmp     LD945
+        L0561:  .byte   $E2
+                .byte   $C2
+                ldx     #$82
+                .byte   $62
+                .byte   $42
+                .byte   $22
+                .byte   $02
+        L0569:  ldy     #$02
+                lda     ($3B),y
+                tax
+                dey
+                lda     ($3B),y
+        L0571:  jsr     L05E7
+                jsr     L058D
+                ldx     $0301
+                lda     $0300
+                bne     L0571
+                lda     #$F7
+                and     $1C00
+                sta     $1C00
+                lda     #$3A
+                sta     $1C07
+                rts
+        L058D:  ldy     #$00
+        L058F:  lda     $0300,y
+                lsr     a
+                lsr     a
+                lsr     a
+                lsr     a
+                tax
+                lda     L05D7,x
+                tax
+                lda     #$01
+        L059D:  bit     $1800
+                beq     L059D
+                lda     #$08
+                sta     $1800
+                lda     #$01
+        L05A9:  bit     $1800
+                bne     L05A9
+                stx     $1800
+                txa
+                asl     a
+                and     #$0F
+                sta     $1800
+                lda     $0300,y
+                and     #$0F
+                tax
+                lda     L05D7,x
+                sta     $1800
+                asl     a
+                and     #$0F
+                nop
+                sta     $1800
+                nop
+                nop
+                nop
+                lda     #$00
+                sta     $1800
+                iny
+                bne     L058F
+                rts
+        L05D7:  brk
+                .byte   $04
+                ora     ($05,x)
+                php
+                .byte   $0C
+                ora     #$0D
+                .byte   $02
+                asl     $03
+                .byte   $07
+                asl     a
+                asl     $0F0B
+        L05E7:  stx     $07
+                sta     $0300
+                cmp     $06
+                php
+                sta     $06
+                plp
+                beq     L0604
+                lda     #$B0
+                sta     $00
+                cli
+        L05F9:  bit     $00
+                bmi     L05F9
+                sei
+                lda     $00
+                cmp     #$01
+                bne     L0652
+        L0604:  lda     #$EE
+                sta     $1C0C
+                lda     #$06
+                sta     $32
+                lda     #$00
+                sta     $33
+                sta     $30
+                lda     #$03
+                sta     $31
+                jsr     L0669
+        L061A:  bvc     L061A
+                clv
+                lda     $1C01
+                sta     $0300,y
+                iny
+                bne     L061A
+                ldy     #$BA
+        L0628:  bvc     L0628
+                clv
+                lda     $1C01
+                sta     $0100,y
+                iny
+                bne     L0628
+                jsr     LF8E0
+                lda     $38
+                cmp     $47
+                beq     L0641
+                lda     #$22
+                bne     L0655
+        L0641:  jsr     LF5E9
+                cmp     $3A
+                beq     L064C
+                lda     #$23
+                bne     L0655
+        L064C:  lda     #$EC
+                sta     $1C0C
+                rts
+        L0652:  clc
+                adc     #$18
+        L0655:  sta     $44
+                lda     #$FF
+                sta     $0300
+                jsr     L058D
+                lda     #$3A
+                sta     $1C07
+                lda     $44
+                jmp     LC1C8
+        L0669:  lda     $12
+                sta     $16
+                lda     $13
+                sta     $17
+                lda     $06
+                sta     $18
+                lda     $07
+                sta     $19
+                lda     #$00
+                eor     $16
+                eor     $17
+                eor     $18
+                eor     $19
+                sta     $1A
+                jsr     LF934
+                ldx     #$5A
+        L068A:  jsr     L06A4
+        L068D:  bvc     L068D
+                clv
+                lda     $1C01
+                cmp     $24,y
+                beq     L069F
+                dex
+                bne     L068A
+                lda     #$20
+                bne     L0655
+        L069F:  iny
+                cpy     #$08
+                bne     L068D
+        L06A4:  lda     #$D0
+                sta     $1805
+                lda     #$21
+        L06AB:  bit     $1805
+                bpl     L0655
+                bit     $1C00
+                bmi     L06AB
+                lda     $1C01
+                clv
+        L06B9:  ldy     #$00
+                rts
+
+
+        ; Now have the compiler calculate the 1541 code size so we can reset the compiler to start
+        ; generating code targeted at where we will end up in memory after having inserted the
+        ; 1541 code:
+
+        __1541_drive_data_0500_size:= * - __start_1541_drive_data_0500
+
+        .org    _1541_drive_data_0500 + __1541_drive_data_0500_size
 
 
 
+;-----------------------------------------------------------
+; Back to C64 code
+;-----------------------------------------------------------
 
 filename_buffer:
         .byte   $A0,$A0,$A0,$A0,$A0,$A0,$A0,$A0
@@ -1307,7 +1406,7 @@ LC598:  .byte   $43
         lsr     $5754
         .byte   $43
         eor     ($53,x)
-        bvc     LC600
+        bvc     fast_serial_buffer
         eor     $5453
         eor     #$4E
         eor     $4C49
