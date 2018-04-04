@@ -54,7 +54,7 @@ L0520:  lda     L0561,x
         cmp     #$82
         bne     L0545
         ldy     #$03
-L052F:  lda     L06B9,y
+L052F:  lda     filename,y
         cmp     #$2A
         beq     L0569
         cmp     #$3F
@@ -187,7 +187,7 @@ L05E7:  stx     $07                     ; Store track/sector in buffer 0 track/s
         cmp     #$01
         bne     @handle_error
 
-@L0604:  lda     #$EE                    ; Attach byte ready line to CPU overflow flag
+@L0604:  lda     #$EE                   ; Attach byte ready line to CPU overflow flag
         sta     $1C0C
 
         lda     #$06                    ; Set buffer 0 to track 6, sector 0
@@ -199,7 +199,7 @@ L05E7:  stx     $07                     ; Store track/sector in buffer 0 track/s
         lda     #$03
         sta     $31
 
-        jsr     L0669
+        jsr     read_block_header
 
 @loop_read_bytes:
         bvc     @loop_read_bytes        ; Wait for overflow flag to indicate data is ready
@@ -226,12 +226,12 @@ L05E7:  stx     $07                     ; Store track/sector in buffer 0 track/s
         cmp     $47
         beq     @L0641
         lda     #$22
-        bne     @L0655
+        bne     give_error
 @L0641:  jsr     KERNEL_CALC_DATA_PARITY
         cmp     $3A
         beq     @L064C
         lda     #$23
-        bne     @L0655
+        bne     give_error
 @L064C:  lda     #$EC
         sta     $1C0C
         rts
@@ -239,7 +239,8 @@ L05E7:  stx     $07                     ; Store track/sector in buffer 0 track/s
 @handle_error:
         clc
         adc     #$18
-@L0655:  sta     $44
+give_error:
+        sta     $44
         lda     #$FF
         sta     $0300
         jsr     L058D
@@ -254,16 +255,57 @@ L05E7:  stx     $07                     ; Store track/sector in buffer 0 track/s
 ;-----------------------------------------------------------
 ;-----------------------------------------------------------
 
-.data
+read_block_header:
+        lda     $12                     ; Read ID 1
+        sta     $16
+        lda     $13                     ; Read ID 2
+        sta     $17
+        lda     $06                     ; Get track
+        sta     $18
+        lda     $07                     ; Get sector
+        sta     $19
+        lda     #$00                    ; Calculate parity for block header
+        eor     $16
+        eor     $17
+        eor     $18
+        eor     $19
+        sta     $1A
+        jsr     LF934                   ; and save
+        ldx     #$5A                    ; 90 attempts
 
-L0669:  .byte   $A5,$12,$85,$16,$A5,$13,$85,$17
-        .byte   $A5,$06,$85,$18,$A5,$07,$85,$19
-        .byte   $A9,$00,$45,$16,$45,$17,$45,$18
-        .byte   $45,$19,$85,$1A,$20,$34,$F9,$A2
-        .byte   $5A,$20,$A4,$06,$50,$FE,$B8,$AD
-        .byte   $01,$1C,$D9,$24,$00,$F0,$07,$CA
-        .byte   $D0,$EF,$A9,$20,$D0,$B6,$C8,$C0
-        .byte   $08,$D0,$E9,$A9,$D0,$8D,$05,$18
-        .byte   $A9,$21,$2C,$05,$18,$10,$A5,$2C
-        .byte   $00,$1C,$30,$F6,$AD,$01,$1C,$B8
-L06B9:  .byte   $A0,$00,$60
+@read_header_byte:
+        jsr     wait_for_sync
+
+@wait_for_byte_ready:
+        bvc     @wait_for_byte_ready
+        clv
+        lda     $1C01                   ; Read data from block header
+        cmp     $24,y                   ; Compare with saved data
+        beq     @header_byte_read
+        dex
+        bne     @read_header_byte       ; Try again if we have attempts left over
+        lda     #$20                    ; Send read error
+        bne     give_error
+
+@header_byte_read:
+        iny
+        cpy     #$08                    ; Have we read 8 bytes yet?
+        bne     @wait_for_byte_ready
+
+wait_for_sync:
+        lda     #$D0                    ; Start timer
+        sta     $1805
+        lda     #$21
+@loop:  bit     $1805
+        bpl     give_error              ; timer run down, then error
+        bit     $1C00                   ; SYNC signal
+        bmi     @loop                   ; sync signal not found yet?
+        lda     $1C01                   ; Read byte
+        clv
+filename:
+        ldy     #$00
+        rts
+
+; The memory area immediately after this point will be used to hold the file name
+; It will be referenced by using lda (filename),y, with y starting at the value 3
+; which will result in the first byte after the RTS above.
