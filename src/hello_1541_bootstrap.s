@@ -45,6 +45,11 @@ VIA1_PORTB:= $1800
 ;       3       3       1
 ;       4       2       0
 ;
+; Note this is different than how the C64 receives data as
+; the data is encoded on each end in a manner that can be
+; decoded on the other end the fastest based on available
+; hardware.
+;
 ; To ensure proper timing, interupts must be disabled prior
 ; to calling this routine. 
 ;-----------------------------------------------------------

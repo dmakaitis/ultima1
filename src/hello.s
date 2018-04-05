@@ -16,10 +16,9 @@ PROCESSOR_PORT  := $01
 
 LOAD_ADDRESS    := $AE
 
-L0152           := $0152
-
 SHIFT_HANDLER_VECTOR:= $028F
 BASIC_IDLE_LOOP_VECTOR:= $0302
+CHROUT_VECTOR   := $0326
 LOAD_VECTOR     := $0330
 
 L0C00           := $0C00
@@ -35,8 +34,6 @@ LC609           := $C609
 LC632           := $C632
 
 custom_nmi_handler:= $CE00
-
-LD042           := $D042
 
 COLOR_RAM       := $D800
 
@@ -89,14 +86,22 @@ main:   sei
         lda     CIA1_ICR
         lda     CIA2_ICR
 
-        lda     #$18                    ; TODO: What does this do? Something to do with CHROUT?
+        ;-----------------------------------------------------------
+        ; Set up custom CHROUT routine
+        ;-----------------------------------------------------------
+
+        lda     #$18                    ; Set CHROUT routine to the following:
         sta     $1FFE
-        lda     #$60
-        sta     $1FFF
+        lda     #$60                    ; $1FFE     CLC
+        sta     $1FFF                   ;           RTS
         lda     #$FE
-        sta     $0326
+        sta     CHROUT_VECTOR
         lda     #$1F
-        sta     $0327
+        sta     CHROUT_VECTOR + 1
+
+        ;-----------------------------------------------------------
+        ; Set up NMI handler
+        ;-----------------------------------------------------------
 
         lda     NMIVec + 1              ; See if the NMI vector is already set to $CE00
         cmp     #>custom_nmi_handler
@@ -108,6 +113,10 @@ main:   sei
 
         lda     #$40                    ; NMI handler consists of one instruction: RTI
         sta     custom_nmi_handler
+
+        ;-----------------------------------------------------------
+        ; Initialize the display
+        ;-----------------------------------------------------------
 
 @init_text_display:
         lda     #$00                    ; Set the border and background color to black
@@ -125,22 +134,29 @@ main:   sei
         inx
         bne     @loop_init_color
 
-        lda     #$1E                    ; Display the title page
+        lda     #<title_page            ; Display the title page
         sta     text_src_vec
-        lda     #$81
+        lda     #>title_page
         sta     text_src_vec + 1
-        lda     #$18
+
+        @output_addr = $0400 + 7 * 40   ; start output on line 8 of the display
+
+        lda     #<@output_addr                   
         sta     $FE
-        lda     #$05
+        lda     #>@output_addr
         sta     $FF
         jsr     display_text_page
 
         lda     #$17                    ; Set screen memory at $4000 and character/bitmap memory at $2000
         sta     VIC_VIDEO_ADR
-        lda     #$08                    ; Enable multi-color mode 
+        lda     #$08                    ; Set width to 40 columns 
         sta     VIC_CTRL2
-        lda     #$17                    ; Turn screen on - 25 rows
+        lda     #$17                    ; Turn screen on - set height to 25 rows
         sta     VIC_CTRL1
+
+        ;-----------------------------------------------------------
+        ; Load program code to $C000-$C600
+        ;-----------------------------------------------------------
 
         lda     #<high_code_target       ; Copy our "high memory" code from $8400 to $C000
         tay
@@ -161,8 +177,15 @@ main:   sei
         dex
         bpl     @loop_copy_code
 
+        ;-----------------------------------------------------------
+        ;-----------------------------------------------------------
+
         ldx     #$10
         jsr     hi_routine_1
+
+        ;-----------------------------------------------------------
+        ; Initialize vectors
+        ;-----------------------------------------------------------
 
         lda     #<DEFAULT_BASIC_IDLE_LOOP   ; Reset BASIC idle vector to default value ($A483)
         sta     BASIC_IDLE_LOOP_VECTOR
@@ -178,6 +201,10 @@ main:   sei
         sta     LOAD_VECTOR
         lda     #>DEFAULT_LOAD_HANDLER
         sta     LOAD_VECTOR + 1
+
+        ;-----------------------------------------------------------
+        ; Select floppy drive driver and initialize
+        ;-----------------------------------------------------------
 
         jsr     KERNEL_SCNKEY           ; Check to see if user is holding space bar
         jsr     KERNEL_GETIN
@@ -228,10 +255,18 @@ main:   sei
         lda     #$0F
         jsr     KERNEL_CLOSE
 
+        ;-----------------------------------------------------------
+        ; Initialization complete - game code
+        ;-----------------------------------------------------------
+
         ldx     #$0E
         jsr     hi_routine_1
         ldx     #$00
         jsr     hi_routine_2
+
+        ;-----------------------------------------------------------
+        ; Initialization complete - game code
+        ;-----------------------------------------------------------
 
         jmp     L0C00
 
@@ -547,11 +582,6 @@ load_handler_1541:
         rol
         sta     $FD                     ; TODO: what is this for?
 
-        ;   ^
-        ;   |
-        ;   |
-        ; TODO: What is this doing?
-
         lda     #$02                    ; Write 64 bytes from $C22C to the 1541 drive at $0146
         sta     $FF
         lda     #<_1541_fastload_bootstrap
@@ -592,7 +622,7 @@ load_handler_1541:
         dec     $FF
         bne     @loop_send_1541_data
 
-        jsr     LC26C
+        jsr     read_page_from_serial_bus
         bit     fast_serial_buffer
         bmi     LC140
         ldy     $C3
@@ -613,14 +643,11 @@ LC108:  lda     fast_serial_buffer,x
         inx
         bne     LC108
         jsr     increase_load_addr
-        jsr     LC26C
-        .byte   $A2
-
-
-
+        jsr     read_page_from_serial_bus
 
 ;-----------------------------------------------------------
 
+        .byte   $A2
 LC118:  .byte   $02
         lda     fast_serial_buffer
         bmi     LC143
@@ -904,52 +931,95 @@ _1541_fastload_bootstrap:
         .incbin "hello_1541_bootstrap.prg"
 
 ;-----------------------------------------------------------
-; Back to C64 code?
+;                read_page_from_serial_bus
 ;
-; This is probably the C64 receive code for the fastload:
+; This will read 256 bytes of data from the serial bus
+; using the fast load protocol. The folowing values must be
+; set prior to calling to ensure proper synchronization with
+; the VIC chip to avoid bad scan lines:
+;
+;   lower bits of VIC control 1 => $FC
+;   ???? => $FD (some manipulatio of the value in $FC)
+;   lower bits of CIA2_PRA | 0x20 => $FE
+;
+; Each byte of data is sent as a sequence of four values of
+; the CLOCK and DATA lines on the serial bus. Since the
+; CLOCK line will not be used for synchronization, the
+; routine depends on the speed of the CPUs in both the C64
+; and the 1541, and the number of clock cycles that need
+; to elapse between each sample. The devices will
+; resynchronize after every byte to ensure they do not
+; drift out of sync.
+;
+; The eight bits in a byte are encoded as the following
+; values on the line for each of the four samples:
+;
+;     SAMPLE  CLOCK    DATA
+;       1       6       7
+;       2       4       5
+;       3       2       3
+;       4       0       1
+;
+; Note this is different than how the 1541 receives data as
+; the data is encoded on each end in a manner that can be
+; decoded on the other end the fastest based on available
+; hardware. Each device has a lookup table to aid in
+; encoding data for transmission.
 ;-----------------------------------------------------------
 
-LC26C:  ldy     #$00
-LC26E:  lda     $FE
+read_page_from_serial_bus:  ldy     #$00                    ; Read 256 bytes from the serial port into buffer
+
+@loop_read:  
+        lda     $FE                     ; Set all serial CLOCK and DATA lines low (VIC bank at $4000)
         sta     CIA2_PRA
-LC273:  bit     CIA2_PRA
-        bvs     LC273
-LC278:  sec
+
+@loop:  bit     CIA2_PRA                ; wait for signal
+        bvs     @loop
+
+@wait_for_scan_line:
+        sec                             ; Wait until the VIC will not hit a 'bad' scan line while reading
         lda     VIC_HLINE
         sbc     $FB
-        bcc     LC284
+        bcc     @scan_line_reached
         and     #$07
-        beq     LC278
-LC284:  lda     $FC
+        beq     @wait_for_scan_line
+
+@scan_line_reached:
+        lda     $FC                     ; Send signal that we are ready to receive
         sta     CIA2_PRA
+
+        nop                             ; Delay to give 1541 time to start sending
         nop
         nop
         nop
         nop
-        nop
-        lda     $FD
+
+        lda     $FD                     ; Read high four bits
         eor     CIA2_PRA
-        rol     a
-        rol     a
-        nop
-        eor     CIA2_PRA
-        rol     a
-        rol     a
-        nop
-        nop
-        nop
+        rol
+        rol
         nop
         eor     CIA2_PRA
-        rol     a
-        rol     a
+        rol
+        rol
+
+        nop
+        nop
+        nop
+        nop
+
+        eor     CIA2_PRA                ; Read lower four bits
+        rol
+        rol
         nop
         eor     CIA2_PRA
-        rol     a
-        rol     a
-        rol     a
-        sta     fast_serial_buffer,y
+        rol
+        rol
+        rol
+
+        sta     fast_serial_buffer,y    ; Store in buffer
         iny
-        bne     LC26E
+        bne     @loop_read              ; Have we read 256 bytes yet?
         rts
 
 
@@ -987,10 +1057,11 @@ hi_routine_1:
         jmp     do_hi_routine_1
 hi_routine_2:
         jmp     do_hi_routine_2
-        jmp     LC52C
+        jmp     do_hi_routine_3
         ldx     LC4F8
         inx
         inx
+
 do_hi_routine_2:
         txa
         asl     a
@@ -1038,7 +1109,7 @@ do_hi_routine_2:
 LC4F8:  brk
 do_hi_routine_1:
         cpx     #$05
-        bne     LC52C
+        bne     do_hi_routine_3
         lda     $01
         and     #$FD
         sta     $01
@@ -1065,7 +1136,7 @@ LC516:  lda     ($60),y
         sta     $01
         clc
         rts
-LC52C:  txa
+do_hi_routine_3:  txa
         asl     a
         tax
         lda     LC597,x
