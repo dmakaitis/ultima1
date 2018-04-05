@@ -1075,19 +1075,19 @@ do_hi_routine_2:
         asl
         tax
 
-        lda     filenames,x             ; Load the two character filename into memory at $C595
+        lda     write_filenames,x       ; Load the two character filename into memory at $C595
         sta     filename                ; $C593 already holds the characters 'S:', so the result
-        lda     filenames + 1,x         ; will be a DOS command to delete the file at $C593
+        lda     write_filenames + 1,x   ; will be a DOS command to delete the file at $C593
         sta     filename + 1
 
-        lda     LC5E3,x                 ; Get start address of data to save
+        lda     file_start_addresses,x  ; Get start address of data to save
         sta     file_start_address
-        lda     LC5E3 + 1,x
+        lda     file_start_addresses + 1,x
         sta     file_start_address + 1
 
-        lda     LC5EF,x                 ; Get end address of data to save (+1)
+        lda     file_end_addresses,x    ; Get end address of data to save (+1)
         sta     file_end_address
-        lda     LC5EF + 1,x
+        lda     file_end_addresses + 1,x
         sta     file_end_address + 1
 
         ;-----------------------------------------------------------
@@ -1177,13 +1177,13 @@ LC516:  lda     ($60),y
 do_hi_routine_3:  txa
         asl     a
         tax
-        lda     LC597,x
+        lda     read_filenames,x
         sta     filename
-        lda     LC598,x
+        lda     read_filenames + 1,x
         sta     filename + 1
-        lda     LC5C3,x
+        lda     read_start_addresses,x
         sta     file_start_address
-        lda     LC5C4,x
+        lda     read_start_addresses + 1,x
         sta     file_start_address + 1
         lda     #$02
         ldx     #$08
@@ -1228,13 +1228,32 @@ file_end_address:
         .byte   "S:"
 filename:  
         .byte   "GM"
-LC597:  .byte   "T"
-LC598:  .byte   "CMAPLFIGEOUDNTWCASPTMSTINMILOPR"
 
 
 
 
-filenames:
+read_filenames:  
+        .byte   "TC"
+        .byte   "MA"
+        .byte   "PL"
+        .byte   "FI"
+        .byte   "GE"
+        .byte   "OU"
+        .byte   "DN"
+        .byte   "TW"
+        .byte   "CA"
+        .byte   "SP"
+        .byte   "TM"
+        .byte   "ST"
+        .byte   "IN"
+        .byte   "MI"
+        .byte   "LO"
+        .byte   "PR"
+
+
+
+
+write_filenames:
         .byte   "DD"
         .byte   "RO"
         .byte   "P0"
@@ -1245,43 +1264,40 @@ filenames:
 
 
 
-LC5C3:  brk
-LC5C4:  rti
-        brk
-        .byte   $C7
-        brk
-        .byte   $64
-        .byte   $20
-LC5CA:  .byte   $64
-        .byte   $9E
-        sty     $E000
-        .byte   $9E
-        sty     $8C9E
-        .byte   $9E
-        sty     $8C9E
-        .byte   $9E
-        sty     $0C00
-        brk
-        pla
-        brk
-        .byte   $74
-        brk
-        php
-        cpy     #$12
+read_start_addresses:
+        .addr   $4000
+        .addr   $C700
+        .addr   $6400
+        .addr   $6420
+        .addr   $8C9E
+        .addr   $E000
+        .addr   $8C9E
+        .addr   $8C9E
+        .addr   $8C9E
+        .addr   $8C9E
+        .addr   $8C9E
+        .addr   $0C00
+        .addr   $6800
+        .addr   $7400
+        .addr   $0800
+        .addr   $12C0
 
 
 
 
-LC5E3:  .addr   $B000
+file_start_addresses:
+        .addr   $B000
         .addr   $B000
         .addr   $81E2
         .addr   $81E2
         .addr   $81E2
         .addr   $81E2
-LC5EF:  .addr   $B001
+file_end_addresses:
+        .addr   $B001
         .addr   $B040
         .addr   $83AC
         .addr   $83AC
         .addr   $83AC
         .addr   $83AC
+
         .byte   $00
