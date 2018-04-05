@@ -30,6 +30,7 @@ EXPECTED_DATA_BLK_SIG:= $47
 
 BUFFER0     := $0300
 
+VIA1_PORTB  := $1800
 VIA1_TIMER  := $1804
 
 VIA2_PORTB  := $1C00
@@ -97,7 +98,7 @@ L0545:  dex
         bne     L051B
         lda     #$FF
         sta     $0300
-        jsr     L058D
+        jsr     send_256_bytes
         lda     #$3A
         sta     $1C07
         cli
@@ -115,7 +116,7 @@ L0569:  ldy     #$02
         dey
         lda     ($3B),y
 L0571:  jsr     read_sector
-        jsr     L058D
+        jsr     send_256_bytes
         ldx     $0301
         lda     $0300
         bne     L0571
@@ -129,56 +130,82 @@ L0571:  jsr     read_sector
 
 
 
-L058D:  ldy     #$00
-L058F:  lda     $0300,y
-        lsr     a
-        lsr     a
-        lsr     a
-        lsr     a
+;-----------------------------------------------------------
+;                       send_256_bytes
+;
+; Sends 256 bytes of data starting at $0300 over the serial
+; line using the fast load protocol.
+;-----------------------------------------------------------
+
+send_256_bytes:
+        ldy     #$00
+
+@loop:  lda     BUFFER0,y               ; Load the upper four bits to write
+        lsr
+        lsr
+        lsr
+        lsr
+
+        tax                             ; Lookup the encoding for the bits
+        lda     serial_encoding_table,x
         tax
-        lda     L05D7,x
-        tax
-        lda     #$01
-L059D:  bit     $1800
-        beq     L059D
-        lda     #$08
-        sta     $1800
-        lda     #$01
-L05A9:  bit     $1800
-        bne     L05A9
-        stx     $1800
+
+        lda     #$01                    ; Wait for the serial lines to be available
+@wait_for_data_in_low:
+        bit     VIA1_PORTB
+        beq     @wait_for_data_in_low
+
+        lda     #$08                    ; Signal that we're ready to send data
+        sta     VIA1_PORTB
+
+        lda     #$01                    ; Wait for C64 to signal it's ready to receive
+@wait_for_data_in_high:
+        bit     VIA1_PORTB
+        bne     @wait_for_data_in_high
+
+        stx     VIA1_PORTB              ; Send encoded bits
         txa
         asl     a
         and     #$0F
-        sta     $1800
-        lda     $0300,y
+        sta     VIA1_PORTB
+
+        lda     BUFFER0,y               ; Load the lower four bits to write
         and     #$0F
-        tax
-        lda     L05D7,x
-        sta     $1800
-        asl     a
+
+        tax                             ; Lookup the encoding for the bits
+        lda     serial_encoding_table,x
+
+        sta     VIA1_PORTB              ; Send encoded bits
+        asl
         and     #$0F
         nop
-        sta     $1800
+        sta     VIA1_PORTB
         nop
         nop
         nop
-        lda     #$00
-        sta     $1800
+
+        lda     #$00                    ; signal byte is complete
+        sta     VIA1_PORTB
+
         iny
-        bne     L058F
+        bne     @loop
         rts
-L05D7:  brk
-        .byte   $04
-        ora     ($05,x)
-        php
-        .byte   $0C
-        ora     #$0D
-        .byte   $02
-        asl     $03
-        .byte   $07
-        asl     a
-        asl     $0F0B
+
+;-----------------------------------------------------------
+; The following is a lookup table on how to encode four bits
+; of data over the serial output lines. Each entry contains
+; the two subsequent values that should be sent over each
+; of the lines:
+;
+;   bit 0: second DATA OUT value
+;   bit 1: first DATA OUT value
+;   bit 2: second CLOCK OUT value
+;   bit 3: first CLOCK OUT value
+;-----------------------------------------------------------
+
+serial_encoding_table:
+        .byte   $00,$04,$01,$05,$08,$0C,$09,$0D
+        .byte   $02,$06,$03,$07,$0A,$0E,$0B,$0F
 
 
 
@@ -244,9 +271,9 @@ read_sector:
         iny
         bne     @loop_read_bytes
 
-        ldy     #$BA
+        ldy     #$BA                    ; Read bytes into GCR-decoding buffer at $01BA-$01FF
 @loop_read_bytes2:
-        bvc     @loop_read_bytes2       ; Read bytes into GCR-decoding buffer at $01BA-$01FF
+        bvc     @loop_read_bytes2
         clv
 
         lda     VIA2_PORTA
@@ -254,7 +281,7 @@ read_sector:
         iny
         bne     @loop_read_bytes2
 
-        jsr     LF8E0
+        jsr     LF8E0                   ; Probably calculates the block signature for validation...
         lda     DATA_BLK_SIG
         cmp     EXPECTED_DATA_BLK_SIG
         beq     @data_block_signature_ok
@@ -282,7 +309,7 @@ give_error:
         sta     TEMP_REG
         lda     #$FF
         sta     BUFFER0
-        jsr     L058D
+        jsr     send_256_bytes
         lda     #$3A
         sta     VIA2_TIMER_LATCH + 1
         lda     TEMP_REG
@@ -325,13 +352,13 @@ read_block_header:
         clv
         lda     VIA2_PORTA              ; Read data from block header
         cmp     $24,y                   ; Compare with saved data
-        beq     @header_byte_read
+        beq     @header_byte_read_ok
         dex
         bne     @read_header_byte       ; Try again if we have attempts left over
         lda     #$20                    ; Send read error
         bne     give_error
 
-@header_byte_read:
+@header_byte_read_ok:
         iny
         cpy     #$08                    ; Have we read 8 bytes yet?
         bne     @wait_for_byte_ready
