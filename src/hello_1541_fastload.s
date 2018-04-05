@@ -12,14 +12,39 @@
 read_256_bytes:= $0146 + $000C
 read_target_vector:= $0146 + $000C + $002E
 
-KERNEL_TURN_ON_LED:= $C118
-KERNEL_GIVE_ERROR := $C1C8
-KERNEL_READ_BAM := $D042
-LD945           := $D945                ; middle of KERNEL code to overwrite a file
-KERNEL_CALC_DATA_PARITY:= $F5E9
+BUFFER0_COMMAND:= $00
+
+BUFFER0_TRACK:= $06
+BUFFER0_SECTOR:= $07
+EXPECTED_HEADER_ID:= $12
+LAST_HEADER_ID:= $16
+LAST_TRACK  := $18
+LAST_SECTOR := $19
+LAST_HEADER_CHECKSUM:= $1A
+BUFFER_ADDR := $30
+BUFFER_TRACK_SECTOR_ADDR:= $32
+DATA_BLK_SIG:= $38
+COMPUTED_CHECKSUM:= $3A
+TEMP_REG    := $44
+EXPECTED_DATA_BLK_SIG:= $47
+
+BUFFER0     := $0300
+
+VIA1_TIMER  := $1804
+
+VIA2_PORTB  := $1C00
+VIA2_PORTA  := $1C01
+VIA2_TIMER_LATCH:= $1C06
+VIA2_AUX    := $1C0C
+
+DOS_TURN_ON_LED:= $C118
+DOS_GIVE_ERROR := $C1C8
+DOS_READ_BAM := $D042
+DOS_FILE_NOT_FOUND:= $D945
+DOS_CALC_DATA_PARITY:= $F5E9
 
 LF8E0           := $F8E0
-LF934           := $F934
+DOS_ENCODE_BLOCK_HEADER:= $F934
 
 
 
@@ -32,19 +57,19 @@ __start_1541_fastload_code:
 
         cli                             ; Enable interrupts
 
-        jsr     KERNEL_TURN_ON_LED
-        jsr     KERNEL_READ_BAM
+        jsr     DOS_TURN_ON_LED
+        jsr     DOS_READ_BAM
 
         sei                             ; Disable interrupts
 
         lda     #$15                    ; Set timer latch?
-        sta     $1C07
+        sta     VIA2_TIMER_LATCH + 1
 
         lda     #$03
         sta     $3C
         lda     #$12
         ldx     #$01
-L051B:  jsr     L05E7
+L051B:  jsr     read_sector
 
         ldx     #$07
 L0520:  lda     L0561,x
@@ -76,7 +101,7 @@ L0545:  dex
         lda     #$3A
         sta     $1C07
         cli
-        jmp     LD945
+        jmp     DOS_FILE_NOT_FOUND
 L0561:  .byte   $E2
         .byte   $C2
         ldx     #$82
@@ -89,7 +114,7 @@ L0569:  ldy     #$02
         tax
         dey
         lda     ($3B),y
-L0571:  jsr     L05E7
+L0571:  jsr     read_sector
         jsr     L058D
         ldx     $0301
         lda     $0300
@@ -159,45 +184,54 @@ L05D7:  brk
 
 
 ;-----------------------------------------------------------
+;                      read_sector
 ;
-; a => track?
-; x => sector?
+; Reads a sector of data from the disk. The accumulator
+; should hold the track to read, and the x register should
+; hold the sector. The read sector will be stored in
+; buffer 0 located at $0300.
 ;-----------------------------------------------------------
 
-L05E7:  stx     $07                     ; Store track/sector in buffer 0 track/status register
-        sta     $0300
-        cmp     $06
+read_sector:
+        stx     BUFFER0_SECTOR          ; Store track/sector in buffer 0 track/status register
+        sta     BUFFER0
+        cmp     BUFFER0_TRACK
         php
-        sta     $06
+        sta     BUFFER0_TRACK
         plp
-        beq     @L0604                   ; Branch if the track has not changed since last time
+        beq     @skip_read_sector_header    ; Branch if the track has not changed since last time
 
         lda     #$B0                    ; Set buffer 0 command/status to read in sector header
-        sta     $00
+        sta     BUFFER0_COMMAND
 
         cli                             ; Enable interrupts to allow command to execute
 
 @loop_wait_read_sector_header:
-        bit     $00
+        bit     BUFFER0_COMMAND
         bmi     @loop_wait_read_sector_header
 
         sei                             ; Disable interrupts
 
-        lda     $00                     ; Make sure we read the data okay
+        lda     BUFFER0_COMMAND         ; Make sure we read the data okay
         cmp     #$01
         bne     @handle_error
 
-@L0604:  lda     #$EE                   ; Attach byte ready line to CPU overflow flag
-        sta     $1C0C
+@skip_read_sector_header:
+        lda     #$EE                    ; Attach byte ready line to CPU overflow flag
+        sta     VIA2_AUX
 
-        lda     #$06                    ; Set buffer 0 to track 6, sector 0
-        sta     $32
-        lda     #$00
-        sta     $33
+        lda     #<BUFFER0_TRACK         ; Point buffer track/sector register to buffer 0
+        sta     BUFFER_TRACK_SECTOR_ADDR
+        lda     #>BUFFER0_TRACK
+        sta     BUFFER_TRACK_SECTOR_ADDR + 1
 
-        sta     $30                     ; Set read buffer to $0300 (empty memory)
-        lda     #$03
-        sta     $31
+                                        ; the high byte of BUFFER_TRACK_SECTOR_ADDR is the
+                                        ; same as the low byte of BUFFER_ADDR, so we can 
+                                        ; skip the extra LDA...
+
+        sta     BUFFER_ADDR             ; Set read buffer to buffer 0 ($0300)
+        lda     #>BUFFER0
+        sta     BUFFER_ADDR + 1
 
         jsr     read_block_header
 
@@ -205,81 +239,91 @@ L05E7:  stx     $07                     ; Store track/sector in buffer 0 track/s
         bvc     @loop_read_bytes        ; Wait for overflow flag to indicate data is ready
         clv
 
-        lda     $1C01                   ; Read byte into buffer
-        sta     $0300,y
+        lda     VIA2_PORTA              ; Read byte into buffer
+        sta     BUFFER0,y
         iny
         bne     @loop_read_bytes
 
         ldy     #$BA
-
 @loop_read_bytes2:
         bvc     @loop_read_bytes2       ; Read bytes into GCR-decoding buffer at $01BA-$01FF
         clv
 
-        lda     $1C01
+        lda     VIA2_PORTA
         sta     $0100,y
         iny
         bne     @loop_read_bytes2
 
         jsr     LF8E0
-        lda     $38
-        cmp     $47
-        beq     @L0641
-        lda     #$22
+        lda     DATA_BLK_SIG
+        cmp     EXPECTED_DATA_BLK_SIG
+        beq     @data_block_signature_ok
+
+        lda     #$22                    ; Send an error response
         bne     give_error
-@L0641:  jsr     KERNEL_CALC_DATA_PARITY
-        cmp     $3A
-        beq     @L064C
-        lda     #$23
+
+@data_block_signature_ok:
+        jsr     DOS_CALC_DATA_PARITY
+        cmp     COMPUTED_CHECKSUM
+        beq     @checksum_ok
+
+        lda     #$23                    ; Send an error response
         bne     give_error
-@L064C:  lda     #$EC
-        sta     $1C0C
+
+@checksum_ok:
+        lda     #$EC                    ; Detach byte ready line from overflow processor flag
+        sta     VIA2_AUX
         rts
 
 @handle_error:
         clc
         adc     #$18
 give_error:
-        sta     $44
+        sta     TEMP_REG
         lda     #$FF
-        sta     $0300
+        sta     BUFFER0
         jsr     L058D
         lda     #$3A
-        sta     $1C07
-        lda     $44
-        jmp     KERNEL_GIVE_ERROR
+        sta     VIA2_TIMER_LATCH + 1
+        lda     TEMP_REG
+        jmp     DOS_GIVE_ERROR
 
 
 
 
 ;-----------------------------------------------------------
+;                   read_block_header
+;
+; Reads a block header from the disk. This is a slightly
+; modified version of the code in the 1541 ROM located at
+; $F510.
 ;-----------------------------------------------------------
 
 read_block_header:
-        lda     $12                     ; Read ID 1
-        sta     $16
-        lda     $13                     ; Read ID 2
-        sta     $17
-        lda     $06                     ; Get track
-        sta     $18
-        lda     $07                     ; Get sector
-        sta     $19
+        lda     EXPECTED_HEADER_ID      ; Read ID 1
+        sta     LAST_HEADER_ID
+        lda     EXPECTED_HEADER_ID + 1  ; Read ID 2
+        sta     LAST_HEADER_ID + 1
+        lda     BUFFER0_TRACK           ; Get track
+        sta     LAST_TRACK
+        lda     BUFFER0_SECTOR          ; Get sector
+        sta     LAST_SECTOR
         lda     #$00                    ; Calculate parity for block header
-        eor     $16
-        eor     $17
-        eor     $18
-        eor     $19
-        sta     $1A
-        jsr     LF934                   ; and save
-        ldx     #$5A                    ; 90 attempts
+        eor     LAST_HEADER_ID
+        eor     LAST_HEADER_ID + 1
+        eor     LAST_TRACK
+        eor     LAST_SECTOR
+        sta     LAST_HEADER_CHECKSUM
+        jsr     DOS_ENCODE_BLOCK_HEADER ; and save
 
+        ldx     #$5A                    ; 90 attempts
 @read_header_byte:
         jsr     wait_for_sync
 
 @wait_for_byte_ready:
         bvc     @wait_for_byte_ready
         clv
-        lda     $1C01                   ; Read data from block header
+        lda     VIA2_PORTA              ; Read data from block header
         cmp     $24,y                   ; Compare with saved data
         beq     @header_byte_read
         dex
@@ -294,15 +338,17 @@ read_block_header:
 
 wait_for_sync:
         lda     #$D0                    ; Start timer
-        sta     $1805
+        sta     VIA1_TIMER + 1
         lda     #$21
-@loop:  bit     $1805
-        bpl     give_error              ; timer run down, then error
-        bit     $1C00                   ; SYNC signal
+@loop:  bit     VIA1_TIMER + 1
+        bpl     give_error              ; if timer run down, then error
+
+        bit     VIA2_PORTB              ; SYNC signal
         bmi     @loop                   ; sync signal not found yet?
-        lda     $1C01                   ; Read byte
+
+        lda     VIA2_PORTA              ; Read byte
         clv
-filename:
+filename:                               ; The filename data is really three bytes later (see note below)
         ldy     #$00
         rts
 

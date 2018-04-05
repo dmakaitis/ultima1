@@ -764,9 +764,9 @@ _1541_memory_execute_command:
 ;
 ; Sets up a sequence of bytes that can be written to the
 ; CIA2 port A to control the serial bus while only modifying
-; the high. The current value of4 lower bits of the port
-; must be stored in $FC so the can be properly masked with
-; the control stream.
+; the high. The current value of the 4 lower bits of the 
+; port must be stored in $FC so the can be properly masked
+; with the control stream.
 ;-----------------------------------------------------------
 
 build_serial_control_stream:
@@ -806,8 +806,7 @@ build_serial_control_stream:
 
 _serial_control_stream:
         .byte   $07,$07,$27,$27,$07,$07,$27,$27
-        .byte   $17,$17,$37,$37,$17,$17
-LC1C8:  .byte   $37,$37
+        .byte   $17,$17,$37,$37,$17,$17,$37,$37
 
 _serial_control_stream2:
         .byte   $07,$27,$07,$27,$17,$37,$17,$37
@@ -953,6 +952,8 @@ LC284:  lda     $FC
         bne     LC26E
         rts
 
+
+
 ;-----------------------------------------------------------
 ;                    _1541_fastload_code
 ;
@@ -965,8 +966,13 @@ _1541_fastload_code:
 
         .incbin "hello_1541_fastload.prg"
 
+
+
 ;-----------------------------------------------------------
-; Back to C64 code
+; The following filename buffer is shared between the C64
+; and the 1541. It gets copied to the 1541 along with the
+; fastload code above when we load a file using the
+; 1541 fastload driver.
 ;-----------------------------------------------------------
 
 filename_buffer:
