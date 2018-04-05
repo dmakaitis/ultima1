@@ -1062,34 +1062,56 @@ hi_routine_2:
         inx
         inx
 
+
+
+
+;-----------------------------------------------------------
+;
+; x => Index of file to save/replace?
+;-----------------------------------------------------------
+
 do_hi_routine_2:
-        txa
-        asl     a
+        txa                             ; x = x * 2
+        asl
         tax
-        lda     LC5B7,x
-        sta     LC595
-        lda     LC5B8,x
-        sta     LC596
-        lda     LC5E3,x
-        sta     LC58F
-        lda     LC5E4,x
-        sta     LC590
-        lda     LC5EF,x
-        sta     LC591
-        lda     LC5F0,x
-        sta     LC592
-        lda     #$04
+
+        lda     filenames,x             ; Load the two character filename into memory at $C595
+        sta     filename                ; $C593 already holds the characters 'S:', so the result
+        lda     filenames + 1,x         ; will be a DOS command to delete the file at $C593
+        sta     filename + 1
+
+        lda     LC5E3,x                 ; Get start address of data to save
+        sta     file_start_address
+        lda     LC5E3 + 1,x
+        sta     file_start_address + 1
+
+        lda     LC5EF,x                 ; Get end address of data to save (+1)
+        sta     file_end_address
+        lda     LC5EF + 1,x
+        sta     file_end_address + 1
+
+        ;-----------------------------------------------------------
+        ; Delete the requested file
+        ;-----------------------------------------------------------
+
+        lda     #$04                    ; Set filename to four characters at $C593
         ldx     #$93
         ldy     #$C5
         jsr     KERNEL_SETNAM
-        lda     #$0F
+
+        lda     #$0F                    ; open 15,8,5,"S:xx"
         tay
         ldx     #$08
         jsr     KERNEL_SETLFS
         jsr     KERNEL_OPEN
         lda     #$0F
         jsr     KERNEL_CLOSE
-        lda     #$02
+
+        ;-----------------------------------------------------------
+        ; Save the requested file
+        ;-----------------------------------------------------------
+
+        lda     #$02                    ; Save file
         ldx     #$08
         ldy     #$FF
         jsr     KERNEL_SETLFS
@@ -1097,16 +1119,25 @@ do_hi_routine_2:
         ldx     #$95
         ldy     #$C5
         jsr     KERNEL_SETNAM
-        lda     LC58F
+        lda     file_start_address
         sta     $60
-        lda     LC590
+        lda     file_start_address + 1
         sta     $61
         lda     #$60
-        ldx     LC591
-        ldy     LC592
+        ldx     file_end_address
+        ldy     file_end_address + 1
         jsr     KERNEL_SAVE
         jmp     LC564
 LC4F8:  brk
+
+
+
+
+;-----------------------------------------------------------
+;
+; x => ???
+;-----------------------------------------------------------
+
 do_hi_routine_1:
         cpx     #$05
         bne     do_hi_routine_3
@@ -1136,17 +1167,24 @@ LC516:  lda     ($60),y
         sta     $01
         clc
         rts
+
+
+
+
+;-----------------------------------------------------------
+;-----------------------------------------------------------
+
 do_hi_routine_3:  txa
         asl     a
         tax
         lda     LC597,x
-        sta     LC595
+        sta     filename
         lda     LC598,x
-        sta     LC596
+        sta     filename + 1
         lda     LC5C3,x
-        sta     LC58F
+        sta     file_start_address
         lda     LC5C4,x
-        sta     LC590
+        sta     file_start_address + 1
         lda     #$02
         ldx     #$08
         ldy     #$00
@@ -1156,8 +1194,8 @@ do_hi_routine_3:  txa
         ldy     #$C5
         jsr     KERNEL_SETNAM
         lda     #$00
-        ldx     LC58F
-        ldy     LC590
+        ldx     file_start_address
+        ldy     file_start_address + 1
         jsr     KERNEL_LOAD
 LC564:  lda     #$00
         jsr     KERNEL_SETNAM
@@ -1181,38 +1219,32 @@ LC564:  lda     #$00
 LC58C:  clc
         rts
         rts
-LC58F:  brk
-LC590:  brk
-LC591:  brk
-LC592:  brk
-        .byte   $53
-        .byte   $3A
-LC595:  .byte   $47
-LC596:  .byte   $4D
-LC597:  .byte   $54
-LC598:  .byte   $43
-        eor     $5041
-        jmp     L4946
-        .byte   $47
-        eor     $4F
-        eor     $44,x
-        lsr     $5754
-        .byte   $43
-        eor     ($53,x)
-        bvc     fast_serial_buffer
-        eor     $5453
-        eor     #$4E
-        eor     $4C49
-        .byte   $4F
-        bvc     LC609
-LC5B7:  .byte   $44
-LC5B8:  .byte   $44
-        .byte   $52
-        .byte   $4F
-        bvc     LC5ED
-        bvc     LC5F0
-        bvc     LC5F3
-        bvc     LC5F6
+
+file_start_address:
+        .addr   $0000
+file_end_address:
+        .addr   $0000
+
+        .byte   "S:"
+filename:  
+        .byte   "GM"
+LC597:  .byte   "T"
+LC598:  .byte   "CMAPLFIGEOUDNTWCASPTMSTINMILOPR"
+
+
+
+
+filenames:
+        .byte   "DD"
+        .byte   "RO"
+        .byte   "P0"
+        .byte   "P1"
+        .byte   "P2"
+        .byte   "P3"
+
+
+
+
 LC5C3:  brk
 LC5C4:  rti
         brk
@@ -1236,19 +1268,20 @@ LC5CA:  .byte   $64
         brk
         php
         cpy     #$12
-LC5E3:  brk
-LC5E4:  bcs     LC5E6
-LC5E6:  bcs     LC5CA
-        sta     ($E2,x)
-        sta     ($E2,x)
-        .byte   $81
-LC5ED:  .byte   $E2
-        .byte   $81
-LC5EF:  .byte   $01
-LC5F0:  bcs     LC632
-        .byte   $B0
-LC5F3:  ldy     $AC83
-LC5F6:  .byte   $83
-        ldy     $AC83
-        .byte   $83
-        brk
+
+
+
+
+LC5E3:  .addr   $B000
+        .addr   $B000
+        .addr   $81E2
+        .addr   $81E2
+        .addr   $81E2
+        .addr   $81E2
+LC5EF:  .addr   $B001
+        .addr   $B040
+        .addr   $83AC
+        .addr   $83AC
+        .addr   $83AC
+        .addr   $83AC
+        .byte   $00
