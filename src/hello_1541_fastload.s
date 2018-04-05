@@ -68,63 +68,80 @@ __start_1541_fastload_code:
 
         lda     #$03
         sta     $3C
-        lda     #$12
-        ldx     #$01
-L051B:  jsr     read_sector
 
-        ldx     #$07
-L0520:  lda     L0561,x
-        sta     $3B
-        ldy     #$00
+        lda     #$12                    ; Load first sector of disk directory
+        ldx     #$01
+
+@load_directory_sector:
+        jsr     read_sector
+
+        ldx     #$07                    ; Start with the first directory entry in sector just read
+
+@check_directory_entry:
+        lda     directory_entry_offsets,x
+        sta     $3B                     ; Word at $3B now holds the address in memory of the directory entry
+
+        ldy     #$00                    ; Is the entry a properly closed PRG file?
         lda     ($3B),y
         cmp     #$82
-        bne     L0545
+        bne     @advance_to_next_entry
+
         ldy     #$03
-L052F:  lda     filename,y
-        cmp     #$2A
-        beq     L0569
-        cmp     #$3F
-        beq     L053E
-        cmp     ($3B),y
-        bne     L0545
-L053E:  iny
+@check_filename_char:
+        lda     filename,y
+
+        cmp     #$2A                    ; Are we trying to load the file '*'?
+        beq     load_file               ; If so, accept the first file we find...
+
+        cmp     #$3F                    ; Is the current character in the filename a '?'?
+        beq     @matched_filename_char  ; If so, treat this as a match against the current character in directory entry
+        cmp     ($3B),y                 ; Compare the current character with the directory entry
+        bne     @advance_to_next_entry  ; If they do not match, go to the next entry
+
+@matched_filename_char:
+        iny
         cpy     #$12
-        bne     L052F
-        beq     L0569
-L0545:  dex
-        bpl     L0520
-        ldx     $0301
-        lda     $0300
-        bne     L051B
+        bne     @check_filename_char    ; Have we compared all 16 characters (18 - 2)?
+        beq     load_file               ; If so, then this is the file we want
+
+@advance_to_next_entry:
+        dex
+        bpl     @check_directory_entry
+        ldx     BUFFER0 + 1             ; Get next sector
+        lda     BUFFER0                 ; Get next track
+        bne     @load_directory_sector
+
         lda     #$FF
         sta     $0300
         jsr     send_256_bytes
         lda     #$3A
-        sta     $1C07
+        sta     VIA2_TIMER_LATCH + 1
         cli
         jmp     DOS_FILE_NOT_FOUND
-L0561:  .byte   $E2
-        .byte   $C2
-        ldx     #$82
-        .byte   $62
-        .byte   $42
-        .byte   $22
-        .byte   $02
-L0569:  ldy     #$02
+
+directory_entry_offsets:  .byte   $E2,$C2,$A2,$82,$62,$42,$22,$02
+
+load_file:
+        ldy     #$02                    ; Get the first sector
         lda     ($3B),y
         tax
-        dey
+        dey                             ; Get the first track
         lda     ($3B),y
-L0571:  jsr     read_sector
+
+@load_file_sector:
+        jsr     read_sector
         jsr     send_256_bytes
-        ldx     $0301
-        lda     $0300
-        bne     L0571
+        ldx     BUFFER0 + 1             ; Get next sector
+        lda     BUFFER0                 ; Get next track
+        bne     @load_file_sector       ; If next track is not 0, then read next sector of file
+
         lda     #$F7
-        and     $1C00
-        sta     $1C00
+        and     VIA2_PORTB
+        sta     VIA2_PORTB
+
         lda     #$3A
-        sta     $1C07
+        sta     VIA2_TIMER_LATCH + 1
+
         rts
 
 
