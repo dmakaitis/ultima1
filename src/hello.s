@@ -77,8 +77,8 @@ KERNEL_GETIN    := $FFE4
 ;-----------------------------------------------------------
 
 main:   sei
-        lda     #$36                    ; Enable all the RAM in the C-64
-        sta     PROCESSOR_PORT
+        lda     #$36                    ; Enable RAM at $A000-$BFFF, I/O at $D000-$DFFF,
+        sta     PROCESSOR_PORT          ; and KERNEL ROM at $E000-$FFFF (no BASIC ROM)
 
         lda     #$7f                    ; Enable all interrupts on the CIA chips
         sta     CIA1_ICR
@@ -147,7 +147,7 @@ main:   sei
         sta     $FF
         jsr     display_text_page
 
-        lda     #$17                    ; Set screen memory at $4000 and character/bitmap memory at $2000
+        lda     #$17                    ; Set screen memory at $0400 and character/bitmap memory at $2000
         sta     VIC_VIDEO_ADR
         lda     #$08                    ; Set width to 40 columns 
         sta     VIC_CTRL2
@@ -1065,6 +1065,7 @@ load_file_cached:
         jmp     load_file_cached_a
 save_file:
         jmp     save_file_a
+load_file:
         jmp     load_file_a
         ldx     LC4F8
         inx
