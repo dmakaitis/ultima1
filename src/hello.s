@@ -4,8 +4,8 @@
 ;
 ; This program initializes the system, displays the title page, and optionally
 ; prompts the user for which floppy driver to use (probably to implement some
-; kind of fast loader for the 1541).
-;
+; kind of fast loader for the 1541). It contains all coded needed to load and
+; save files to disk.
 ;-------------------------------------------------------------------------------
 
 .include "c64.inc"
