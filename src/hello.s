@@ -178,10 +178,12 @@ main:   sei
         bpl     @loop_copy_code
 
         ;-----------------------------------------------------------
+        ; Load the file that indicates which floppy driver has been
+        ; selected (one byte into $B000).
         ;-----------------------------------------------------------
 
         ldx     #$10
-        jsr     hi_routine_1
+        jsr     load_file_cached
 
         ;-----------------------------------------------------------
         ; Initialize vectors
@@ -256,16 +258,22 @@ main:   sei
         jsr     KERNEL_CLOSE
 
         ;-----------------------------------------------------------
-        ; Initialization complete - game code
+        ; Load the file 'LO' into memory at $0800.
         ;-----------------------------------------------------------
 
         ldx     #$0E
-        jsr     hi_routine_1
-        ldx     #$00
+        jsr     load_file_cached
+
+        ;-----------------------------------------------------------
+        ; Save the selected floppy driver indicator to disk (file
+        ; 'DD').
+        ;-----------------------------------------------------------
+
+        ldx     #$00            
         jsr     save_file
 
         ;-----------------------------------------------------------
-        ; Initialization complete - game code
+        ; Initialization complete - jump to game code
         ;-----------------------------------------------------------
 
         jmp     L0C00
@@ -1053,8 +1061,8 @@ filename_buffer:
 
 
 
-hi_routine_1:
-        jmp     do_hi_routine_1
+load_file_cached:
+        jmp     load_file_cached_a
 save_file:
         jmp     save_file_a
         jmp     load_file_a
@@ -1144,11 +1152,17 @@ LC4F8:  brk
 
 
 ;-----------------------------------------------------------
+;                     load_file_cached
+; 
+; Functions identically to load_file below, except if the
+; index of the file to read is $05 ("OU"), then the file
+; will be loaded from RAM instead of from disk.
 ;
-; x => ???
+; This is probably to allow the 'OU' file to be cached under
+; KERNEL ROM to allow it to be reloaded quickly on demand.
 ;-----------------------------------------------------------
 
-do_hi_routine_1:
+load_file_cached_a:
         cpx     #$05
         bne     load_file_a
 
@@ -1156,7 +1170,7 @@ do_hi_routine_1:
         and     #$FD
         sta     PROCESSOR_PORT
 
-        lda     #$00                    ; Copy 30 * 256 bytes from $E000 to $8C9E
+        lda     #$00                    ; Copy 30 * 256 bytes from $E000-F800 to $8C9E
         tay
         sta     $60
         lda     #$E0
@@ -1166,16 +1180,16 @@ do_hi_routine_1:
         lda     #$8C
         sta     $63
         ldx     #$18
-LC516:  lda     ($60),y
+@loop:  lda     ($60),y
         sta     ($62),y
         iny
-        bne     LC516
+        bne     @loop
         inc     $61
         inc     $63
         dex
-        bne     LC516
+        bne     @loop
 
-        lda     PROCESSOR_PORT
+        lda     PROCESSOR_PORT          ; Enable KERNEL ROM
         ora     #$02
         sta     PROCESSOR_PORT
 
@@ -1186,7 +1200,7 @@ LC516:  lda     ($60),y
 
 
 ;-----------------------------------------------------------
-;                         load_file_a
+;                       load_file_a
 ;
 ; Saves one of the game files. The file to save is selected
 ; by the value in the x register, which may be one of the
@@ -1214,6 +1228,10 @@ LC516:  lda     ($60),y
 ;   13 : P1 - Player save slot 2
 ;   14 : P2 - Player save slot 3
 ;   15 : P3 - Player save slot 4
+;
+; The processor carry flag will be set if the status after
+; reading the file is not $30, which indicates the write
+; was successful.
 ;-----------------------------------------------------------
 
 load_file_a:
@@ -1243,20 +1261,22 @@ load_file_a:
         ldy     file_start_address + 1
         jsr     KERNEL_LOAD
 
-LC564:  lda     #$00
+LC564:  lda     #$00                    ; Clear out file name
         jsr     KERNEL_SETNAM
-        lda     #$0F
+        lda     #$0F                    ; open 15,8,15
         tay
         ldx     #$08
         jsr     KERNEL_SETLFS
         jsr     KERNEL_OPEN
-        ldx     #$0F
+        ldx     #$0F                    ; Read status from channel 15
         jsr     KERNEL_CHKIN
         jsr     KERNEL_CHRIN
         pha
-        lda     #$0F
+
+        lda     #$0F                    ; Close the channel and restore default I/O channels
         jsr     KERNEL_CLOSE
         jsr     KERNEL_CLRCHN
+
         pla
         cmp     #$30
         beq     LC58C
