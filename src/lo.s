@@ -9,6 +9,8 @@
 
         .setcpu "6502"
 
+        .export display_logo
+        
 ;-------------------------------------------------------------------------------
 ;
 ; The load address for this file is always set to $2000, but is ignored. The
@@ -22,27 +24,17 @@
 
 .code
 
-L0000           := $0000
-L0036           := $0036
-L0038           := $0038
-L0066           := $0066
-L180C           := $180C
-L3618           := $3618
-L380C           := $380C
-L383C           := $383C
-L3866           := $3866
-L386C           := $386C
-L3C6C           := $3C6C
-L6060           := $6060
-L6076           := $6076
-L6666           := $6666
-L666C           := $666C
-L6676           := $6676
+screen_memory   := $0400
+
+bitmap_memory   := $2000
+
 L6800           := $6800
-L6C6C           := $6C6C
-L6CFE           := $6CFE
+
 load_file_cached:= $C480
 load_file       := $C486
+
+
+
         .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
         .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
         .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
@@ -176,12 +168,13 @@ load_file       := $C486
 
 
 ;-----------------------------------------------------------
-;                           start
+;                        display_logo
 ;
 ; Called by hello.prg after the system has been initialized.
 ;-----------------------------------------------------------
 
-start:  lda     #$00                    ; Disable screen
+display_logo:
+        lda     #$00                    ; Disable screen
         sta     VIC_CTRL1
 
         ldx     #$20                    ; Fill memory $2000-$5FFF with $40
@@ -200,12 +193,12 @@ start:  lda     #$00                    ; Disable screen
         lda     #$08                    ; $FE hold the number of blocks we need to copy
         sta     $FE
 
-        lda     #$60                    ; Copy from $0C9E-$0EB5 to $4660-$4777
+        lda     #$60                    ; Copy Origin logo to temporary buffer at $4000 (specifically $4660)
         sta     @store + 1                      
-        lda     #$46                    ;     then $0EB6-$10CD, then $10CE-12E5
-        sta     @store + 2              ;     then $12E6-$14FD, then $14FE-1715
-        lda     #<origin_logo           ;     then $1716-$192D, then $192E-1B45
-        sta     @load + 1               ;     then $1B46-$1D5D
+        lda     #$46                    ;     then $0C9E-$0EB5, then $0EB6-$10CD
+        sta     @store + 2              ;     then $10CE-$12E5, then $12E6-$14FD
+        lda     #<origin_logo           ;     then $14FE-$1715, then $1716-$192D
+        sta     @load + 1               ;     then $192E-$1B45, then $1B46-$1D5D
         lda     #>origin_logo
         sta     @load + 2
 @copy_block:
@@ -237,15 +230,15 @@ start:  lda     #$00                    ; Disable screen
         dec     $FE
         bne     @copy_block             ; Copy 7 more times, each time advancing target start by $0240 bytes...
 
-        ldx     #$00                    ; Fill screen memory with 0x60 (underscores)
+        ldx     #$00                    ; Initialize screen memory so the logo will be rendered in blue
         lda     #$60
-@loop_screen:
-        sta     $0400,x
-        sta     $0500,x
-        sta     $0600,x
-        sta     $06F0,x
+@loop_color:
+        sta     screen_memory,x
+        sta     screen_memory + $0100,x
+        sta     screen_memory + $0200,x
+        sta     screen_memory + $02F0,x
         inx
-        bne     @loop_screen
+        bne     @loop_color
 
         lda     #$00
         sta     VIC_BORDERCOLOR
@@ -256,7 +249,7 @@ start:  lda     #$00                    ; Disable screen
         lda     #$18                    ; Select screen memory at $0400, bitmap at $2000
         sta     VIC_VIDEO_ADR
 
-        jsr     L1578
+        jsr     disolve_logo
 
         ldx     #$05                    ; Cache the 'OU' file under KERNEL ROM
         jsr     load_file
@@ -557,78 +550,95 @@ origin_logo8:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        lda     #$20
-        tax
-        sta     $E3
-        lda     #$00
-        tay
-        sta     $E2
-L1568:  sta     ($E2),y
-        iny
-        bne     L1568
-        inc     $E3
-        dex
-        bne     L1568
-        jsr     L1578
-L1575:  jmp     L1575
 
 
 
 
-L1578:  ldx     #$FF
+        .byte   $A9,$20,$AA,$85,$E3,$A9,$00,$A8
+        .byte   $85,$E2,$91,$E2,$C8,$D0,$FB,$E6
+        .byte   $E3,$CA,$D0,$F6,$20,$78,$15,$4C
+        .byte   $75,$15
+
+
+
+
+;-----------------------------------------------------------
+;                       disolve_logo
+;
+; Disolves the Origin logo, located at $4667 in memory, onto
+; the bitmap display located at $2000 in memory. The upper
+; left corner of the logo will be displayed at $2667.
+;-----------------------------------------------------------
+
+disolve_logo:
+        ldx     #$FF                    ; $E0 = $FFFF, $E7 = $0000
         stx     $E0
         stx     $E1
         inx
-        stx     $E7
+        stx     $E7                         
         stx     $E8
-L1583:  lsr     $E1
+
+@loop:  lsr     $E1
         ror     $E0
-        bcc     @L158F
-        lda     $E1
+        bcc     @update_low_byte
+
+        lda     $E1                     ; Keep high byte of address in range
         eor     #$B4
         sta     $E1
-@L158F: lda     $E0
+
+@update_low_byte:
+        lda     $E0                     ; Update low byte of address
         sta     $E2
         sta     $E5
         lda     $E1
         and     #$1F
-        cmp     #$06
-        bcc     @L15CB
+
+        cmp     #$06                    ; Make sure we've selected an address within our logo range
+        bcc     @next
         cmp     #$11
-        bcs     @L15CB
-        clc
+        bcs     @next
+
+        clc                             ; Store high bit of addresses
         adc     #$20
-        sta     $E3
+        sta     $E3                     ; $E2 points to random location between $2600 and $31FF (bitmap memory)
         adc     #$20
-        sta     $E6
-        lda     $E1
+        sta     $E6                     ; $E5 points to location exactly $2000 bytes above $E2
+
+        lda     $E1                     ; Use bits 4-6 in $E1 to pick a number from 0-7 and put in Y
         and     #$E0
-        rol     a
-        rol     a
-        rol     a
-        rol     a
+        rol
+        rol
+        rol
+        rol
         tay
-        sec
+
+        sec                             ; Place bit in bit 7 - Y
         lda     #$00
-@L15B6: ror     a
+@loop_ror:
+        ror
         dey
-        bpl     @L15B6
-        iny
+        bpl     @loop_ror
+
+        iny                             ; Y = 0
+
         tax
-        and     ($E5),y
-        beq     @L15CB
+        and     ($E5),y                 ; If the value has not change, skip to the next iteration
+        beq     @next
         sta     $E9
         txa
-        eor     #$FF
+
+        eor     #$FF                    ; Turn on the selected bit in the output
         and     ($E2),y
         ora     $E9
         sta     ($E2),y
-@L15CB:  inc     $E7
-        bne     L1583
+
+@next:  inc     $E7                     ; loop 65536 times
+        bne     @loop
         inc     $E8
-        bne     L1583
+        bne     @loop
+
         lda     $4000
-        sta     $2000
+        sta     bitmap_memory
         rts
 
 

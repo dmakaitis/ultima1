@@ -23,7 +23,7 @@ BASIC_IDLE_LOOP_VECTOR:= $0302
 CHROUT_VECTOR   := $0326
 LOAD_VECTOR     := $0330
 
-L0C00           := $0C00
+display_logo    := $0C00
 
 L4946           := $4946
 
@@ -275,10 +275,10 @@ main:   sei
         jsr     save_file
 
         ;-----------------------------------------------------------
-        ; Initialization complete - jump to game code
+        ; Initialization complete - display the Origin logo
         ;-----------------------------------------------------------
 
-        jmp     L0C00
+        jmp     display_logo
 
 
 
