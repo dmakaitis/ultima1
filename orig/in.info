@@ -1,0 +1,15 @@
+GLOBAL {
+	INPUTNAME	"in.prg";
+	OUTPUTNAME	"in.s";
+	STARTADDR	$6800;
+	INPUTOFFS	$0002;
+	PAGELENGTH	0;
+	CPU			"6502";
+};
+
+ASMINC	{ FILE "c64.inc"; };
+
+RANGE	{ START $6800;	END $6802;	TYPE Code; };
+RANGE	{ START $6803;	END $D701;	TYPE ByteTable; };
+
+LABEL	{ NAME "entry"; 	ADDR $6800; };

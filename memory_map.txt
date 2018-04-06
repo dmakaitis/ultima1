@@ -28,7 +28,7 @@
 |               |                                                               |
 | $1FFE-$1FFF   |   CHROUT Routine                                              |
 |               |                                                               |
-| $2000-$5FFF   |   Character/Bitmap Memory?                                    |
+| $2000-$5FFF   |   Bitmap Memory?                                              |
 |               |                                                               |
 | $8000-$83FF   |   Initialization Code (U1 main)                               |
 +---------------+---------------------------------------------------------------+

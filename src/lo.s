@@ -18,12 +18,6 @@
 ;
 ;-------------------------------------------------------------------------------
 
-.segment    "LOADADDR"
-
-        .addr   $2000
-
-.code
-
 screen_memory   := $0400
 
 bitmap_memory   := $2000
@@ -34,6 +28,13 @@ load_file_cached:= $C480
 load_file       := $C486
 
 
+
+
+.segment    "LOADADDR"
+
+        .addr   $2000
+
+.code
 
         .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
         .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
