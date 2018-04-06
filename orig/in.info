@@ -10,6 +10,8 @@ GLOBAL {
 ASMINC	{ FILE "c64.inc"; };
 
 RANGE	{ START $6800;	END $6802;	TYPE Code; };
-RANGE	{ START $6803;	END $D701;	TYPE ByteTable; };
+RANGE	{ START $6803;	END $6822;	TYPE ByteTable; };
+RANGE	{ START $6823;	END $6FFF;	TYPE Code; };
+RANGE	{ START $7000;	END $D701;	TYPE ByteTable; };
 
 LABEL	{ NAME "entry"; 	ADDR $6800; };
