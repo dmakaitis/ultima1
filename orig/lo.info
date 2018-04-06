@@ -11,7 +11,16 @@ ASMINC	{ FILE "c64.inc"; };
 
 RANGE	{ START $0800;	END $0BFF;	TYPE ByteTable; };
 RANGE	{ START $0C00;	END $0C9D;	TYPE Code; };
-RANGE	{ START $0C9E;	END $0EB5;	TYPE ByteTable; };
-RANGE	{ START $0EB6;	END $15FF;	TYPE Code; };
+RANGE	{ START $0C9E;	END $155D;	TYPE ByteTable; };
+RANGE	{ START $155E;	END $1FFF;	TYPE Code; };
 
 LABEL	{ NAME "main"; 	ADDR $0C00; };
+
+LABEL	{ NAME "origin_logo"; 	ADDR $0C9E; };
+LABEL	{ NAME "origin_logo2"; 	ADDR $0DB6; };
+LABEL	{ NAME "origin_logo3"; 	ADDR $0ECE; };
+LABEL	{ NAME "origin_logo4"; 	ADDR $0FE6; };
+LABEL	{ NAME "origin_logo5"; 	ADDR $10FE; };
+LABEL	{ NAME "origin_logo6"; 	ADDR $1216; };
+LABEL	{ NAME "origin_logo7"; 	ADDR $132E; };
+LABEL	{ NAME "origin_logo8"; 	ADDR $1446; };

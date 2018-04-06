@@ -197,26 +197,27 @@ start:  lda     #$00                    ; Disable screen
         dex
         bne     @loop
 
-        lda     #$08
+        lda     #$08                    ; $FE hold the number of blocks we need to copy
         sta     $FE
-        lda     #$60                    ; Copy from $0C9E-$0EB5 to $4660-$4877
-        sta     @store + 1
-        lda     #$46
-        sta     @store + 2
-        lda     #$9E
-        sta     @load + 1
-        lda     #$0C
+
+        lda     #$60                    ; Copy from $0C9E-$0EB5 to $4660-$4777
+        sta     @store + 1                      
+        lda     #$46                    ;     then $0EB6-$10CD, then $10CE-12E5
+        sta     @store + 2              ;     then $12E6-$14FD, then $14FE-1715
+        lda     #<origin_logo           ;     then $1716-$192D, then $192E-1B45
+        sta     @load + 1               ;     then $1B46-$1D5D
+        lda     #>origin_logo
         sta     @load + 2
 @copy_block:
-        ldx     #$02                    ; Copy $0218 bytes
+        ldx     #$02                    ; Copy $0118 bytes
         ldy     #$18
 @load:  lda     $0C9E
 @store: sta     $2500
-        inc     @load + 1
+        inc     @load + 1               ; Increment the source address by 1
         bne     @increment_store
         inc     @load + 2
 @increment_store:
-        inc     @store + 1
+        inc     @store + 1              ; Increment the target address by 1
         bne     @advance
         inc     @store + 2
 @advance:
@@ -235,8 +236,8 @@ start:  lda     #$00                    ; Disable screen
 
         dec     $FE
         bne     @copy_block             ; Copy 7 more times, each time advancing target start by $0240 bytes...
-        
-        ldx     #$00
+
+        ldx     #$00                    ; Fill screen memory with 0x60 (underscores)
         lda     #$60
 L0C6B:  sta     $0400,x
         sta     $0500,x
@@ -244,25 +245,31 @@ L0C6B:  sta     $0400,x
         sta     $06F0,x
         inx
         bne     L0C6B
+
         lda     #$00
         sta     VIC_BORDERCOLOR
-        lda     #$37
+        lda     #$37                    ; Enable bitmap mode
         sta     VIC_CTRL1
-        lda     #$08
+        lda     #$08                    ; Enable multicolor mode
         sta     VIC_CTRL2
-        lda     #$18
+        lda     #$18                    ; Select screen memory at $0400, bitmap at $2000
         sta     VIC_VIDEO_ADR
+
         jsr     L1578
+
         ldx     #$05
         jsr     LC486
+
         ldx     #$0C
         jsr     LC480
+
         jmp     L6800
 
 
 
 
-L0C9E:  .byte   $00,$00,$00,$00,$00,$00,$00,$00
+origin_logo:
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $03,$03,$06,$06,$0C,$0C,$18,$18
@@ -297,6 +304,7 @@ L0C9E:  .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $FF,$00,$00,$00,$00,$3C,$3C,$78
         .byte   $FF,$00,$01,$01,$03,$03,$06,$06
         .byte   $C0,$C0,$80,$80,$00,$00,$00,$00
+origin_logo2:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$01,$01
@@ -308,7 +316,7 @@ L0C9E:  .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $F8,$F8,$FF,$00,$00,$00,$01,$01
         .byte   $30,$30,$FF,$60,$C0,$C0,$80,$80
         .byte   $03,$03,$FF,$06,$0C,$0C,$18,$18
-L0E0E:  .byte   $00,$00,$FF,$00,$00,$00,$01,$01
+        .byte   $00,$00,$FF,$00,$00,$00,$01,$01
         .byte   $30,$30,$E0,$60,$C0,$C0,$80,$81
         .byte   $1E,$3C,$3C,$78,$78,$F0,$F0,$E0
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
@@ -327,1503 +335,227 @@ L0E0E:  .byte   $00,$00,$FF,$00,$00,$00,$01,$01
         .byte   $01,$01,$03,$03,$07,$07,$0F,$0F
         .byte   $E0,$E0,$C0,$C0,$80,$80,$00,$00
         .byte   $07,$0F,$0F,$1F,$1F,$3C,$3C,$78
-        .byte   $C0,$E0,$E0
-L0EA9:  .byte               $F0,$F0,$78,$78,$3C
+        .byte   $C0,$E0,$E0,$F0,$F0,$78,$78,$3C
         .byte   $00,$00,$00,$01,$01,$03,$03,$07
-
-
-
-
-        sei
-        beq     L0EA9
-        cpx     #$E0
-        cpy     #$C0
-        .byte   $80
-        .byte   $0C
-        .byte   $0C
-        clc
-        clc
-        bmi     L0EF4
-        rts
-        rts
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $03
-        .byte   $03
-        asl     $06
-        .byte   $0F
-        .byte   $0C
-        clc
-        clc
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        ora     ($03,x)
-        bmi     L0F20
-        rts
-        rts
-        .byte   $FF
-L0EF4           := * + 1
-        cpy     #$80
-        .byte   $80
-        .byte   $03
-        .byte   $03
-        asl     $06
-        .byte   $FF
-        .byte   $0C
-        clc
-        clc
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        ora     ($01,x)
-        .byte   $03
-        .byte   $3C
-        sei
-        sei
-L0F0A           := * + 1
-        beq     L0F0A
-        cpx     #$E0
-L0F0E           := * + 1
-        cpy     #$03
-L0F0F:  .byte   $03
-        asl     $06
-        .byte   $FF
-        .byte   $0C
-        clc
-        clc
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        ora     ($01,x)
-L0F1E:
-L0F1F           := * + 1
-        bmi     L0F50
-L0F20:  rts
-        rts
-        .byte   $FF
-L0F24           := * + 1
-        cpy     #$C0
-        cpy     #$03
-        .byte   $03
-        asl     $06
-        .byte   $FC
-        .byte   $0C
-        clc
-        clc
-        ora     ($03,x)
-        .byte   $03
-        .byte   $07
-        .byte   $07
-        .byte   $0F
-        .byte   $0F
-        asl     $C0E0,x
-L0F39           := * + 1
-        cpy     #$80
-        .byte   $80
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $07
-        .byte   $0F
-        .byte   $0F
-        asl     $3C1E,x
-        .byte   $3C
-        sei
-        .byte   $80
-        brk
-L0F50:  brk
-        ora     ($01,x)
-        .byte   $03
-        .byte   $03
-        .byte   $07
-        sei
-        beq     L0F39
-        cpx     #$E0
-        cpy     #$C0
-        .byte   $80
-        .byte   $0F
-        .byte   $1F
-        asl     L0F0E,x
-        .byte   $07
-        .byte   $03
-        ora     ($F8,x)
-        .byte   $80
-        brk
-        brk
-        .byte   $80
-        .byte   $80
-        cpx     #$F0
-L0F6E:  brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        asl     $3C1E,x
-L0F79:  .byte   $3C
-        sei
-        sei
-        beq     L0F6E
-        brk
-        brk
-        brk
-        ora     ($01,x)
-        .byte   $03
-        .byte   $03
-        .byte   $07
-        sei
-        beq     L0F79
-        cpx     #$E0
-        cpy     #$C0
-        .byte   $80
-        brk
-        .byte   $03
-        .byte   $03
-        .byte   $03
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        .byte   $FF
-        .byte   $FF
-        .byte   $0F
-        .byte   $0F
-        .byte   $0F
-        .byte   $0F
-L0F9E:  brk
-        cpy     #$C0
-        cpy     #$80
-        .byte   $80
-        brk
-        brk
-        asl     $3C1E,x
-L0FA9:  .byte   $3C
-        sei
-        sei
-        beq     L0F9E
-        brk
-        brk
-        brk
-        ora     ($01,x)
-        .byte   $03
-        .byte   $03
-        .byte   $07
-        sei
-        beq     L0FA9
-        cpx     #$E0
-        cpy     #$C0
-        .byte   $80
-        .byte   $3C
-        asl     L0F1E,x
-        .byte   $0F
-        .byte   $07
-        .byte   $07
-        .byte   $03
-        .byte   $07
-        .byte   $0F
-        .byte   $0F
-        asl     $BC1E,x
-        ldy     $80F8,x
-        brk
-        ora     ($01,x)
-        .byte   $03
-        .byte   $03
-        asl     $06
-        cpy     #$C0
-        .byte   $80
-        .byte   $80
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        ora     ($30,x)
-        bmi     L1059
-        .byte   $63
-        .byte   $8F
-        .byte   $3F
-        .byte   $FF
-        .byte   $FF
-        .byte   $0F
-        .byte   $3F
-        inc     $FCFE,x
-        .byte   $FF
-        .byte   $FF
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        .byte   $FF
-        .byte   $FF
-        bmi     L1040
-        rts
-        rts
-        cpy     #$FF
-        .byte   $FF
-        .byte   $FF
-        .byte   $03
-        .byte   $07
-        .byte   $07
-        .byte   $0F
-        .byte   $0F
-        .byte   $FF
-        .byte   $FF
-        .byte   $FF
-        cpy     #$80
-        .byte   $80
-        brk
-        brk
-        .byte   $FF
-        .byte   $FF
-        .byte   $FF
-        bmi     L1058
-        rts
-        rts
-        cpy     #$FF
-        .byte   $FF
-        .byte   $FF
-        .byte   $03
-        .byte   $03
-        .byte   $07
-        .byte   $07
-        .byte   $0F
-        .byte   $FF
-        .byte   $FF
-        .byte   $FF
-        cpx     #$F0
-        sed
-        .byte   $FC
-        inc     $FFFF,x
-        .byte   $FF
-        bmi     L1070
-L1040:  rts
-        rts
-        rti
-        brk
-        .byte   $80
-        brk
-        asl     $3C3C,x
-        .byte   $1F
-        .byte   $0F
-        .byte   $07
-        brk
-        brk
-        brk
-        brk
-        brk
-L1051:  .byte   $FF
-        .byte   $FF
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-L1058:
-L1059           := * + 1
-        ora     ($FF,x)
-        .byte   $FF
-        inc     a:L0000,x
-        sei
-        beq     L1051
-        cpx     #$80
-        brk
-        brk
-        brk
-        .byte   $07
-        .byte   $0F
-        .byte   $0F
-        asl     $1E1E,x
-        brk
-        brk
-        .byte   $80
-        brk
-L1070:  brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        ora     (L0000,x)
-L1078:  brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        beq     L1078
-        sei
-        sei
-        sec
-        sec
-        brk
-        brk
-        ora     ($01,x)
-        .byte   $03
-        .byte   $03
-        .byte   $07
-        .byte   $07
-        brk
-        brk
-        cpx     #$E0
-        cpy     #$C0
-        .byte   $80
-L1093:  .byte   $80
-        brk
-        brk
-        .byte   $07
-        .byte   $0F
-        .byte   $0F
-        .byte   $0F
-        .byte   $03
-        brk
-        brk
-        brk
-        .byte   $80
-        brk
-        brk
-        .byte   $FF
-        .byte   $FF
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        .byte   $FF
-        .byte   $FF
-        brk
-        brk
-        asl     $783C
-        beq     L1093
-        cpy     #$00
-        brk
-        ora     ($01,x)
-        .byte   $03
-        .byte   $03
-        .byte   $07
-        .byte   $07
-        brk
-        brk
-        cpx     #$E0
-        cpy     #$C0
-        .byte   $80
-        .byte   $80
-        brk
-        brk
-        .byte   $07
-        .byte   $0F
-        .byte   $0F
-        asl     $1E1E,x
-        brk
-        brk
-        .byte   $80
-        brk
-        brk
-L10D1:  brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $03
-        ora     ($01,x)
-        brk
-        brk
-        brk
-        brk
-        brk
-        sed
-        beq     L10D1
-        cpx     #$E0
-        cpx     #$00
-        brk
-        .byte   $0C
-        .byte   $0C
-        clc
-        clc
-        bmi     L111C
-        rts
-        rts
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $02
-        .byte   $02
-L1108:  asl     $06
-        .byte   $0C
-        .byte   $0C
-        clc
-        clc
-        .byte   $FF
-        .byte   $3F
-        .byte   $0F
-        .byte   $03
-        brk
-        brk
-        ora     ($01,x)
-        beq     L1108
-        cpx     #$E0
-        cpy     #$C0
-L111C:  .byte   $80
-        .byte   $80
-        .byte   $03
-        .byte   $03
-        asl     $06
-        .byte   $0C
-L1123:  .byte   $0C
-        clc
-        clc
-        brk
-        brk
-        brk
-        brk
-        brk
-        ora     ($01,x)
-        .byte   $03
-        .byte   $3C
-        sei
-        sei
-        beq     L1123
-        cpx     #$E0
-        cpy     #$03
-        .byte   $03
-        asl     $06
-        .byte   $0C
-        .byte   $0C
-        clc
-        clc
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        ora     ($01,x)
-        .byte   $7F
-        .byte   $7F
-        .byte   $7F
-        ror     $E0F8,x
-        cpy     #$80
-        sed
-        .byte   $E2
-        stx     $06
-        .byte   $0C
-        .byte   $0C
-        clc
-        clc
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $03
-        .byte   $0F
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        sed
-        sed
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        sec
-        sec
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        sec
-        sec
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $0F
-        .byte   $3F
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        cpx     #$E0
-L1186:  brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        beq     L1186
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $C3
-        .byte   $C3
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $80
-        .byte   $80
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $3C
-        .byte   $7C
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $0F
-        .byte   $3F
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        cpx     #$E0
-L11C6:  brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        beq     L11C6
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $E3
-        .byte   $E3
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $80
-        .byte   $83
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        sed
-        sed
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        ora     ($01,x)
-        .byte   $03
-        .byte   $03
-        asl     $06
-        cpy     #$C0
-        .byte   $80
-        .byte   $80
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        ora     ($01,x)
-        .byte   $3F
-        bmi     L1281
-        rts
-        cpy     #$C0
-        .byte   $80
-        .byte   $80
-        .byte   $FF
-        .byte   $03
-        asl     $06
-        .byte   $0C
-        .byte   $0C
-        clc
-        clc
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        ora     ($01,x)
-        .byte   $FF
-        bmi     L1299
-        rts
-        cpy     #$C0
-        .byte   $80
-        .byte   $80
-        .byte   $FF
-        .byte   $07
-        .byte   $07
-        .byte   $0F
-        .byte   $0F
-        asl     $3C1E,x
-        .byte   $FF
-        .byte   $80
-        .byte   $80
-        brk
-        brk
-        brk
-        ora     ($01,x)
-        .byte   $FF
-        bmi     L12B1
-        rts
-        cpy     #$C0
-        .byte   $80
-        .byte   $80
-        .byte   $FF
-        .byte   $03
-        asl     $06
-        .byte   $0C
-        .byte   $0C
-        clc
-        clc
-        .byte   $FF
-        brk
-        brk
-L1261:  brk
-        brk
-        brk
-        ora     ($01,x)
-        beq     L1298
-        rts
-L1269:  rts
-        cpy     #$C0
-        .byte   $80
-        .byte   $80
-        asl     $3838,x
-L1271:  rol     $070F,x
-        .byte   $03
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $80
-        cpy     #$E0
-        cpx     #$70
-        bvs     L1261
-L1281:  cpx     #$FF
-        .byte   $FF
-        asl     $701E,x
-        bvs     L1269
-        cpx     #$C0
-        cpy     #$00
-        brk
-        sei
-        beq     L1271
-        sed
-        rol     L0F1F,x
-        .byte   $07
-        brk
-        brk
-L1298:  brk
-L1299:  brk
-        brk
-        brk
-        .byte   $80
-        .byte   $80
-        .byte   $0F
-        .byte   $0F
-        asl     $3C1E,x
-        .byte   $3C
-        sei
-        sei
-        ora     ($01,x)
-        .byte   $03
-        .byte   $03
-        .byte   $07
-        .byte   $07
-        .byte   $0F
-        .byte   $0F
-        cpx     #$E0
-L12B1           := * + 1
-        cpy     #$C0
-        inc     a:$FE,x
-        brk
-        .byte   $03
-        .byte   $07
-        .byte   $07
-        .byte   $0F
-        .byte   $0F
-L12BB:  asl     $3C1E,x
-        cpx     #$E3
-        .byte   $FF
-        ror     $0178,x
-        ora     ($03,x)
-        .byte   $FC
-        sed
-        sed
-        beq     L12BB
-        cpx     #$E0
-        cpy     #$38
-        beq     L12B1
-        sed
-        rol     L0F0F,x
-        .byte   $07
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $80
-        .byte   $80
-        ora     ($01,x)
-        .byte   $03
-        .byte   $03
-        .byte   $07
-        .byte   $07
-        .byte   $0F
-        .byte   $0F
-        sbc     ($E1,x)
-        .byte   $C3
-        .byte   $C3
-        .byte   $83
-        .byte   $87
-        .byte   $07
-        .byte   $0F
-        .byte   $F3
-        .byte   $F3
-        .byte   $FB
-        .byte   $FB
-        .byte   $FF
-        ldx     $3CBE,y
-        .byte   $83
-        .byte   $87
-        .byte   $07
-        asl     $1C0E
-        .byte   $1C
-        sec
-        .byte   $80
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $0C
-        .byte   $0C
-        clc
-        clc
-        bmi     L1344
-        rts
-        rts
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $03
-        .byte   $03
-        .byte   $07
-        asl     $0C
-        .byte   $0C
-        clc
-        clc
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        ora     ($01,x)
-L133E:  bmi     L1370
-        .byte   $FF
-        rts
-        cpy     #$C0
-L1344:  .byte   $80
-        .byte   $80
-        .byte   $03
-        .byte   $03
-        .byte   $FF
-        asl     $0C
-        .byte   $0C
-        clc
-        clc
-        brk
-        brk
-        .byte   $FF
-        .byte   $1F
-        .byte   $1F
-        .byte   $1F
-        .byte   $1F
-        .byte   $1F
-        .byte   $3C
-        sei
-        .byte   $FF
-        inc     $F8FC,x
-        beq     L133E
-        .byte   $03
-        .byte   $03
-        .byte   $FF
-        asl     $0C
-        .byte   $0C
-        clc
-        clc
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        ora     ($01,x)
-        bmi     L13A0
-L1370:  .byte   $FF
-        rts
-        cpy     #$C0
-        .byte   $80
-        .byte   $80
-        .byte   $03
-        .byte   $03
-        inc     $0C06,x
-        .byte   $0C
-        clc
-        clc
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $03
-        .byte   $FF
-        inc     a:L0000,x
-        brk
-        brk
-        cpx     #$C0
-        .byte   $80
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $3C
-        .byte   $3C
-        sei
-        sei
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-L13A0:  .byte   $03
-        .byte   $03
-        brk
-        brk
-        brk
-        brk
-        .byte   $03
-        .byte   $0F
-L13A8:  inc     a:$F8,x
-        brk
-        brk
-        brk
-        .byte   $80
-        brk
-        ora     ($01,x)
-        brk
-        brk
-        brk
-        brk
-        beq     L13A8
-        cpx     #$E0
-        brk
-        brk
-        brk
-        brk
-        asl     $3F1E,x
-        .byte   $3F
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        sed
-        sed
-        brk
-        brk
-        brk
-        brk
-        .byte   $3C
-        sei
-        sei
-        sei
-        brk
-        brk
-        brk
-        brk
-        .byte   $03
-        .byte   $07
-        .byte   $07
-        .byte   $07
-        brk
-        brk
-        brk
-        brk
-        cpy     #$80
-        .byte   $83
-        .byte   $83
-        brk
-        brk
-        brk
-        brk
-        .byte   $03
-        .byte   $0F
-        inc     a:$F8,x
-        brk
-        brk
-        brk
-        .byte   $80
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        asl     $3C1E,x
-        .byte   $3C
-        brk
-        brk
-        brk
-        brk
-        .byte   $0F
-        asl     L0E0E
-        brk
-        brk
-        brk
-        brk
-        .byte   $3C
-        sec
-        sec
-        sec
-        brk
-        brk
-        brk
-        brk
-        sec
-        sec
-        .byte   $3F
-        .byte   $0F
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $83
-        .byte   $83
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        ora     ($01,x)
-        .byte   $03
-        .byte   $03
-        asl     $06
-        cpy     #$C0
-        .byte   $80
-        .byte   $80
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        bmi     L1478
-        rts
-        rts
-        .byte   $FF
-        brk
-        brk
-        brk
-        .byte   $03
-        .byte   $03
-        asl     $06
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        bmi     L1490
-        rts
-        rts
-        .byte   $FF
-        brk
-        brk
-        brk
-        .byte   $1F
-        .byte   $1F
-        .byte   $1F
-        asl     a:$FF,x
-        brk
-        brk
-        cpy     #$80
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        bmi     L14A8
-L1478:  rts
-        rts
-        .byte   $FF
-        brk
-        brk
-        brk
-        .byte   $03
-        .byte   $03
-        asl     $06
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        bmi     L14C0
-L1490:  rts
-        rts
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-L14A8:  brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-L14C0:  brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        .byte   $FF
-        brk
-        brk
-        brk
-        .byte   $0C
-        .byte   $0C
-        clc
-        clc
-        beq     L153C
-L153C:  brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
+        .byte   $78,$F0,$F0,$E0,$E0,$C0,$C0,$80
+        .byte   $0C,$0C,$18,$18,$30,$30,$60,$60
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+origin_logo3:
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $03,$03,$06,$06,$0F,$0C,$18,$18
+        .byte   $00,$00,$00,$00,$FF,$00,$01,$03
+        .byte   $30,$30,$60,$60,$FF,$C0,$80,$80
+        .byte   $03,$03,$06,$06,$FF,$0C,$18,$18
+        .byte   $00,$00,$00,$00,$FF,$01,$01,$03
+        .byte   $3C,$78,$78,$F0,$FF,$E0,$E0,$C0
+        .byte   $03,$03,$06,$06,$FF,$0C,$18,$18
+        .byte   $00,$00,$00,$00,$FF,$00,$01,$01
+        .byte   $30,$30,$60,$60,$FF,$C0,$C0,$C0
+        .byte   $03,$03,$06,$06,$FC,$0C,$18,$18
+        .byte   $01,$03,$03,$07,$07,$0F,$0F,$1E
+        .byte   $E0,$C0,$C0,$80,$80,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $07,$0F,$0F,$1E,$1E,$3C,$3C,$78
+        .byte   $80,$00,$00,$01,$01,$03,$03,$07
+        .byte   $78,$F0,$E0,$E0,$E0,$C0,$C0,$80
+        .byte   $0F,$1F,$1E,$0E,$0F,$07,$03,$01
+        .byte   $F8,$80,$00,$00,$80,$80,$E0,$F0
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $1E,$1E,$3C,$3C,$78,$78,$F0,$F0
+        .byte   $00,$00,$00,$01,$01,$03,$03,$07
+        .byte   $78,$F0,$F0,$E0,$E0,$C0,$C0,$80
+        .byte   $00,$03,$03,$03,$00,$00,$00,$00
+        .byte   $00,$FF,$FF,$FF,$0F,$0F,$0F,$0F
+        .byte   $00,$C0,$C0,$C0,$80,$80,$00,$00
+        .byte   $1E,$1E,$3C,$3C,$78,$78,$F0,$F0
+        .byte   $00,$00,$00,$01,$01,$03,$03,$07
+        .byte   $78,$F0,$F0,$E0,$E0,$C0,$C0,$80
+        .byte   $3C,$1E,$1E,$0F,$0F,$07,$07,$03
+        .byte   $07,$0F,$0F,$1E,$1E,$BC,$BC,$F8
+        .byte   $80,$00,$01,$01,$03,$03,$06,$06
+        .byte   $C0,$C0,$80,$80,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+origin_logo4:
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$01
+        .byte   $30,$30,$60,$63,$8F,$3F,$FF,$FF
+        .byte   $0F,$3F,$FE,$FE,$FC,$FF,$FF,$FF
+        .byte   $00,$00,$00,$00,$00,$FF,$FF,$FF
+        .byte   $30,$30,$60,$60,$C0,$FF,$FF,$FF
+        .byte   $03,$07,$07,$0F,$0F,$FF,$FF,$FF
+        .byte   $C0,$80,$80,$00,$00,$FF,$FF,$FF
+        .byte   $30,$30,$60,$60,$C0,$FF,$FF,$FF
+        .byte   $03,$03,$07,$07,$0F,$FF,$FF,$FF
+        .byte   $E0,$F0,$F8,$FC,$FE,$FF,$FF,$FF
+        .byte   $30,$30,$60,$60,$40,$00,$80,$00
+        .byte   $1E,$3C,$3C,$1F,$0F,$07,$00,$00
+        .byte   $00,$00,$00,$FF,$FF,$FF,$00,$00
+        .byte   $00,$00,$01,$FF,$FF,$FE,$00,$00
+        .byte   $78,$F0,$F0,$E0,$80,$00,$00,$00
+        .byte   $07,$0F,$0F,$1E,$1E,$1E,$00,$00
+        .byte   $80,$00,$00,$00,$00,$00,$00,$00
+        .byte   $01,$00,$00,$00,$00,$00,$00,$00
+        .byte   $F0,$F8,$78,$78,$38,$38,$00,$00
+        .byte   $01,$01,$03,$03,$07,$07,$00,$00
+        .byte   $E0,$E0,$C0,$C0,$80,$80,$00,$00
+        .byte   $07,$0F,$0F,$0F,$03,$00,$00,$00
+        .byte   $80,$00,$00,$FF,$FF,$FF,$00,$00
+        .byte   $00,$00,$00,$FF,$FF,$FF,$00,$00
+        .byte   $0E,$3C,$78,$F0,$E0,$C0,$00,$00
+        .byte   $01,$01,$03,$03,$07,$07,$00,$00
+        .byte   $E0,$E0,$C0,$C0,$80,$80,$00,$00
+        .byte   $07,$0F,$0F,$1E,$1E,$1E,$00,$00
+        .byte   $80,$00,$00,$00,$00,$00,$00,$00
+        .byte   $03,$01,$01,$00,$00,$00,$00,$00
+        .byte   $F8,$F0,$F0,$E0,$E0,$E0,$00,$00
+        .byte   $0C,$0C,$18,$18,$30,$30,$60,$60
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+origin_logo5:
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $02,$02,$06,$06,$0C,$0C,$18,$18
+        .byte   $FF,$3F,$0F,$03,$00,$00,$01,$01
+        .byte   $F0,$F0,$E0,$E0,$C0,$C0,$80,$80
+        .byte   $03,$03,$06,$06,$0C,$0C,$18,$18
+        .byte   $00,$00,$00,$00,$00,$01,$01,$03
+        .byte   $3C,$78,$78,$F0,$F0,$E0,$E0,$C0
+        .byte   $03,$03,$06,$06,$0C,$0C,$18,$18
+        .byte   $00,$00,$00,$00,$00,$00,$01,$01
+        .byte   $7F,$7F,$7F,$7E,$F8,$E0,$C0,$80
+        .byte   $F8,$E2,$86,$06,$0C,$0C,$18,$18
+        .byte   $00,$00,$00,$00,$00,$00,$03,$0F
+        .byte   $00,$00,$00,$00,$00,$00,$F8,$F8
+        .byte   $00,$00,$00,$00,$00,$00,$38,$38
+        .byte   $00,$00,$00,$00,$00,$00,$38,$38
+        .byte   $00,$00,$00,$00,$00,$00,$0F,$3F
+        .byte   $00,$00,$00,$00,$00,$00,$E0,$E0
+        .byte   $00,$00,$00,$00,$00,$00,$FF,$FF
+        .byte   $00,$00,$00,$00,$00,$00,$F0,$F0
+        .byte   $00,$00,$00,$00,$00,$00,$FF,$FF
+        .byte   $00,$00,$00,$00,$00,$00,$C3,$C3
+        .byte   $00,$00,$00,$00,$00,$00,$80,$80
+        .byte   $00,$00,$00,$00,$00,$00,$3C,$7C
+        .byte   $00,$00,$00,$00,$00,$00,$0F,$3F
+        .byte   $00,$00,$00,$00,$00,$00,$E0,$E0
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$F0,$F0
+        .byte   $00,$00,$00,$00,$00,$00,$E3,$E3
+        .byte   $00,$00,$00,$00,$00,$00,$80,$83
+        .byte   $00,$00,$00,$00,$00,$00,$F8,$F8
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$01,$01,$03,$03,$06,$06
+        .byte   $C0,$C0,$80,$80,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+origin_logo6:
+        .byte   $00,$00,$00,$00,$00,$00,$01,$01
+        .byte   $3F,$30,$60,$60,$C0,$C0,$80,$80
+        .byte   $FF,$03,$06,$06,$0C,$0C,$18,$18
+        .byte   $FF,$00,$00,$00,$00,$00,$01,$01
+        .byte   $FF,$30,$60,$60,$C0,$C0,$80,$80
+        .byte   $FF,$07,$07,$0F,$0F,$1E,$1E,$3C
+        .byte   $FF,$80,$80,$00,$00,$00,$01,$01
+        .byte   $FF,$30,$60,$60,$C0,$C0,$80,$80
+        .byte   $FF,$03,$06,$06,$0C,$0C,$18,$18
+        .byte   $FF,$00,$00,$00,$00,$00,$01,$01
+        .byte   $F0,$30,$60,$60,$C0,$C0,$80,$80
+        .byte   $1E,$38,$38,$3E,$0F,$07,$03,$00
+        .byte   $00,$00,$00,$00,$80,$C0,$E0,$E0
+        .byte   $70,$70,$E0,$E0,$FF,$FF,$1E,$1E
+        .byte   $70,$70,$E0,$E0,$C0,$C0,$00,$00
+        .byte   $78,$F0,$E0,$F8,$3E,$1F,$0F,$07
+        .byte   $00,$00,$00,$00,$00,$00,$80,$80
+        .byte   $0F,$0F,$1E,$1E,$3C,$3C,$78,$78
+        .byte   $01,$01,$03,$03,$07,$07,$0F,$0F
+        .byte   $E0,$E0,$C0,$C0,$FE,$FE,$00,$00
+        .byte   $03,$07,$07,$0F,$0F,$1E,$1E,$3C
+        .byte   $E0,$E3,$FF,$7E,$78,$01,$01,$03
+        .byte   $FC,$F8,$F8,$F0,$F0,$E0,$E0,$C0
+        .byte   $38,$F0,$E0,$F8,$3E,$0F,$0F,$07
+        .byte   $00,$00,$00,$00,$00,$00,$80,$80
+        .byte   $01,$01,$03,$03,$07,$07,$0F,$0F
+        .byte   $E1,$E1,$C3,$C3,$83,$87,$07,$0F
+        .byte   $F3,$F3,$FB,$FB,$FF,$BE,$BE,$3C
+        .byte   $83,$87,$07,$0E,$0E,$1C,$1C,$38
+        .byte   $80,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $0C,$0C,$18,$18,$30,$30,$60,$60
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+origin_logo7:
+        .byte   $03,$03,$07,$06,$0C,$0C,$18,$18
+        .byte   $00,$00,$FF,$00,$00,$00,$01,$01
+        .byte   $30,$30,$FF,$60,$C0,$C0,$80,$80
+        .byte   $03,$03,$FF,$06,$0C,$0C,$18,$18
+        .byte   $00,$00,$FF,$1F,$1F,$1F,$1F,$1F
+        .byte   $3C,$78,$FF,$FE,$FC,$F8,$F0,$E0
+        .byte   $03,$03,$FF,$06,$0C,$0C,$18,$18
+        .byte   $00,$00,$FF,$00,$00,$00,$01,$01
+        .byte   $30,$30,$FF,$60,$C0,$C0,$80,$80
+        .byte   $03,$03,$FE,$06,$0C,$0C,$18,$18
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$03,$FF,$FE,$00,$00,$00,$00
+        .byte   $E0,$C0,$80,$00,$00,$00,$00,$00
+        .byte   $3C,$3C,$78,$78,$00,$00,$00,$00
+        .byte   $00,$00,$03,$03,$00,$00,$00,$00
+        .byte   $03,$0F,$FE,$F8,$00,$00,$00,$00
+        .byte   $80,$00,$01,$01,$00,$00,$00,$00
+        .byte   $F0,$F0,$E0,$E0,$00,$00,$00,$00
+        .byte   $1E,$1E,$3F,$3F,$00,$00,$00,$00
+        .byte   $00,$00,$F8,$F8,$00,$00,$00,$00
+        .byte   $3C,$78,$78,$78,$00,$00,$00,$00
+        .byte   $03,$07,$07,$07,$00,$00,$00,$00
+        .byte   $C0,$80,$83,$83,$00,$00,$00,$00
+        .byte   $03,$0F,$FE,$F8,$00,$00,$00,$00
+        .byte   $80,$00,$00,$00,$00,$00,$00,$00
+        .byte   $1E,$1E,$3C,$3C,$00,$00,$00,$00
+        .byte   $0F,$0E,$0E,$0E,$00,$00,$00,$00
+        .byte   $3C,$38,$38,$38,$00,$00,$00,$00
+        .byte   $38,$38,$3F,$0F,$00,$00,$00,$00
+        .byte   $00,$00,$83,$83,$00,$00,$00,$00
+        .byte   $00,$00,$01,$01,$03,$03,$06,$06
+        .byte   $C0,$C0,$80,$80,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+origin_logo8:
+        .byte   $30,$30,$60,$60,$FF,$00,$00,$00
+        .byte   $03,$03,$06,$06,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $30,$30,$60,$60,$FF,$00,$00,$00
+        .byte   $1F,$1F,$1F,$1E,$FF,$00,$00,$00
+        .byte   $C0,$80,$00,$00,$FF,$00,$00,$00
+        .byte   $30,$30,$60,$60,$FF,$00,$00,$00
+        .byte   $03,$03,$06,$06,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $30,$30,$60,$60,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $00,$00,$00,$00,$FF,$00,$00,$00
+        .byte   $0C,$0C,$18,$18,$F0,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
         lda     #$20
         tax
         sta     $E3
