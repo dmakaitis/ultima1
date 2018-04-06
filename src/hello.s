@@ -12,6 +12,8 @@
 
         .setcpu "6502"
 
+        .export load_file, load_file_cached, save_file
+
 PROCESSOR_PORT  := $01
 
 LOAD_ADDRESS    := $AE
@@ -1081,12 +1083,14 @@ load_file:
 ; by the value in the x register, which may be one of the
 ; following:
 ;
-;   0 : DD - disk driver selection
-;   1 : RO - ???
-;   2 : P0 - Player save slot 1
-;   3 : P1 - Player save slot 2
-;   4 : P2 - Player save slot 3
-;   5 : P3 - Player save slot 4
+;   0 : DD @ $B000-$B001 - disk driver selection
+;   1 : RO @ $B000-$B040 - ???
+;   2 : P0 @ $81E2-$83AC - Player save slot 1
+;   3 : P1 @ $81E2-$83AC - Player save slot 2
+;   4 : P2 @ $81E2-$83AC - Player save slot 3
+;   5 : P3 @ $81E2-$83AC - Player save slot 4
+;
+; The memory range saved for each file is listed above.
 ;-----------------------------------------------------------
 
 save_file_a:
@@ -1167,7 +1171,7 @@ load_file_cached_a:
         cpx     #$05
         bne     load_file_a
 
-        lda     PROCESSOR_PORT
+        lda     PROCESSOR_PORT          ; Disable KERNEL ROM
         and     #$FD
         sta     PROCESSOR_PORT
 
@@ -1207,28 +1211,31 @@ load_file_cached_a:
 ; by the value in the x register, which may be one of the
 ; following:
 ;
-;   00 : TC - ???
-;   01 : MA - ???
-;   02 : PL - ???
-;   03 : FI - ???
-;   04 : GE - ???
-;   05 : OU - ???
-;   06 : DN - ???
-;   07 : TW - ???
-;   08 : CA - ???
-;   09 : SP - ???
-;   0a : TM - ???
-;   0b : ST - ???
-;   0c : IN - ???
-;   0d : MI - ???
-;   0e : LO - ???
-;   0f : PR - ???
-;   10 : DD - disk driver selection
-;   11 : RO - ???
-;   12 : P0 - Player save slot 1
-;   13 : P1 - Player save slot 2
-;   14 : P2 - Player save slot 3
-;   15 : P3 - Player save slot 4
+;   00 : TC @ $4000 - ???
+;   01 : MA @ $C700 - ???
+;   02 : PL @ $6400 - ???
+;   03 : FI @ $6420 - ???
+;   04 : GE @ $8C9E - ???
+;   05 : OU @ $E000 - ???
+;   06 : DN @ $8C9E - ???
+;   07 : TW @ $8C9E - ???
+;   08 : CA @ $8C9E - ???
+;   09 : SP @ $8C9E - ???
+;   0a : TM @ $8C9E - ???
+;   0b : ST @ $0C00 - ???
+;   0c : IN @ $6800 - ???
+;   0d : MI @ $7400 - ???
+;   0e : LO @ $0800 - ???
+;   0f : PR @ $12C0 - ???
+;   10 : DD @ $B000 - disk driver selection
+;   11 : RO @ $B000 - ???
+;   12 : P0 @ $81E2 - Player save slot 1
+;   13 : P1 @ $81E2 - Player save slot 2
+;   14 : P2 @ $81E2 - Player save slot 3
+;   15 : P3 @ $81E2 - Player save slot 4
+;
+; The file will be loaded into the memory location listed
+; for the file above.
 ;
 ; The processor carry flag will be set if the status after
 ; reading the file is not $30, which indicates the write
@@ -1308,14 +1315,17 @@ read_filenames:
         .byte   "MA"
         .byte   "PL"
         .byte   "FI"
+
         .byte   "GE"
         .byte   "OU"
         .byte   "DN"
         .byte   "TW"
+
         .byte   "CA"
         .byte   "SP"
         .byte   "TM"
         .byte   "ST"
+
         .byte   "IN"
         .byte   "MI"
         .byte   "LO"
@@ -1340,14 +1350,17 @@ read_start_addresses:
         .addr   $C700
         .addr   $6400
         .addr   $6420
+
         .addr   $8C9E
         .addr   $E000
         .addr   $8C9E
         .addr   $8C9E
+
         .addr   $8C9E
         .addr   $8C9E
         .addr   $8C9E
         .addr   $0C00
+
         .addr   $6800
         .addr   $7400
         .addr   $0800

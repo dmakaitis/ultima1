@@ -41,8 +41,8 @@ L6676           := $6676
 L6800           := $6800
 L6C6C           := $6C6C
 L6CFE           := $6CFE
-LC480           := $C480
-LC486           := $C486
+load_file_cached:= $C480
+load_file       := $C486
         .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
         .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
         .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
@@ -239,12 +239,13 @@ start:  lda     #$00                    ; Disable screen
 
         ldx     #$00                    ; Fill screen memory with 0x60 (underscores)
         lda     #$60
-L0C6B:  sta     $0400,x
+@loop_screen:
+        sta     $0400,x
         sta     $0500,x
         sta     $0600,x
         sta     $06F0,x
         inx
-        bne     L0C6B
+        bne     @loop_screen
 
         lda     #$00
         sta     VIC_BORDERCOLOR
@@ -257,11 +258,11 @@ L0C6B:  sta     $0400,x
 
         jsr     L1578
 
-        ldx     #$05
-        jsr     LC486
+        ldx     #$05                    ; Cache the 'OU' file under KERNEL ROM
+        jsr     load_file
 
-        ldx     #$0C
-        jsr     LC480
+        ldx     #$0C                    ; Load the 'IN' file
+        jsr     load_file_cached
 
         jmp     L6800
 
@@ -570,6 +571,10 @@ L1568:  sta     ($E2),y
         bne     L1568
         jsr     L1578
 L1575:  jmp     L1575
+
+
+
+
 L1578:  ldx     #$FF
         stx     $E0
         stx     $E1
@@ -578,19 +583,19 @@ L1578:  ldx     #$FF
         stx     $E8
 L1583:  lsr     $E1
         ror     $E0
-        bcc     L158F
+        bcc     @L158F
         lda     $E1
         eor     #$B4
         sta     $E1
-L158F:  lda     $E0
+@L158F: lda     $E0
         sta     $E2
         sta     $E5
         lda     $E1
         and     #$1F
         cmp     #$06
-        bcc     L15CB
+        bcc     @L15CB
         cmp     #$11
-        bcs     L15CB
+        bcs     @L15CB
         clc
         adc     #$20
         sta     $E3
@@ -605,24 +610,28 @@ L158F:  lda     $E0
         tay
         sec
         lda     #$00
-L15B6:  ror     a
+@L15B6: ror     a
         dey
-        bpl     L15B6
+        bpl     @L15B6
         iny
         tax
         and     ($E5),y
-        beq     L15CB
+        beq     @L15CB
         sta     $E9
         txa
         eor     #$FF
         and     ($E2),y
         ora     $E9
         sta     ($E2),y
-L15CB:  inc     $E7
+@L15CB:  inc     $E7
         bne     L1583
         inc     $E8
         bne     L1583
         lda     $4000
         sta     $2000
         rts
+
+
+
+
         .byte   $CE

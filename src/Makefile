@@ -4,7 +4,7 @@ u1.prg : u1.o u1.cfg
 	ld65 -C u1.cfg u1.o -o $@ -m u1.map
 
 hello.prg : hello.o hello.cfg
-	ld65 -C hello.cfg hello.o -o $@ -m hello.map
+	ld65 -C hello.cfg hello.o -o $@ -vm -m hello.map
 
 lo.prg : lo.o lo.cfg
 	ld65 -C lo.cfg lo.o -o $@ -m lo.map
