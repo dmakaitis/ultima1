@@ -262,7 +262,7 @@ main:   sei
         ldx     #$0E
         jsr     hi_routine_1
         ldx     #$00
-        jsr     hi_routine_2
+        jsr     save_file
 
         ;-----------------------------------------------------------
         ; Initialization complete - game code
@@ -1055,9 +1055,9 @@ filename_buffer:
 
 hi_routine_1:
         jmp     do_hi_routine_1
-hi_routine_2:
-        jmp     do_hi_routine_2
-        jmp     do_hi_routine_3
+save_file:
+        jmp     save_file_a
+        jmp     load_file_a
         ldx     LC4F8
         inx
         inx
@@ -1066,11 +1066,21 @@ hi_routine_2:
 
 
 ;-----------------------------------------------------------
+;                         save_file
 ;
-; x => Index of file to save/replace?
+; Saves one of the game files. The file to save is selected
+; by the value in the x register, which may be one of the
+; following:
+;
+;   0 : DD - disk driver selection
+;   1 : RO - ???
+;   2 : P0 - Player save slot 1
+;   3 : P1 - Player save slot 2
+;   4 : P2 - Player save slot 3
+;   5 : P3 - Player save slot 4
 ;-----------------------------------------------------------
 
-do_hi_routine_2:
+save_file_a:
         txa                             ; x = x * 2
         asl
         tax
@@ -1080,14 +1090,14 @@ do_hi_routine_2:
         lda     write_filenames + 1,x   ; will be a DOS command to delete the file at $C593
         sta     filename + 1
 
-        lda     file_start_addresses,x  ; Get start address of data to save
+        lda     write_start_addresses,x  ; Get start address of data to save
         sta     file_start_address
-        lda     file_start_addresses + 1,x
+        lda     write_start_addresses + 1,x
         sta     file_start_address + 1
 
-        lda     file_end_addresses,x    ; Get end address of data to save (+1)
+        lda     write_end_addresses,x    ; Get end address of data to save (+1)
         sta     file_end_address
-        lda     file_end_addresses + 1,x
+        lda     write_end_addresses + 1,x
         sta     file_end_address + 1
 
         ;-----------------------------------------------------------
@@ -1140,11 +1150,13 @@ LC4F8:  brk
 
 do_hi_routine_1:
         cpx     #$05
-        bne     do_hi_routine_3
-        lda     $01
+        bne     load_file_a
+
+        lda     PROCESSOR_PORT
         and     #$FD
-        sta     $01
-        lda     #$00
+        sta     PROCESSOR_PORT
+
+        lda     #$00                    ; Copy 30 * 256 bytes from $E000 to $8C9E
         tay
         sta     $60
         lda     #$E0
@@ -1162,9 +1174,11 @@ LC516:  lda     ($60),y
         inc     $63
         dex
         bne     LC516
-        lda     $01
+
+        lda     PROCESSOR_PORT
         ora     #$02
-        sta     $01
+        sta     PROCESSOR_PORT
+
         clc
         rts
 
@@ -1172,12 +1186,42 @@ LC516:  lda     ($60),y
 
 
 ;-----------------------------------------------------------
+;                         load_file_a
+;
+; Saves one of the game files. The file to save is selected
+; by the value in the x register, which may be one of the
+; following:
+;
+;   00 : TC - ???
+;   01 : MA - ???
+;   02 : PL - ???
+;   03 : FI - ???
+;   04 : GE - ???
+;   05 : OU - ???
+;   06 : DN - ???
+;   07 : TW - ???
+;   08 : CA - ???
+;   09 : SP - ???
+;   0a : TM - ???
+;   0b : ST - ???
+;   0c : IN - ???
+;   0d : MI - ???
+;   0e : LO - ???
+;   0f : PR - ???
+;   10 : DD - disk driver selection
+;   11 : RO - ???
+;   12 : P0 - Player save slot 1
+;   13 : P1 - Player save slot 2
+;   14 : P2 - Player save slot 3
+;   15 : P3 - Player save slot 4
 ;-----------------------------------------------------------
 
-do_hi_routine_3:  txa
+load_file_a:
+        txa                             ; x = x * 2
         asl     a
         tax
-        lda     read_filenames,x
+
+        lda     read_filenames,x        ; Get the filename and start address
         sta     filename
         lda     read_filenames + 1,x
         sta     filename + 1
@@ -1185,7 +1229,8 @@ do_hi_routine_3:  txa
         sta     file_start_address
         lda     read_start_addresses + 1,x
         sta     file_start_address + 1
-        lda     #$02
+
+        lda     #$02                    ; open the file and load it
         ldx     #$08
         ldy     #$00
         jsr     KERNEL_SETLFS
@@ -1197,6 +1242,7 @@ do_hi_routine_3:  txa
         ldx     file_start_address
         ldy     file_start_address + 1
         jsr     KERNEL_LOAD
+
 LC564:  lda     #$00
         jsr     KERNEL_SETNAM
         lda     #$0F
@@ -1216,6 +1262,10 @@ LC564:  lda     #$00
         beq     LC58C
         sec
         rts
+
+
+
+
 LC58C:  clc
         rts
         rts
@@ -1285,19 +1335,22 @@ read_start_addresses:
 
 
 
-file_start_addresses:
+write_start_addresses:
         .addr   $B000
         .addr   $B000
         .addr   $81E2
         .addr   $81E2
         .addr   $81E2
         .addr   $81E2
-file_end_addresses:
+write_end_addresses:
         .addr   $B001
         .addr   $B040
         .addr   $83AC
         .addr   $83AC
         .addr   $83AC
         .addr   $83AC
+
+
+
 
         .byte   $00
