@@ -6,6 +6,7 @@
 
 
 .include "c64.inc"
+.include "kernel.inc"
 
         .setcpu "6502"
 

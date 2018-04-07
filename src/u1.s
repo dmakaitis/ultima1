@@ -15,16 +15,13 @@
 ;-------------------------------------------------------------------------------
 
 .include "c64.inc"
+.include "kernel.inc"
 
 .import main
 
         .setcpu "6502"
 
 target          :=  $8000
-
-KERNEL_SETLFS   :=  $ffba
-KERNEL_SETNAM   :=  $ffbd
-KERNEL_LOAD     :=  $ffd5
 
 ; Ensure the first two bytes of the file are $02d7 so the c64 will read this
 ; into the correct location. For this to work, the linker will need to be
