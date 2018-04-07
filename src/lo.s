@@ -263,6 +263,8 @@ display_logo:
 
 
 
+.data
+
 origin_logo:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
@@ -570,6 +572,8 @@ origin_logo8:
 ; the bitmap display located at $2000 in memory. The upper
 ; left corner of the logo will be displayed at $2667.
 ;-----------------------------------------------------------
+
+.segment "CODE2"
 
 disolve_logo:
         ldx     #$FF                    ; $E0 = $FFFF, $E7 = $0000

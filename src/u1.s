@@ -16,6 +16,8 @@
 
 .include "c64.inc"
 
+.import main
+
         .setcpu "6502"
 
 target          :=  $8000
@@ -30,11 +32,11 @@ KERNEL_LOAD     :=  $ffd5
 
 .segment    "LOADADDR"
 
-        .addr   *
+        .addr   $02D7
 
-.code
+.segment "U1_CODE"
 
-main:
+autoload:
         lda    #$00
         sta    VIC_CTRL1            ; disable screen
         sta    VIC_BORDERCOLOR      ; set border color to black
@@ -56,13 +58,13 @@ main:
 
         jmp    target
 
-.data
+.segment "U1_DATA"
 
 filename:
        .byte   "HELLO"
 
 basic_idle_loop_vector:
-       .addr   main
+       .addr   autoload
 
 basic_line_tokenizer_vector:
        .byte   $f1                  ; Not sure what this is for, if anything...

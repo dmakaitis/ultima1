@@ -25,3 +25,6 @@ LABEL	{ NAME "origin_logo5"; 	ADDR $10FE; };
 LABEL	{ NAME "origin_logo6"; 	ADDR $1216; };
 LABEL	{ NAME "origin_logo7"; 	ADDR $132E; };
 LABEL	{ NAME "origin_logo8"; 	ADDR $1446; };
+
+LABEL	{ NAME "d1200";		ADDR $1200; };
+LABEL	{ NAME "d12C0";		ADDR $12C0; };

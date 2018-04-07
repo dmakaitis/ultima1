@@ -12,7 +12,7 @@
 
         .setcpu "6502"
 
-        .export load_file, load_file_cached, save_file
+        .export main, load_file, load_file_cached, save_file
 
 PROCESSOR_PORT  := $01
 
@@ -69,7 +69,7 @@ KERNEL_GETIN    := $FFE4
 
     .addr   $2000
 
-.code
+.segment "HELLO_CODE"
 
 ;-----------------------------------------------------------
 ;                           main
@@ -283,6 +283,8 @@ main:   sei
 
 
 
+.segment "HELLO_DATA"
+
 title_page:
         .byte   $90,"@@@@@@@@",$FF
         .byte   $90,"Ultima I",$FF
@@ -315,6 +317,8 @@ title_page:
 ;   1 - 1541/1571
 ;   2 - Enhancer 2000 or MSD
 ;-----------------------------------------------------------
+
+.segment "HELLO_CODE2"
 
 prompt_for_drive_type:
         ldx     #$FF                    ; Pause briefly (probably for user experience reasons)
@@ -352,6 +356,8 @@ prompt_for_drive_type:
 
 
 
+.segment "HELLO_DATA2"
+
 select_drive_page:
         .byte   "Please enter which type of disk drive",$FF
         .byte   "you will be using.  Your choice will",$FF
@@ -388,6 +394,8 @@ reset_drive_command:
 ;-----------------------------------------------------------
 
 text_src_vec   := display_text_page + 3 ; enables modifying the display_text_page code to read from a different location
+
+.segment "HELLO_CODE3"
 
 display_text_page:
         ldy     #$00                    ; y stores the column we're currently writing to
@@ -459,6 +467,8 @@ clear_screen:
 
 
 
+.segment "HELLO_DATA3"
+
 unknown_data:
         .byte   $D3,$D9,$D3,$D4,$C5,$CD,$A0,$AA
         .byte   $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
@@ -499,6 +509,8 @@ high_code_base:
 
         .org        $C000
 
+.segment "HELLO_DATA4"
+
 high_code_target:
         .byte   $18,$90,$18,$A9,$A5,$8D
         .byte   "0"
@@ -527,6 +539,8 @@ high_code_target:
 ;-----------------------------------------------------------
 ;                    1541/1571 load handler
 ;-----------------------------------------------------------
+
+.segment "HELLO_CODE4"
 
 load_handler_1541:
         sta     $93                     ; Check if we are loading or verifying
@@ -1297,6 +1311,8 @@ LC564:  lda     #$00                    ; Clear out file name
 LC58C:  clc
         rts
         rts
+
+.segment "HELLO_DATA5"
 
 file_start_address:
         .addr   $0000
