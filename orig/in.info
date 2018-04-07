@@ -24,11 +24,14 @@ RANGE	{ START $6E6C;	END $6F16;	TYPE ByteTable; };
 RANGE	{ START $6F17;	END $6F8F;	TYPE Code; };
 RANGE	{ START $6F90;	END $D701;	TYPE ByteTable; };
 
-LABEL	{ NAME "entry"; 	ADDR $6800; };
+LABEL	{ NAME "in_main"; 	ADDR $6800; };
 
 LABEL	{ NAME "load_file_cached";	ADDR $C480; };
 LABEL	{ NAME "save_file";			ADDR $C483; };
 LABEL	{ NAME "load_file";			ADDR $C486; };
+
+########################
+# Subroutines
 
 LABEL	{ NAME "s686B";		ADDR $686B; };
 LABEL	{ NAME "s6877";		ADDR $6877; };
@@ -53,12 +56,18 @@ LABEL	{ NAME "s6E37";		ADDR $6E37; };
 LABEL	{ NAME "s6F17";		ADDR $6F17; };
 LABEL	{ NAME "s6F57";		ADDR $6F57; };
 
+########################
+# Jump targets
+
 LABEL	{ NAME "j6803";		ADDR $6803; };
 LABEL	{ NAME "j6823";		ADDR $6823; };
 LABEL	{ NAME "j6837";		ADDR $6837; };
 LABEL	{ NAME "j68E7";		ADDR $68E7; };
 LABEL	{ NAME "j6955";		ADDR $6955; };
 LABEL	{ NAME "MI_7400";	ADDR $7400; };
+
+########################
+# Branch targets
 
 LABEL	{ NAME "b6811";		ADDR $6811;	};
 LABEL	{ NAME "b685C";		ADDR $685C;	};
@@ -133,6 +142,9 @@ LABEL	{ NAME "b6E62";		ADDR $6E62;	};
 LABEL	{ NAME "b6F4D";		ADDR $6F4D;	};
 LABEL	{ NAME "b6F74";		ADDR $6F74;	};
 LABEL	{ NAME "b6F78";		ADDR $6F78;	};
+
+########################
+# Data
 
 LABEL	{ NAME "d686C";		ADDR $686C; };
 LABEL	{ NAME "d686D";		ADDR $686D; };
