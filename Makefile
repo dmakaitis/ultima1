@@ -29,22 +29,5 @@ clean:
 	rm -Rf tmp
 	rm -Rf maps
 
-#build/hello.o: src/hello.s build/hello_1541_bootstrap.prg build/hello_1541_fastload.prg
-#	ca65 $<
-	
 build/%.o: src/%.s build maps
 	ca65 $< -o $@ -I include
-
-# SUBDIRS = src
-
-# all : subdirs
-
-# subdirs:
-# 	for dir in $(SUBDIRS); do \
-# 		$(MAKE) -C $$dir; \
-# 	done
-
-# clean :
-# 	for dir in $(SUBDIRS); do \
-# 		$(MAKE) -C $$dir clean; \
-# 	done
