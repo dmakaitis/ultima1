@@ -18,6 +18,10 @@ build:
 maps: 
 	mkdir -p maps
 
+assets: orig/in.prg
+	mkdir -p assets
+	dd if=orig/in.prg of=assets/intro_image.bin bs=1 skip=5021 count=2367
+
 verify: all
 	./chkfile u1.prg
 	./chkfile hello.prg
@@ -28,6 +32,7 @@ clean:
 	rm -Rf build
 	rm -Rf tmp
 	rm -Rf maps
+	rm -Rf assets
 
-build/%.o: src/%.s build maps
-	ca65 $< -o $@ -I include
+build/%.o: src/%.s build maps assets
+	ca65 $< -o $@ -I include -I assets
