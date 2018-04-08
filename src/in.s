@@ -11,8 +11,6 @@
 
         .setcpu "6502"
 
-TXTPTR          := $007A                        ; Pointer into BASIC source code
-
 ;-------------------------------------------------------------------------------
 ;
 ; The load address for this file is always set to $2000, but is ignored. The
@@ -67,7 +65,7 @@ decompress_image:
 @decompress_loop:
         jsr     lda_and_advance
         cmp     #$DA
-        beq     b6883
+        beq     init_1200_12C0
         cmp     #$00                    ; If the next byte is $00, $10, $FF, $E6, $16, or
         beq     @store_run              ; $50, then it is a run and the following byte contains
         cmp     #$10                    ; the number of times the value should be repeated
@@ -135,18 +133,20 @@ store_vector    := * + 1
 
 
 
-b6883:  lda     #$00
+init_1200_12C0:
+        lda     #$00                    ; Initialize data in $1200-$12BF, and $12C0-$137F
         sta     $1200
-        lda     #$20
-        sta     $12C0
-        ldx     #$00
-b688F:  lda     $1200,x
-        clc
-        adc     #$01
-        inx
+        lda     #$20                    ; $1200 is initialized to $00, then increases by 1 at each location after that,
+        sta     $12C0                   ; except every 8 bytes, the low nibble is reset to 0, and the high is increased
+        ldx     #$00                    ; by 4
+@loop:  lda     $1200,x
+        clc                             ; $12C0 is initialized to $20. Each subsequent byte repeats the byte before, except
+        adc     #$01                    ; every 8 bytes it is increaed by 1, and every 32 bytes is increased by an
+        inx                             ; additional 1.
         sta     $1200,x
         and     #$07
-        bne     b68BB
+        bne     @copy_next_high_byte
+
         dex
         lda     $12C0,x
         clc
@@ -158,22 +158,29 @@ b688F:  lda     $1200,x
         clc
         adc     #$40
         sta     $1200,x
-        bcc     b68C3
+        bcc     @check_if_done
         inc     $12C0,x
-        jmp     b68C3
+        jmp     @check_if_done
 
-b68BB:  dex
+@copy_next_high_byte:
+        dex
         lda     $12C0,x
         inx
         sta     $12C0,x
-b68C3:  cpx     #$BF
-        bne     b688F
-        lda     #$38
-        sta     $5E
+
+@check_if_done:
+        cpx     #$BF
+        bne     @loop
+
+
+
+init_15B0_15D8:
+        lda     #$38                    ; Initialize $15B0-$15D7 with values starting with $38, and decreasing by 8 for each
+        sta     $5E                     ; byte.
         lda     #$01
-        sta     $5F
+        sta     $5F                     ; Initialize $15D8-$15FF with 8 bytes of $01, and 32 bytes of $00.
         ldx     #$27
-b68D1:  lda     $5E
+@loop:  lda     $5E
         sta     $15B0,x
         sec
         sbc     #$08
@@ -183,10 +190,10 @@ b68D1:  lda     $5E
         sbc     #$00
         sta     $5F
         dex
-        bpl     b68D1
+        bpl     @loop
 
 j68E7:  inc     d6A16
-        jsr     s6BED
+        jsr     set_memory_locations_to_zero
         jsr     s6F57
         jsr     s6978
         jsr     enable_sprites
@@ -243,7 +250,7 @@ j6955:  jmp     j6955
 ;-----------------------------------------------------------
 
 enable_sprites:
-        lda     #$80            ; Set screen memory to $6000, and bitmap memory to $4000
+        lda     #$80            ; Set screen memory to $6000-$63FF, and bitmap memory to $4000-$5FFF
         sta     VIC_VIDEO_ADR
         lda     #$96            
         sta     CIA2_PRA
@@ -262,7 +269,7 @@ enable_sprites:
 ;-----------------------------------------------------------
 
 disable_sprites:
-        lda     #$18            ; Set screen memory to $0400, and bitmap memory to $2000
+        lda     #$18            ; Set screen memory to $0400-$07FF, and bitmap memory to $2000-$3FFF
         sta     VIC_VIDEO_ADR
         lda     #$97
         sta     CIA2_PRA
@@ -278,7 +285,7 @@ disable_sprites:
 
 s6978:  lda     #$00
         sta     $7B
-        sta     TXTPTR
+        sta     $7A
         sta     $79
         sta     $7C
         sta     $7E
@@ -610,10 +617,17 @@ b6BCE:  tya
 
 
 ;-----------------------------------------------------------
+;
+;
+; Sets a memory block to $00s. The memory locations are
+; calculated using the values in $1200-$137F and 
+; $15B0-$15FF.
 ;-----------------------------------------------------------
 
-s6BED:  ldx     #$60
-b6BEF:  ldy     #$1E
+set_memory_locations_to_zero:
+        ldx     #$60
+@calculate_next_address:
+        ldy     #$1E
         lda     $1214,x
         clc
         adc     $15B0,y
@@ -623,16 +637,16 @@ b6BEF:  ldy     #$1E
         adc     #$20
         sta     $61
         ldy     #$00
-b6C06:  lda     #$00
+@loop:  lda     #$00
         sta     ($60),y
         tya
         clc
         adc     #$08
         tay
         cpy     #$18
-        bne     b6C06
+        bne     @loop
         dex
-        bpl     b6BEF
+        bpl     @calculate_next_address
         rts
 
 
@@ -733,10 +747,13 @@ d6CCB:  .byte   $2F,$5F,$8F
 
 s6CCE:  lda     #$F0
         sta     key_press_wait_time
-s6CD3:  lda     VIC_CTRL1
+
+s6CD3:  lda     VIC_CTRL1               ; Wait for raster to return to top of screen
         bpl     s6CD3
-b6CD8:  lda     VIC_HLINE
-        bne     b6CD8
+@wait_for_raster:
+        lda     VIC_HLINE
+        bne     @wait_for_raster
+
         inc     $79
         jsr     s6D2B
         jsr     s6D7F
@@ -796,8 +813,8 @@ s6D17:  lda     $82
         beq     b6D2A
         ldx     #$07
         lda     $79
-        lsr     a
-        lsr     a
+        lsr
+        lsr
         cmp     #$08
         bcc     b6D27
         ldx     #$06
@@ -852,13 +869,13 @@ d6D6F:  .byte   $10,$30,$10,$60,$30,$70,$00,$A0
 
 s6D7F:  lda     $79
         and     #$3F
-        bne     b6DA8
-        inc     TXTPTR
-        ldx     TXTPTR
+        bne     return_from_routine
+        inc     $7A
+        ldx     $7A
         lda     d6F90,x
         bpl     b6D92
         lda     #$00
-        sta     TXTPTR
+        sta     $7A
 b6D92:  asl     a
         tax
         lda     d764F,x
@@ -870,7 +887,9 @@ b6DA0:  lda     ($60),y
         sta     $6400,y
         dey
         bpl     b6DA0
-b6DA8:  rts
+
+return_from_routine:
+        rts
 
 
 
@@ -879,13 +898,13 @@ b6DA8:  rts
 ;-----------------------------------------------------------
 
 s6DA9:  lda     $83
-        beq     b6DA8
+        beq     return_from_routine
         lda     d6A16
         and     #$03
-        bne     b6DA8
+        bne     return_from_routine
         lda     $79
         and     #$07
-        bne     b6DA8
+        bne     return_from_routine
         lda     $84
         and     #$01
         clc
@@ -1091,6 +1110,10 @@ b6F78:  sta     ($60),y
         dex
         bne     b6F74
         rts
+
+
+
+
 d6F90:  .byte   $00,$01,$00,$01,$02,$01,$00,$01
         .byte   $02,$03,$04,$03,$04,$03,$02,$01
         .byte   $00,$05,$06,$05,$06,$05,$06,$FF
