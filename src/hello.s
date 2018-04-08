@@ -54,7 +54,8 @@ DEFAULT_LOAD_HANDLER:= $F4A5
 
     .addr   $2000
 
-.segment "HELLO_CODE"
+.code
+.org    $8000
 
 ;-----------------------------------------------------------
 ;                           main
@@ -268,7 +269,7 @@ main:   sei
 
 
 
-.segment "HELLO_DATA"
+.segment "TITLE_PAGE"
 
 title_page:
         .byte   $90,"@@@@@@@@",$FF
@@ -303,7 +304,7 @@ title_page:
 ;   2 - Enhancer 2000 or MSD
 ;-----------------------------------------------------------
 
-.segment "HELLO_CODE2"
+.segment "CODE2"
 
 prompt_for_drive_type:
         ldx     #$FF                    ; Pause briefly (probably for user experience reasons)
@@ -341,8 +342,6 @@ prompt_for_drive_type:
 
 
 
-.segment "HELLO_DATA2"
-
 select_drive_page:
         .byte   "Please enter which type of disk drive",$FF
         .byte   "you will be using.  Your choice will",$FF
@@ -379,8 +378,6 @@ reset_drive_command:
 ;-----------------------------------------------------------
 
 text_src_vec   := display_text_page + 3 ; enables modifying the display_text_page code to read from a different location
-
-.segment "HELLO_CODE3"
 
 display_text_page:
         ldy     #$00                    ; y stores the column we're currently writing to
@@ -452,8 +449,6 @@ clear_screen:
 
 
 
-.segment "HELLO_DATA3"
-
 unknown_data:
         .byte   $D3,$D9,$D3,$D4,$C5,$CD,$A0,$AA
         .byte   $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
@@ -494,8 +489,6 @@ high_code_base:
 
         .org        $C000
 
-.segment "HELLO_DATA4"
-
 high_code_target:
         .byte   $18,$90,$18,$A9,$A5,$8D
         .byte   "0"
@@ -524,8 +517,6 @@ high_code_target:
 ;-----------------------------------------------------------
 ;                    1541/1571 load handler
 ;-----------------------------------------------------------
-
-.segment "HELLO_CODE4"
 
 load_handler_1541:
         sta     $93                     ; Check if we are loading or verifying
@@ -928,16 +919,15 @@ _serial_data_vector:= * + 1
 ;-----------------------------------------------------------
 ;                _1541_fastload_bootstrap
 ;
-; The following section will be copied out to the 1541 drive
-; to bootstrap the fastload code. It contains enough code to
-; handle receiving and decoding a 256 byte block of data
-; over the CLOCK and DATA lines of the serial port, then 
-; pass control to the received block.
+; The 1541 bootstrap code will be inserted here, so the
+; following segment will need to be offset by the size of
+; the code.
 ;-----------------------------------------------------------
 
-_1541_fastload_bootstrap:
+_1541_fastload_bootstrap:= *
+.org    _1541_fastload_bootstrap + $0040
 
-        .incbin "hello_1541_bootstrap.prg"
+
 
 ;-----------------------------------------------------------
 ;                read_page_from_serial_bus
@@ -975,6 +965,8 @@ _1541_fastload_bootstrap:
 ; hardware. Each device has a lookup table to aid in
 ; encoding data for transmission.
 ;-----------------------------------------------------------
+
+.segment "CODE3"
 
 read_page_from_serial_bus:  ldy     #$00                    ; Read 256 bytes from the serial port into buffer
 
@@ -1036,14 +1028,14 @@ read_page_from_serial_bus:  ldy     #$00                    ; Read 256 bytes fro
 ;-----------------------------------------------------------
 ;                    _1541_fastload_code
 ;
-; The following section will be copied out to the 1541
-; drive, and contains the fastload code that will be
-; executed on the 1541.
+; The 1541 fastload code will be inserted here, so the
+; following segment will need to be offset by the size of
+; the code.
 ;-----------------------------------------------------------
 
-_1541_fastload_code:
+_1541_fastload_code:= *
+.org    _1541_fastload_code + $01BC
 
-        .incbin "hello_1541_fastload.prg"
 
 
 
@@ -1053,6 +1045,8 @@ _1541_fastload_code:
 ; fastload code above when we load a file using the
 ; 1541 fastload driver.
 ;-----------------------------------------------------------
+
+.segment "CODE4"
 
 filename_buffer:
         .byte   $A0,$A0,$A0,$A0,$A0,$A0,$A0,$A0
@@ -1296,8 +1290,6 @@ LC564:  lda     #$00                    ; Clear out file name
 LC58C:  clc
         rts
         rts
-
-.segment "HELLO_DATA5"
 
 file_start_address:
         .addr   $0000

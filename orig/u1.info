@@ -7,6 +7,7 @@ GLOBAL {
 };
 
 ASMINC	{ FILE "c64.inc"; };
+ASMINC	{ FILE "../src/kernel.inc"; };
 
 SEGMENT	{ START $02D5;	END $02D6;	NAME "LOADADDR"; };
 SEGMENT	{ START $02D7;	END $02FC;	NAME "code"; };

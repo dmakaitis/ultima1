@@ -16,7 +16,8 @@ code_target:=  $0500
 
 VIA1_PORTB:= $1800
 
-.code
+.segment "BOOTSTRAP_1541"
+.org    $0146
 
         ldx     #$00                    ; Delay to allow C64 code to get ready to write
 @loop_delay:

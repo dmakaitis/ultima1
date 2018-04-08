@@ -51,7 +51,8 @@ DOS_ENCODE_BLOCK_HEADER:= $F934
 
 __start_1541_fastload_code:
 
-.code
+.segment "FASTLOAD_1541"
+.org    $0500
 
         inc     read_target_vector + 1  ; Load the next 256 bytes of code from the C64
         jsr     read_256_bytes
