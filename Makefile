@@ -18,8 +18,16 @@ build:
 maps: 
 	mkdir -p maps
 
-assets/intro_image.bin: orig/in.prg
-	dd if=orig/in.prg of=assets/intro_image.bin bs=1 skip=5021 count=2367
+assets/intro: orig/in.prg
+	mkdir -p assets/intro
+	dd if=orig/in.prg of=assets/intro/image.bin bs=1 skip=5021 count=2367
+	dd if=orig/in.prg of=assets/intro/horse0.bin bs=1 skip=3369 count=42
+	dd if=orig/in.prg of=assets/intro/horse1.bin bs=1 skip=3411 count=42
+	dd if=orig/in.prg of=assets/intro/horse2.bin bs=1 skip=3453 count=42
+	dd if=orig/in.prg of=assets/intro/horse3.bin bs=1 skip=3495 count=42
+	dd if=orig/in.prg of=assets/intro/horse4.bin bs=1 skip=3537 count=42
+	dd if=orig/in.prg of=assets/intro/horse5.bin bs=1 skip=3579 count=42
+	dd if=orig/in.prg of=assets/intro/horse6.bin bs=1 skip=3621 count=42
 
 verify: all
 	./chkfile u1.prg
@@ -31,7 +39,7 @@ clean:
 	rm -Rf build
 	rm -Rf tmp
 	rm -Rf maps
-	rm -f assets/*.bin
+	rm -Rf assets/intro
 
-build/%.o: src/%.s build maps assets/intro_image.bin
+build/%.o: src/%.s build maps assets/intro
 	ca65 $< -o $@ -I include -I assets

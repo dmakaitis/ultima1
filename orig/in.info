@@ -8,8 +8,8 @@ GLOBAL {
 };
 
 ASMINC  { FILE "c64.inc"; };
-ASMINC  { FILE "../src/kernel.inc"; };
-ASMINC  { FILE "../src/global.inc"; };
+ASMINC  { FILE "../include/kernel.inc"; };
+ASMINC  { FILE "../include/global.inc"; };
 
 RANGE   { START $6800;  END $6A15;  TYPE Code; };
 RANGE   { START $6A16;  END $6A36;  TYPE ByteTable; };
@@ -24,7 +24,9 @@ RANGE   { START $6E23;  END $6E36;  TYPE ByteTable; };
 RANGE   { START $6E37;  END $6E6B;  TYPE Code; };
 RANGE   { START $6E6C;  END $6F16;  TYPE ByteTable; };
 RANGE   { START $6F17;  END $6F8F;  TYPE Code; };
-RANGE   { START $6F90;  END $D701;  TYPE ByteTable; };
+RANGE   { START $6F90;  END $764E;  TYPE ByteTable; };
+RANGE   { START $764F;  END $765C;  TYPE AddrTable; };
+RANGE   { START $765D;  END $D701;  TYPE ByteTable; };
 
 ########################
 # Subroutines
@@ -60,7 +62,6 @@ LABEL   { NAME "decompress_image";  ADDR $6823; };
 LABEL   { NAME "j6837";             ADDR $6837; };
 LABEL   { NAME "j68E7";             ADDR $68E7; };
 LABEL   { NAME "j6955";             ADDR $6955; };
-LABEL   { NAME "MI_7400";           ADDR $7400; };
 
 ########################
 # Branch targets
@@ -177,14 +178,19 @@ LABEL   { NAME "d6F4E";         ADDR $6F4E; };
 LABEL   { NAME "d6F4F";         ADDR $6F4F; };
 LABEL   { NAME "d6F51";         ADDR $6F51; };
 LABEL   { NAME "d6F52";         ADDR $6F52; };
-LABEL   { NAME "d6F90";         ADDR $6F90; };
-LABEL   { NAME "d6FA8";         ADDR $6FA8; };
-LABEL   { NAME "d7518";         ADDR $7518; };
-LABEL   { NAME "d7570";         ADDR $7570; };
-LABEL   { NAME "d7574";         ADDR $7574; };
-LABEL   { NAME "d764F";         ADDR $764F; };
-LABEL   { NAME "d7650";         ADDR $7650; };
-LABEL   { NAME "d765D";         ADDR $765D; };
+LABEL   { NAME "address_indices";   ADDR $6F90; };
+LABEL   { NAME "d6FA8";         	ADDR $6FA8; };
+LABEL   { NAME "d7518";         	ADDR $7518; };
+LABEL   { NAME "d7527";         	ADDR $7527; };
+LABEL   { NAME "d7551";         	ADDR $7551; };
+LABEL   { NAME "d757B";         	ADDR $757B; };
+LABEL   { NAME "d75A5";         	ADDR $75A5; };
+LABEL   { NAME "d75CF";         	ADDR $75CF; };
+LABEL   { NAME "d75F9";         	ADDR $75F9; };
+LABEL	{ NAME "d7623";				ADDR $7623; };
+LABEL   { NAME "addresses";        	ADDR $764F; };
+LABEL   { NAME "d7650";         	ADDR $7650; };
+LABEL   { NAME "d765D";         	ADDR $765D; };
 LABEL   { NAME "d7684";             ADDR $7684; };
 LABEL   { NAME "d76B5";             ADDR $76B5; };
 LABEL   { NAME "d7765";             ADDR $7765; };

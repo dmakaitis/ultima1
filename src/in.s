@@ -23,7 +23,10 @@
         .addr   $2000
 
 
+temp_ptr                        := $60
+temp_ptr2                       := $62
 
+horse_anim_index                := $7A
 
 bitmap_row_addr_table_low       := $1200
 bitmap_row_addr_table_high      := $12C0
@@ -32,6 +35,28 @@ bitmap_col_offset_table_low     := $15B0
 bitmap_col_offset_table_high    := $15D8
 
 bitmap_memory                   := $4000
+screen_memory                   := $6000
+
+sprite_0_ptr                    := screen_memory + $03F8
+sprite_1_ptr                    := screen_memory + $03F9
+sprite_2_ptr                    := screen_memory + $03FA
+sprite_3_ptr                    := screen_memory + $03FB
+sprite_4_ptr                    := screen_memory + $03FC
+sprite_5_ptr                    := screen_memory + $03FD
+sprite_6_ptr                    := screen_memory + $03FE
+sprite_7_ptr                    := screen_memory + $03FF
+
+sprite_0_image                  := bitmap_memory + $40 * $90    ; $6400
+sprite_1_image                  := bitmap_memory + $40 * $91    ; $6440
+sprite_2_image                  := bitmap_memory + $40 * $92    ; $6480
+sprite_3_image                  := bitmap_memory + $40 * $95    ; $6540
+sprite_4_image                  := bitmap_memory + $40 * $96    ; $6580
+sprite_5_image                  := bitmap_memory + $40 * $93    ; $64C0
+sprite_5b_image                 := bitmap_memory + $40 * $94    ; $6500
+sprite_6_image                  := bitmap_memory + $40 * $97    ; $65C0
+sprite_7_image                  := bitmap_memory + $40 * $97    ; $65C0
+
+L6444                           := $6444
 
 .code
 
@@ -43,16 +68,16 @@ main:   jmp     decompress_image
 exit_intro:
         jsr     disable_sprites
 
-        lda     #$40                    ; Fill memory $4000 to $63FF with zeros
-        sta     $61                     ; (erase intro graphics)
-        lda     #$00
-        sta     $60
+        lda     #>bitmap_memory         ; Fill memory $4000 to $63FF with zeros
+        sta     temp_ptr + 1            ; (erase intro graphics)
+        lda     #<bitmap_memory
+        sta     temp_ptr
         tay
         ldx     #$24
-@loop:  sta     ($60),y
+@loop:  sta     (temp_ptr),y
         iny
         bne     @loop
-        inc     $61
+        inc     temp_ptr + 1
         dex
         bne     @loop
 
@@ -232,8 +257,8 @@ animate_intro_screen:
         jsr     erase_bitmap_sides
         jsr     setup_sprites
         jsr     enable_sprites
-        jsr     s6D7F
-        jsr     s6A57
+        jsr     load_horse_sprite
+        jsr     draw_origin_logo
         lda     #$00
         jsr     s6E37
         jsr     s6CCE
@@ -316,12 +341,24 @@ disable_sprites:
 
 
 ;-----------------------------------------------------------
+;                       setup_sprites
+;
+; Initializes sprites for the intro page. Specifically, it
+; does the following:
+;
+; - initialize animation counters
+; - erases all sprite images
+; - sets up pointers to sprite images in video memory
+; - set initial location of all sprites
+; - set whether each sprite should appear in front or
+;   behind screen content
+; - set colors for all sprites
 ;-----------------------------------------------------------
 
 setup_sprites:
         lda     #$00
         sta     $7B
-        sta     $7A
+        sta     horse_anim_index
         sta     $79
         sta     $7C
         sta     $7E
@@ -331,30 +368,30 @@ setup_sprites:
         sta     $87
         tax
 
-@loop:  sta     $6400,x                 ; Set $6400-$65FF to $00
-        sta     $6500,x
+@loop:  sta     sprite_0_image,x        ; Erase all sprite images
+        sta     sprite_0_image + $0100,x
         inx
         bne     @loop
 
-        ldx     #$12                    ; Set $6540-$6552 and $6582-$6594 to $03
-@loop2: lda     #$03
-        sta     $6540,x
+        ldx     #$12                    ; Set $6540-$6552 to $03 and $6582-$6594 to $00
+@loop2: lda     #$03                    ; (this seems to get overwritten below)
+        sta     sprite_3_image,x
         lda     #$00
-        sta     $6582,x
+        sta     sprite_4_image + 2,x
         dex
         bpl     @loop2
 
-        ldx     #$07                    ; Copy $6A2F-$6A36 to $63F8-$63FF
-@loop3: lda     d6A2F,x
-        sta     $63F8,x
+        ldx     #$07                    ; Set up pointers so the VIC can locate sprite images
+@loop3: lda     sprite_pointers,x
+        sta     sprite_0_ptr,x
         dex
         bpl     @loop3
 
         lda     #$00                    ; Set hi bit of x coord of all sprites to 0
         sta     VIC_SPR_HI_X
 
-        lda     #$1E                    ; Draw sprites 0, 5, 6, and 7 behind screen content
-        sta     VIC_SPR_BG_PRIO
+        lda     #$1E                    ; Draw sprites 0, 5, 6, and 7 in front of screen content
+        sta     VIC_SPR_BG_PRIO         ; Draw sprites 1, 2, 3, and 4 behind screen content
 
         ldx     #$0F                    ; Set X/Y coordinates and colors for all sprites
 @sprite_position_loop:
@@ -368,32 +405,33 @@ setup_sprites:
         dex
         bpl     @sprite_position_loop
 
-        ldx     #$3F                    ; Set $6540-$65BF to $FF
+        ldx     #$3F                    ; Make sprites 3 and 4 solid squares
         lda     #$FF
-@loop4: sta     $6540,x
-        sta     $6580,x
+@loop4: sta     sprite_3_image,x
+        sta     sprite_4_image,x
         dex
         bpl     @loop4
 
-        lda     intro_loop_counter
+        lda     intro_loop_counter      ; Every 16 times through the intro, do something (knight)
         and     #$0F
-        beq     b69F9
+        beq     @skip_knight
 
         ldx     #$26                    ; Copy $765D-$7683 to $64C0-$64E6
 @loop5: lda     d765D,x
-        sta     $64C0,x
+        sta     sprite_5_image,x
         lda     d7684,x                 ; Copy $7684-$76AA to $6500-$6526
-        sta     $6500,x
+        sta     sprite_5b_image,x
         dex
         bpl     @loop5
         lda     #$00
         sta     $85
         rts
 
-b69F9:  ldx     #$0E                    ; Copy $7518-$7526 to $64C0 and $6500
+@skip_knight:
+        ldx     #$0E                    ; Copy $7518-$7526 to $64C0 and $6500
 @loop6: lda     d7518,x
-        sta     $64C0,x
-        sta     $6500,x
+        sta     sprite_5_image,x
+        sta     sprite_5b_image,x
         dex
         bpl     @loop6
 
@@ -401,18 +439,22 @@ b69F9:  ldx     #$0E                    ; Copy $7518-$7526 to $64C0 and $6500
         sta     $85
         lda     #$B2                    ; Set sprite 5 Y position
         sta     VIC_SPR5_Y
-        lda     #$02                    ; Set sprite 5 color
+        lda     #$02                    ; Set sprite 5 color to red
         sta     VIC_SPR5_COLOR
         rts
 
 intro_loop_counter:
         .byte   $00
+
 sprite_coordinates:
         .byte   $44,$C4,$00,$00,$00,$00,$53,$A5
         .byte   $60,$A5,$00,$A8,$00,$00,$00,$00
+
 sprite_colors:
         .byte   $01,$01,$0A,$00,$00,$01,$01,$01
-d6A2F:  .byte   $90,$91,$92,$95,$96,$93,$97,$97
+
+sprite_pointers:
+        .byte   $90,$91,$92,$95,$96,$93,$97,$97
 
 
 
@@ -421,20 +463,20 @@ d6A2F:  .byte   $90,$91,$92,$95,$96,$93,$97,$97
 ;-----------------------------------------------------------
 
 s6A37:  lda     #$00
-        sta     $60
-        sta     $62
+        sta     temp_ptr
+        sta     temp_ptr2
         tay
         lda     #$40
-        sta     $61
+        sta     temp_ptr + 1
         lda     #$80
-        sta     $63
+        sta     temp_ptr2 + 1
         ldx     #$20
-b6A48:  lda     ($60),y
-        sta     ($62),y
+b6A48:  lda     (temp_ptr),y
+        sta     (temp_ptr2),y
         iny
         bne     b6A48
-        inc     $61
-        inc     $63
+        inc     temp_ptr + 1
+        inc     temp_ptr2 + 1
         dex
         bne     b6A48
         rts
@@ -443,40 +485,50 @@ b6A48:  lda     ($60),y
 
 
 ;-----------------------------------------------------------
+;                      draw_origin_logo
+;
+; Draws the Ultima logo on the screen from (160,56) to
+; (264,77)
 ;-----------------------------------------------------------
 
-s6A57:  lda     #$A8
-        sta     d6A7B
-        lda     #$6F
-        sta     d6A7C
-        ldx     #$38
-b6A63:  ldy     #$13
+draw_origin_logo:
+        lda     #<origin_logo           ; Reset load address to start of data
+        sta     @load_address
+        lda     #>origin_logo
+        sta     @load_address + 1
+
+        ldx     #$38                    ; Copy onto rows 56 through 77
+@next_x:ldy     #$13                    ; Get address for pixel (160,56)
         lda     bitmap_row_addr_table_low,x
         clc
         adc     bitmap_col_offset_table_low,y
-        sta     $60
+        sta     temp_ptr
         lda     bitmap_row_addr_table_high,x
         adc     bitmap_col_offset_table_high,y
         adc     #$20
-        sta     $61
+        sta     temp_ptr + 1
+
         ldy     #$00
-b6A7A:
-d6A7B           := * + 1
-d6A7C           := * + 2
-        lda     d6FA8
-        sta     ($60),y
-        inc     d6A7B
-        bne     b6A87
-        inc     d6A7C
-b6A87:  tya
+@next_y:
+@load_address   := * + 1
+        lda     origin_logo             ; Copy 104 pixel wide row
+        sta     (temp_ptr),y
+
+        inc     @load_address           ; Advance the load address by 1
+        bne     @same_page
+        inc     @load_address + 1
+
+@same_page:
+        tya
         clc
         adc     #$08
         tay
         cpy     #$68
-        bcc     b6A7A
-        inx
+        bcc     @next_y
+
+        inx                             ; Advance to next row
         cpx     #$4D
-        bcc     b6A63
+        bcc     @next_x
         rts
 
 
@@ -490,36 +542,36 @@ s6A96:  ldx     #$30
         lda     bitmap_row_addr_table_low,x
         clc
         adc     bitmap_col_offset_table_low,y
-        sta     $62
+        sta     temp_ptr2
         lda     bitmap_row_addr_table_high,x
         adc     bitmap_col_offset_table_high,y
         adc     #$20
-        sta     $63
+        sta     temp_ptr2 + 1
         lda     #$C0
-        sta     $60
+        sta     temp_ptr
         lda     #$70
-        sta     $61
+        sta     temp_ptr + 1
         ldx     #$06
 b6AB7:  ldy     #$00
-b6AB9:  lda     ($60),y
-        sta     ($62),y
+b6AB9:  lda     (temp_ptr),y
+        sta     (temp_ptr2),y
         iny
         cpy     #$B8
         bcc     b6AB9
-        lda     $60
+        lda     temp_ptr
         clc
         adc     #$B8
-        sta     $60
-        lda     $61
+        sta     temp_ptr
+        lda     temp_ptr + 1
         adc     #$00
-        sta     $61
-        lda     $62
+        sta     temp_ptr + 1
+        lda     temp_ptr2
         clc
         adc     #$40
-        sta     $62
-        lda     $63
+        sta     temp_ptr2
+        lda     temp_ptr2 + 1
         adc     #$01
-        sta     $63
+        sta     temp_ptr2 + 1
         dex
         bne     b6AB7
         rts
@@ -546,23 +598,23 @@ b6AFA:  ldy     #$1E
         lda     bitmap_row_addr_table_low + $14,x
         clc
         adc     bitmap_col_offset_table_low,y
-        sta     $60
-        sta     $62
+        sta     temp_ptr
+        sta     temp_ptr2
         lda     bitmap_row_addr_table_high + $14,x
         adc     bitmap_col_offset_table_high,y
         adc     #$20
-        sta     $61
+        sta     temp_ptr + 1
         adc     #$40
-        sta     $63
+        sta     temp_ptr2 + 1
         ldy     #$00
-b6B17:  lda     ($62),y
+b6B17:  lda     (temp_ptr2),y
 d6B1A           := * + 1
 d6B1B           := * + 2
         and     d78A0
 d6B1D           := * + 1
 d6B1E           := * + 2
         ora     d76B5
-        sta     ($60),y
+        sta     (temp_ptr),y
         inc     d6B1D
         bne     b6B29
         inc     d6B1E
@@ -595,17 +647,17 @@ b6B5E:  ldy     #$1E
         lda     bitmap_row_addr_table_low + $14,x
         clc
         adc     bitmap_col_offset_table_low,y
-        sta     $62
+        sta     temp_ptr2
         lda     bitmap_row_addr_table_high + $14,x
         adc     bitmap_col_offset_table_high,y
         adc     #$60
-        sta     $63
+        sta     temp_ptr2 + 1
         ldy     #$00
-b6B75:  lda     ($62),y
+b6B75:  lda     (temp_ptr2),y
 d6B78           := * + 1
 d6B79           := * + 2
         ora     d780D
-        sta     ($62),y
+        sta     (temp_ptr2),y
         inc     d6B78
         bne     b6B84
         inc     d6B79
@@ -629,20 +681,20 @@ b6BA2:  ldy     #$1E
         lda     bitmap_row_addr_table_low + $68,x
         clc
         adc     bitmap_col_offset_table_low,y
-        sta     $60
-        sta     $62
+        sta     temp_ptr
+        sta     temp_ptr2
         lda     bitmap_row_addr_table_high + $68,x
         adc     bitmap_col_offset_table_high,y
         adc     #$20
-        sta     $61
+        sta     temp_ptr + 1
         adc     #$40
-        sta     $63
+        sta     temp_ptr2 + 1
         ldy     #$00
-b6BBF:  lda     ($62),y
+b6BBF:  lda     (temp_ptr2),y
 d6BC2           := * + 1
 d6BC3           := * + 2
         ora     d7835
-        sta     ($60),y
+        sta     (temp_ptr),y
         inc     d6BC2
         bne     b6BCE
         inc     d6BC3
@@ -684,15 +736,15 @@ erase_bitmap_72_20_to_105_116:
         lda     bitmap_row_addr_table_low + $14,x
         clc
         adc     bitmap_col_offset_table_low,y
-        sta     $60
+        sta     temp_ptr
         lda     bitmap_row_addr_table_high + $14,x
         adc     bitmap_col_offset_table_high,y
         adc     #$20
-        sta     $61
+        sta     temp_ptr + 1
 
         ldy     #$00
 @loop:  lda     #$00
-        sta     ($60),y
+        sta     (temp_ptr),y
         tya
         clc
         adc     #$08
@@ -731,9 +783,9 @@ b6C39:  stx     $81
         tax
         ldy     #$2F
 b6C41:  lda     d7AA3,x
-        sta     $6440,y
+        sta     sprite_1_image,y
         lda     d7A0B,x
-        sta     $6480,y
+        sta     sprite_2_image,y
         dex
         dey
         bpl     b6C41
@@ -776,9 +828,9 @@ b6C9C:  dec     $7F
         bne     b6C28
         ldx     #$2F
 b6CA4:  lda     d7B6B,x
-        sta     $6440,x
+        sta     sprite_1_image,x
         lda     d7B3B,x
-        sta     $6480,x
+        sta     sprite_2_image,x
         dex
         bpl     b6CA4
         lda     #$40
@@ -811,8 +863,8 @@ s6CD3:  lda     VIC_CTRL1               ; Wait for raster to return to top of sc
 
         inc     $79
         jsr     s6D2B
-        jsr     s6D7F
-        jsr     s6D17
+        jsr     load_horse_sprite
+        jsr     set_6444
         jsr     s6DA9
         dec     key_press_wait_time
         bne     s6CD3
@@ -862,19 +914,24 @@ key_press_wait_time:
 
 
 ;-----------------------------------------------------------
+;                         set_6444
+;
+; Sets the byte at $644 to either a $07 or $06, depending on
+; the value stored at $79.
 ;-----------------------------------------------------------
 
-s6D17:  lda     $82
-        beq     b6D2A
+set_6444:
+        lda     $82
+        beq     @exit
         ldx     #$07
         lda     $79
         lsr
         lsr
         cmp     #$08
-        bcc     b6D27
+        bcc     @b6D27
         ldx     #$06
-b6D27:  stx     $6444
-b6D2A:  rts
+@b6D27: stx     L6444
+@exit:  rts
 
 
 
@@ -901,7 +958,7 @@ b6D3E:  tax
         lda     d6D67,y
         tay
         lda     d6D6F,x
-        sta     $6000,y
+        sta     screen_memory,y
         lda     $79
         and     #$1F
         bne     b6D66
@@ -920,28 +977,37 @@ d6D6F:  .byte   $10,$30,$10,$60,$30,$70,$00,$A0
 
 
 ;-----------------------------------------------------------
+;                      load_horse_sprite
+;
+; Selects the next frame of the horse animation to load into
+; sprite 0. 
 ;-----------------------------------------------------------
 
-s6D7F:  lda     $79
+load_horse_sprite:
+        lda     $79
         and     #$3F
         bne     return_from_routine
-        inc     $7A
-        ldx     $7A
-        lda     d6F90,x
-        bpl     b6D92
-        lda     #$00
-        sta     $7A
-b6D92:  asl     a
+
+        inc     horse_anim_index        ; Select the next frame of animation
+        ldx     horse_anim_index
+        lda     horse_anim_frames,x
+        bpl     @in_range
+
+        lda     #$00                    ; Loop back to the first animation frame
+        sta     horse_anim_index
+
+@in_range:
+        asl                             ; Get the pointer to the sprite image for the frame
         tax
-        lda     d764F,x
-        sta     $60
-        lda     d7650,x
-        sta     $61
+        lda     horse_frame_ptrs,x
+        sta     temp_ptr
+        lda     horse_frame_ptrs + 1,x
+        sta     temp_ptr + 1
         ldy     #$29
-b6DA0:  lda     ($60),y
-        sta     $6400,y
+@loop:  lda     (temp_ptr),y
+        sta     sprite_0_image,y
         dey
-        bpl     b6DA0
+        bpl     @loop
 
 return_from_routine:
         rts
@@ -964,7 +1030,7 @@ s6DA9:  lda     $83
         and     #$01
         clc
         adc     #$93
-        sta     $63FD
+        sta     sprite_5_ptr
         lda     $84
         clc
         adc     #$20
@@ -993,14 +1059,14 @@ b6DE4:  lda     $85
         bcs     b6E0F
         jsr     s6E10
         ora     #$40
-        sta     ($60),y
+        sta     (temp_ptr),y
         bne     b6E0F
 b6E03:  lda     #$19
         sec
         sbc     $84
         jsr     s6E10
         and     #$BF
-        sta     ($60),y
+        sta     (temp_ptr),y
 b6E0F:  rts
 
 
@@ -1013,11 +1079,11 @@ s6E10:  and     #$0F
         asl     a
         tax
         lda     d6E23,x
-        sta     $60
+        sta     temp_ptr
         lda     d6E24,x
-        sta     $61
+        sta     temp_ptr + 1
         ldy     #$00
-        lda     ($60),y
+        lda     (temp_ptr),y
         rts
 d6E23:  .byte   $FA
 d6E24:  .byte   $52,$FB,$52,$FC,$52,$FD,$52,$FE
@@ -1132,58 +1198,48 @@ d6F52           := * + 2
 
 
 ;-----------------------------------------------------------
-;                      erase_bitmap_sides
+;                     erase_bitmap_sides
 ;
 ; Erases (sets to zero) the bitmap screen from (224,48) to
-; (319,111) and (0,56) to (135,119).
-;
-; $4860-$4947
-; $48A0-$4A87
-; $4AE0-$4BC7
-; $4C20-$4D07
-; $4D60-$4E47
-; $4EA0-$4F87
-; $4FE0-$50C7
-; $5120-$5207
+; (319,103) and (0,56) to (135,111).
 ;-----------------------------------------------------------
 
 erase_bitmap_sides:
-        lda     #$06
+        lda     #$06                    ; Lookup address of (224,48)
         asl
         asl
         asl
-        tax                             ; X = $06 * 8 = $30
+        tax                             ; Entry 48 in row lookup tables
+        ldy     #$0B                    ; Entry 11 in column lookup tables
 
-@calculate_next_address:
-        ldy     #$0B
         lda     bitmap_row_addr_table_low,x
         clc
         adc     bitmap_col_offset_table_low,y
-        sta     $60
+        sta     temp_ptr
         lda     bitmap_row_addr_table_high,x
         adc     bitmap_col_offset_table_high,y
         adc     #$20
-        sta     $61
+        sta     temp_ptr + 1
 
-        ldx     #$07
+        ldx     #$07                    ; Do 7 sets of 8 rows
 
 @next_x:
-        ldy     #$E7
+        ldy     #$E7                    ; Erase area 8 rows high and 232 pixels wide
         lda     #$00
 
 @next_y:
-        sta     ($60),y
+        sta     (temp_ptr),y
         dey
         cpy     #$FF
         bne     @next_y
 
-        lda     $60                     ; Advance pointer at $60 by $0140
+        lda     temp_ptr                ; Advance down 8 rows
         clc
         adc     #$40
-        sta     $60
-        lda     $61
+        sta     temp_ptr
+        lda     temp_ptr + 1
         adc     #$01
-        sta     $61
+        sta     temp_ptr + 1
 
         dex
         bne     @next_x
@@ -1193,44 +1249,35 @@ erase_bitmap_sides:
 
 
 
-d6F90:  .byte   $00,$01,$00,$01,$02,$01,$00,$01
+horse_anim_frames:
+        .byte   $00,$01,$00,$01,$02,$01,$00,$01
         .byte   $02,$03,$04,$03,$04,$03,$02,$01
         .byte   $00,$05,$06,$05,$06,$05,$06,$FF
-d6FA8:  .byte   $00,$3F,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$C0,$00,$7F,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$C0,$00,$E0,$00,$00,$38,$00
-        .byte   $00,$00,$00,$00,$00,$00,$C0,$00
-        .byte   $C0,$06,$00,$30,$00,$00,$00,$00
-        .byte   $00,$00,$00,$C0,$01,$80,$1E,$00
-        .byte   $30,$78,$1F,$03,$0F,$06,$30,$31
-        .byte   $80,$01,$80,$0C,$00,$60,$FC,$3F
-        .byte   $86,$3F,$86,$30,$31,$80,$03,$00
-        .byte   $18,$00,$61,$86,$31,$86,$31,$8C
-        .byte   $70,$63,$00,$03,$00,$18,$00,$C3
-        .byte   $0C,$63,$0C,$60,$0C,$78,$63,$00
-        .byte   $06,$10,$30,$20,$C3,$0C,$6E,$0C
-        .byte   $60,$18,$D8,$C6,$00,$06,$3F,$FF
-        .byte   $F1,$86,$18,$DC,$18,$CE,$18,$CC
-        .byte   $C6,$00,$0C,$7F,$FF,$F1,$86,$18
-        .byte   $C6,$18,$DE,$31,$8D,$8C,$00,$0C
-        .byte   $20,$60,$43,$0C,$31,$86,$31,$86
-        .byte   $31,$87,$8C,$00,$18,$00,$C0,$03
-        .byte   $0C,$31,$86,$31,$8C,$63,$07,$18
-        .byte   $00,$18,$00,$C0,$06,$0F,$E3,$0C
-        .byte   $63,$FC,$63,$03,$18,$00,$30,$01
-        .byte   $80,$06,$07,$C3,$0C,$61,$F0,$C6
-        .byte   $06,$30,$00,$30,$01,$80,$0C,$00
-        .byte   $00,$00,$00,$00,$00,$00,$30,$00
-        .byte   $60,$07,$80,$0C,$7F,$FF,$FF,$FF
-        .byte   $FF,$FF,$FE,$60,$00,$60,$03,$00
-        .byte   $18,$FF,$FF,$FF,$FF,$FF,$FF,$FC
-        .byte   $60,$00,$E0,$00,$00,$38,$00,$00
-        .byte   $00,$00,$00,$00,$00,$C0,$00,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$C0,$00,$7F,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$80
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+
+origin_logo:
+        .byte   $00,$3F,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$C0
+        .byte   $00,$7F,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$C0
+        .byte   $00,$E0,$00,$00,$38,$00,$00,$00,$00,$00,$00,$00,$C0
+        .byte   $00,$C0,$06,$00,$30,$00,$00,$00,$00,$00,$00,$00,$C0
+        .byte   $01,$80,$1E,$00,$30,$78,$1F,$03,$0F,$06,$30,$31,$80
+        .byte   $01,$80,$0C,$00,$60,$FC,$3F,$86,$3F,$86,$30,$31,$80
+        .byte   $03,$00,$18,$00,$61,$86,$31,$86,$31,$8C,$70,$63,$00
+        .byte   $03,$00,$18,$00,$C3,$0C,$63,$0C,$60,$0C,$78,$63,$00
+        .byte   $06,$10,$30,$20,$C3,$0C,$6E,$0C,$60,$18,$D8,$C6,$00
+        .byte   $06,$3F,$FF,$F1,$86,$18,$DC,$18,$CE,$18,$CC,$C6,$00
+        .byte   $0C,$7F,$FF,$F1,$86,$18,$C6,$18,$DE,$31,$8D,$8C,$00
+        .byte   $0C,$20,$60,$43,$0C,$31,$86,$31,$86,$31,$87,$8C,$00
+        .byte   $18,$00,$C0,$03,$0C,$31,$86,$31,$8C,$63,$07,$18,$00
+        .byte   $18,$00,$C0,$06,$0F,$E3,$0C,$63,$FC,$63,$03,$18,$00
+        .byte   $30,$01,$80,$06,$07,$C3,$0C,$61,$F0,$C6,$06,$30,$00
+        .byte   $30,$01,$80,$0C,$00,$00,$00,$00,$00,$00,$00,$30,$00
+        .byte   $60,$07,$80,$0C,$7F,$FF,$FF,$FF,$FF,$FF,$FE,$60,$00
+        .byte   $60,$03,$00,$18,$FF,$FF,$FF,$FF,$FF,$FF,$FC,$60,$00
+        .byte   $E0,$00,$00,$38,$00,$00,$00,$00,$00,$00,$00,$C0,$00
+        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$C0,$00
+        .byte   $7F,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$80,$00
+
+        .byte       $00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$0C,$0F,$07
         .byte   $00,$00,$00,$00,$00,$03,$0F,$FE
         .byte   $00,$00,$00,$00,$00,$06,$07,$03
@@ -1372,48 +1419,40 @@ d6FA8:  .byte   $00,$3F,$FF,$FF,$FF,$FF,$FF,$FF
         .byte   $C6,$C6,$C6,$B1,$8D,$A0,$C8,$C5
 
 d7518:  .byte   $E0,$C0,$00,$7C,$70,$00,$FF,$FC
-        .byte   $00,$FF,$FF,$00,$6F,$ED,$80,$18
-        .byte   $00,$00,$7C,$00,$00,$7E,$00,$00
-        .byte   $0E,$00,$00,$0F,$00,$00,$0F,$C0
-        .byte   $00,$3F,$E0,$00,$6F,$F0,$00,$6D
-        .byte   $F8,$00,$18,$F8,$00,$18,$DC,$00
-        .byte   $00,$6C,$00,$00,$6C,$00,$00,$D8
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$18,$00,$00,$7C,$00,$00
-        .byte   $7E,$00,$00,$0F,$F8,$00,$0F,$FC
-        .byte   $00,$1F,$FC,$00,$7F,$F8,$00,$CC
-d7570:  .byte   $DC,$00,$CC,$6C
-d7574:  .byte   $00,$0C,$6C,$00,$18,$D8,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $30,$00,$00,$78,$00,$00,$FC,$00
-        .byte   $00,$5F,$F8,$00,$0F,$FC,$00,$1F
-        .byte   $FC,$00,$7F,$F8,$00,$CC,$DC,$00
-        .byte   $CC,$6C,$00,$0C,$6C,$00,$18,$D8
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$30,$00,$00,$78,$00,$00
-        .byte   $FC,$00,$00,$5F,$F8,$00,$0F,$FC
-        .byte   $00,$1F,$FC,$00,$3F,$F8,$00,$6C
-        .byte   $DC,$00,$CC,$6C,$00,$CC,$6C,$00
-        .byte   $18,$D8,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$0F,$F8,$00
-        .byte   $3F,$FC,$00,$7F,$FC,$00,$EF,$F8
-        .byte   $00,$EC,$DC,$00,$EC,$6C,$00,$CC
-        .byte   $6C,$00,$18,$D8,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$07
-        .byte   $FC,$00,$1F,$FE,$00,$3F,$FE,$00
-        .byte   $67,$FC,$00,$76,$6E,$00,$76,$36
-        .byte   $00,$36,$36,$00,$0C,$6C,$00,$18
-        .byte   $00,$00,$3C,$00,$00,$7E,$00,$00
-        .byte   $2E,$00,$00,$0F,$00,$00,$0F,$C0
-        .byte   $00,$7F,$E0,$00,$6F,$F0,$00,$0D
-        .byte   $F8,$00,$0C,$F8,$00,$18,$DC,$00
-        .byte   $00,$6C,$00,$00,$6C,$00,$00,$D8
-        .byte   $00,$B0,$B0
-d764F:  .byte   $27
-d7650:  .byte   $75,$51,$75,$7B,$75,$A5,$75,$CF
-        .byte   $75,$F9,$75,$23,$76
+        .byte   $00,$FF,$FF,$00,$6F,$ED,$80
+
+horse_frame_0:
+        .incbin "intro/horse0.bin"
+
+horse_frame_1:
+        .incbin "intro/horse1.bin"
+
+horse_frame_2:
+        .incbin "intro/horse2.bin"
+
+horse_frame_3:
+        .incbin "intro/horse3.bin"
+
+horse_frame_4:
+        .incbin "intro/horse4.bin"
+
+horse_frame_5:
+        .incbin "intro/horse5.bin"
+
+horse_frame_6:
+        .incbin "intro/horse6.bin"
+
+        .byte   $B0,$B0
+
+horse_frame_ptrs:
+        .addr   horse_frame_0
+        .addr   horse_frame_1
+        .addr   horse_frame_2
+        .addr   horse_frame_3
+        .addr   horse_frame_4
+        .addr   horse_frame_5
+        .addr   horse_frame_6
+
 d765D:  .byte   $1B,$00,$00,$0F,$00,$00,$03,$00
         .byte   $00,$03,$00,$00,$1B,$00,$00,$1B
         .byte   $00,$00,$3E,$C0,$00,$39,$E0,$00
@@ -1587,4 +1626,4 @@ d7B6B:  .byte   $00,$07,$80,$00,$07,$E0,$00,$07
 
 compressed_image:
         
-        .incbin "intro_image.bin"
+        .incbin "intro/image.bin"
