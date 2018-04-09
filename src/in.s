@@ -22,6 +22,17 @@
 
         .addr   $2000
 
+
+
+
+bitmap_row_addr_table_low       := $1200
+bitmap_row_addr_table_high      := $12C0
+
+bitmap_col_offset_table_low     := $15B0
+bitmap_col_offset_table_high    := $15D8
+
+bitmap_memory                   := $4000
+
 .code
 
 main:   jmp     decompress_image
@@ -53,9 +64,9 @@ exit_intro:
 
 
 decompress_image:
-        lda     #$00                    ; Write to bitmap memory at $4000
+        lda     #<bitmap_memory         ; Write to bitmap memory at $4000
         sta     store_vector
-        lda     #$40
+        lda     #>bitmap_memory
         sta     store_vector + 1
         lda     #<compressed_image      ; Read from compressed image data
         sta     load_vector
@@ -65,7 +76,7 @@ decompress_image:
 @decompress_loop:
         jsr     lda_and_advance
         cmp     #$DA
-        beq     init_1200_12C0
+        beq     build_bitmap_row_addr_table
         cmp     #$00                    ; If the next byte is $00, $10, $FF, $E6, $16, or
         beq     @store_run              ; $50, then it is a run and the following byte contains
         cmp     #$10                    ; the number of times the value should be repeated
@@ -124,7 +135,7 @@ load_vector     := * + 1
 
 sta_and_advance:
 store_vector    := * + 1
-        sta     $4000
+        sta     bitmap_memory
         inc     store_vector
         bne     @exit
         inc     store_vector + 1
@@ -133,40 +144,53 @@ store_vector    := * + 1
 
 
 
-init_1200_12C0:
-        lda     #$00                    ; Initialize data in $1200-$12BF, and $12C0-$137F
-        sta     $1200
-        lda     #$20                    ; $1200 is initialized to $00, then increases by 1 at each location after that,
-        sta     $12C0                   ; except every 8 bytes, the low nibble is reset to 0, and the high is increased
-        ldx     #$00                    ; by 4
-@loop:  lda     $1200,x
-        clc                             ; $12C0 is initialized to $20. Each subsequent byte repeats the byte before, except
-        adc     #$01                    ; every 8 bytes it is increaed by 1, and every 32 bytes is increased by an
-        inx                             ; additional 1.
-        sta     $1200,x
+        ; Initialize data in $1200-$12BF, and $12C0-$137F to become a lookup table to
+        ; find the address in memory where each row of pixels starts in the bitmap display.
+        ;
+        ; The bytes starting at $1200 contain the least significant byte of the address
+        ; for each of 192 rows of pixels, starting with the top row.
+        ;
+        ; The bytes starting at $12C0 contain the most significant byte of the address
+        ; for each row of pixels.
+        ;
+        ; The addresses are stored assuming the bitmap is located at $2000 in memory, so
+        ; a constant would need to be added if the bitmap is located elsewhere (for
+        ; example, add $2000 if the bitmap is located at $4000, as it is in the intro).
+
+build_bitmap_row_addr_table:
+        lda     #$00
+        sta     bitmap_row_addr_table_low
+        lda     #$20
+        sta     bitmap_row_addr_table_high
+        ldx     #$00
+@loop:  lda     bitmap_row_addr_table_low,x
+        clc
+        adc     #$01
+        inx
+        sta     bitmap_row_addr_table_low,x                 
         and     #$07
         bne     @copy_next_high_byte
 
         dex
-        lda     $12C0,x
+        lda     bitmap_row_addr_table_high,x
         clc
         adc     #$01
         inx
-        sta     $12C0,x
-        lda     $1200,x
+        sta     bitmap_row_addr_table_high,x
+        lda     bitmap_row_addr_table_low,x
         and     #$F0
         clc
         adc     #$40
-        sta     $1200,x
+        sta     bitmap_row_addr_table_low,x
         bcc     @check_if_done
-        inc     $12C0,x
+        inc     bitmap_row_addr_table_high,x
         jmp     @check_if_done
 
 @copy_next_high_byte:
         dex
-        lda     $12C0,x
+        lda     bitmap_row_addr_table_high,x
         inx
-        sta     $12C0,x
+        sta     bitmap_row_addr_table_high,x
 
 @check_if_done:
         cpx     #$BF
@@ -174,19 +198,29 @@ init_1200_12C0:
 
 
 
-init_15B0_15D8:
-        lda     #$38                    ; Initialize $15B0-$15D7 with values starting with $38, and decreasing by 8 for each
-        sta     $5E                     ; byte.
+
+        ; Initializes data in $15B0-$15D7 and $15D8-$15FF to become a lookup table to
+        ; find the offset in memory from the start of a row of pixels to a particular
+        ; column in that row. The first entry in each table is used to find the right-
+        ; most column, and the last entry to find the left-most column. Each table
+        ; contains 40 entries, since each byte in memory contains 8 pixels (8 * 40 = 320).
+        ;
+        ; The table starting at $15B0 contains the least significant byte, and the
+        ; the table starting at $15D8 contains the most significant byte.
+
+build_bitmap_col_offset_table:
+        lda     #$38
+        sta     $5E
         lda     #$01
-        sta     $5F                     ; Initialize $15D8-$15FF with 8 bytes of $01, and 32 bytes of $00.
+        sta     $5F
         ldx     #$27
 @loop:  lda     $5E
-        sta     $15B0,x
+        sta     bitmap_col_offset_table_low,x
         sec
         sbc     #$08
         sta     $5E
         lda     $5F
-        sta     $15D8,x
+        sta     bitmap_col_offset_table_high,x
         sbc     #$00
         sta     $5F
         dex
@@ -194,9 +228,9 @@ init_15B0_15D8:
 
 animate_intro_screen:
         inc     intro_loop_counter
-        jsr     erase_bitmap_center
+        jsr     erase_bitmap_72_20_to_105_116
         jsr     erase_bitmap_sides
-        jsr     s6978
+        jsr     setup_sprites
         jsr     enable_sprites
         jsr     s6D7F
         jsr     s6A57
@@ -284,7 +318,8 @@ disable_sprites:
 ;-----------------------------------------------------------
 ;-----------------------------------------------------------
 
-s6978:  lda     #$00
+setup_sprites:
+        lda     #$00
         sta     $7B
         sta     $7A
         sta     $79
@@ -416,12 +451,12 @@ s6A57:  lda     #$A8
         sta     d6A7C
         ldx     #$38
 b6A63:  ldy     #$13
-        lda     $1200,x
+        lda     bitmap_row_addr_table_low,x
         clc
-        adc     $15B0,y
+        adc     bitmap_col_offset_table_low,y
         sta     $60
-        lda     $12C0,x
-        adc     $15D8,y
+        lda     bitmap_row_addr_table_high,x
+        adc     bitmap_col_offset_table_high,y
         adc     #$20
         sta     $61
         ldy     #$00
@@ -452,12 +487,12 @@ b6A87:  tya
 
 s6A96:  ldx     #$30
         ldy     #$0B
-        lda     $1200,x
+        lda     bitmap_row_addr_table_low,x
         clc
-        adc     $15B0,y
+        adc     bitmap_col_offset_table_low,y
         sta     $62
-        lda     $12C0,x
-        adc     $15D8,y
+        lda     bitmap_row_addr_table_high,x
+        adc     bitmap_col_offset_table_high,y
         adc     #$20
         sta     $63
         lda     #$C0
@@ -508,13 +543,13 @@ s6AE0:  lda     #$70
         lda     #$78
         sta     d6B1B
 b6AFA:  ldy     #$1E
-        lda     $1214,x
+        lda     bitmap_row_addr_table_low + $14,x
         clc
-        adc     $15B0,y
+        adc     bitmap_col_offset_table_low,y
         sta     $60
         sta     $62
-        lda     $12D4,x
-        adc     $15D8,y
+        lda     bitmap_row_addr_table_high + $14,x
+        adc     bitmap_col_offset_table_high,y
         adc     #$20
         sta     $61
         adc     #$40
@@ -557,12 +592,12 @@ b6B52:  ldx     #$54
         lda     #$78
         sta     d6B79
 b6B5E:  ldy     #$1E
-        lda     $1214,x
+        lda     bitmap_row_addr_table_low + $14,x
         clc
-        adc     $15B0,y
+        adc     bitmap_col_offset_table_low,y
         sta     $62
-        lda     $12D4,x
-        adc     $15D8,y
+        lda     bitmap_row_addr_table_high + $14,x
+        adc     bitmap_col_offset_table_high,y
         adc     #$60
         sta     $63
         ldy     #$00
@@ -591,13 +626,13 @@ b6B96:  lda     #$35
         sta     d6BC3
         ldx     $7E
 b6BA2:  ldy     #$1E
-        lda     $1268,x
+        lda     bitmap_row_addr_table_low + $68,x
         clc
-        adc     $15B0,y
+        adc     bitmap_col_offset_table_low,y
         sta     $60
         sta     $62
-        lda     $1328,x
-        adc     $15D8,y
+        lda     bitmap_row_addr_table_high + $68,x
+        adc     bitmap_col_offset_table_high,y
         adc     #$20
         sta     $61
         adc     #$40
@@ -633,47 +668,25 @@ b6BCE:  tya
 
 
 ;-----------------------------------------------------------
-;
+;               erase_bitmap_72_20_to_105_116
 ;
 ; Erases (sets to zero) the bitmap from (72,20) to
 ; (105,116).
 ;
 ; Specifically, the following locations:
-;
-; $42CC-$42CF
-; $42D4-$42D7
-; $42DC-$42DF
-; $42E4-$42E7
-;
-; $4408-$4427
-; $4548-$4567
-; $4668-$46A7
-; $47C8-$47E7
-; $4908-$4927
-; $4A48-$4A67
-; $4BB8-$4BA7
-; $4CC8-$4CE7
-; $2E08-$4E27
-; $2F48-$4F67
-; $5088-$50A7
-;
-; $51C8-$51CC
-; $51D0-$51D4
-; $51D8-$51DC
-; $51E0-$51E4
 ;-----------------------------------------------------------
 
-erase_bitmap_center:
+erase_bitmap_72_20_to_105_116:
         ldx     #$60
 
 @calculate_next_address:
         ldy     #$1E
-        lda     $1214,x
+        lda     bitmap_row_addr_table_low + $14,x
         clc
-        adc     $15B0,y
+        adc     bitmap_col_offset_table_low,y
         sta     $60
-        lda     $12D4,x
-        adc     $15D8,y
+        lda     bitmap_row_addr_table_high + $14,x
+        adc     bitmap_col_offset_table_high,y
         adc     #$20
         sta     $61
 
@@ -1081,12 +1094,12 @@ s6F17:  sta     $5E
         asl     a
         tax
         ldy     $32
-        lda     $1200,x
+        lda     bitmap_row_addr_table_low,x
         clc
-        adc     $15B0,y
+        adc     bitmap_col_offset_table_low,y
         sta     d6F51
-        lda     $12C0,x
-        adc     $15D8,y
+        lda     bitmap_row_addr_table_high,x
+        adc     bitmap_col_offset_table_high,y
         adc     #$20
         sta     d6F52
         lda     $5E
@@ -1143,12 +1156,12 @@ erase_bitmap_sides:
 
 @calculate_next_address:
         ldy     #$0B
-        lda     $1200,x
+        lda     bitmap_row_addr_table_low,x
         clc
-        adc     $15B0,y
+        adc     bitmap_col_offset_table_low,y
         sta     $60
-        lda     $12C0,x
-        adc     $15D8,y
+        lda     bitmap_row_addr_table_high,x
+        adc     bitmap_col_offset_table_high,y
         adc     #$20
         sta     $61
 
