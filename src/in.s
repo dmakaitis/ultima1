@@ -260,16 +260,16 @@ animate_intro_screen:
         jsr     load_horse_sprite
         jsr     draw_origin_logo
         lda     #$00
-        jsr     s6E37
+        jsr     draw_text
         jsr     s6CCE
         jsr     erase_bitmap_sides
         lda     #$01
-        jsr     s6E37
+        jsr     draw_text
         jsr     s6C17
         jsr     s6CCE
         jsr     erase_bitmap_sides
         lda     #$02
-        jsr     s6E37
+        jsr     draw_text
         jsr     s6CCE
         jsr     s6CCE
         jsr     erase_bitmap_sides
@@ -1094,58 +1094,74 @@ d6E24:  .byte   $52,$FB,$52,$FC,$52,$FD,$52,$FE
 
 
 ;-----------------------------------------------------------
+;                       draw_text
+;
+; Renders one of three text messages on the display,
+; determined by the value in the accumulator when the method
+; is called (either 0, 1, or 2).
 ;-----------------------------------------------------------
 
-s6E37:  asl     a
+draw_text:
+        asl                             ; x = a * 2
         tax
-        lda     #$0B
+
+        lda     #$0B                    ; Set initial cursor position
         sta     $32
         lda     #$07
         sta     $33
-        lda     d6E6C,x
-        sta     d6E4E
-        lda     d6E6D,x
-        sta     d6E4F
-b6E4D:
-d6E4E           := * + 1
-d6E4F           := * + 2
-        lda     d6E72
-        bne     b6E53
+
+        lda     @text_pointers,x        ; Load pointer to text to render
+        sta     @load_addr
+        lda     @text_pointers + 1,x
+        sta     @load_addr + 1
+
+@loop:
+@load_addr      := * + 1
+        lda     @presents_text          ; Get the next character
+        bne     @decode_char            ; a $00 means we are finished
         rts
-b6E53:  bpl     b6E5D
-        lda     #$0B
+
+@decode_char:
+        bpl     @write_char             ; bit 7 set means newline
+
+        lda     #$0B                    ; Move cursor back to start of line
         sta     $32
-        inc     $33
-        bne     b6E62
-b6E5D:  jsr     s6F17
-        inc     $32
-b6E62:  inc     d6E4E
-        bne     b6E4D
-        inc     d6E4F
-        bne     b6E4D
-d6E6C:  .byte   $72
-d6E6D:  .byte   $6E,$8A,$6E,$E2,$6E
-d6E72:  .byte   $FF,$FF,$FF,$20,$20,$20,$20,$20
-        .byte   $20,$20,$20,$20,$70,$72,$65,$73
-        .byte   $65,$6E,$74,$73,$2E,$2E,$2E,$00
-d6E8A:  .byte   $2E,$2E,$2E,$61,$20,$6E,$65,$77
-        .byte   $20,$72,$65,$6C,$65,$61,$73,$65
-        .byte   $20,$6F,$66,$20,$74,$68,$65,$20
-        .byte   $62,$65,$73,$74,$2D,$FF,$20,$20
-        .byte   $20,$73,$65,$6C,$6C,$69,$6E,$67
-        .byte   $20,$70,$65,$72,$73,$6F,$6E,$61
-        .byte   $6C,$20,$63,$6F,$6D,$70,$75,$74
-        .byte   $65,$72,$FF,$20,$20,$20,$72,$6F
-        .byte   $6C,$65,$2D,$70,$6C,$61,$79,$69
-        .byte   $6E,$67,$20,$61,$64,$76,$65,$6E
-        .byte   $74,$75,$72,$65,$2E,$2E,$2E,$00
-d6EE2:  .byte   $2E,$2E,$2E,$4C,$6F,$72,$64,$20
-        .byte   $42,$72,$69,$74,$69,$73,$68,$27
-        .byte   $73,$20,$6F,$72,$69,$67,$69,$6E
-        .byte   $61,$6C,$FF,$20,$20,$20,$66,$61
-        .byte   $6E,$74,$61,$73,$79,$20,$6D,$61
-        .byte   $73,$74,$65,$72,$70,$69,$65,$63
-        .byte   $65,$2E,$2E,$2E,$00
+        inc     $33                     ; Move cursor down one
+        bne     @advance_ptr        
+
+@write_char:
+        jsr     s6F17
+        inc     $32                     ; Move cursor right one
+
+@advance_ptr:
+        inc     @load_addr              ; Advance text pointer
+        bne     @loop
+        inc     @load_addr + 1
+        bne     @loop
+
+
+
+
+@text_pointers:
+        .addr   @presents_text
+        .addr   @new_releast_text
+        .addr   @masterpiece_text
+
+@presents_text:
+        .byte   $FF
+        .byte   $FF
+        .byte   $FF
+        .byte   "         presents..."
+        .byte   $00
+@new_releast_text:
+        .byte   "...a new release of the best-",$FF
+        .byte   "   selling personal computer",$FF
+        .byte   "   role-playing adventure..."
+        .byte   $00
+@masterpiece_text:
+        .byte   "...Lord British's original",$FF
+        .byte   "   fantasy masterpiece..."
+        .byte   $00
 
 
 
