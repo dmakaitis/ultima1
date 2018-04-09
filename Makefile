@@ -18,6 +18,10 @@ build:
 maps: 
 	mkdir -p maps
 
+assets/lo: orig/lo.prg
+	mkdir -p assets/lo
+	dd if=orig/lo.prg of=assets/lo/font.bin bs=1 skip=2 count=1024
+
 assets/intro: orig/in.prg
 	mkdir -p assets/intro
 	dd if=orig/in.prg of=assets/intro/image.bin bs=1 skip=5021 count=2367
@@ -39,7 +43,8 @@ clean:
 	rm -Rf build
 	rm -Rf tmp
 	rm -Rf maps
+	rm -Rf assets/lo
 	rm -Rf assets/intro
 
-build/%.o: src/%.s build maps assets/intro
+build/%.o: src/%.s build maps assets/lo assets/intro
 	ca65 $< -o $@ -I include -I assets

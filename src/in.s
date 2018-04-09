@@ -1130,7 +1130,7 @@ draw_text:
         bne     @advance_ptr        
 
 @write_char:
-        jsr     s6F17
+        jsr     draw_character
         inc     $32                     ; Move cursor right one
 
 @advance_ptr:
@@ -1167,47 +1167,53 @@ draw_text:
 
 
 ;-----------------------------------------------------------
+;                       draw_character
+;
+; Character to draw is in the accumulator
+; Cursor position is in $32 (x) and $33 (y)
 ;-----------------------------------------------------------
 
-s6F17:  sta     $5E
-        lda     $33
-        asl     a
-        asl     a
-        asl     a
+draw_character:
+        sta     $5E
+
+        lda     $33                     ; Convert cursor coordinates to an address in bitmat memory
+        asl
+        asl
+        asl
         tax
         ldy     $32
         lda     bitmap_row_addr_table_low,x
         clc
         adc     bitmap_col_offset_table_low,y
-        sta     d6F51
+        sta     @write_ptr
         lda     bitmap_row_addr_table_high,x
         adc     bitmap_col_offset_table_high,y
         adc     #$20
-        sta     d6F52
+        sta     @write_ptr + 1
+
+        lda     $5E                     ; Convert character to render to an address in character memory
+        asl     a                       ; starting at $0800
+        asl     a
+        asl     a
+        sta     @read_ptr               ; Bottom five bits of character become LSB of read address
         lda     $5E
-        asl     a
-        asl     a
-        asl     a
-        sta     d6F4E
-        lda     $5E
-        lsr     a
+        lsr     a                       ; Top three bits + $08 become MSB of read address
         lsr     a
         lsr     a
         lsr     a
         lsr     a
         clc
-        adc     #$08
-        sta     d6F4F
-        ldx     #$07
-b6F4D:
-d6F4E           := * + 1
-d6F4F           := * + 2
-        lda     $0800,x
-d6F51           := * + 1
-d6F52           := * + 2
+        adc     #>font
+        sta     @read_ptr + 1
+
+        ldx     #$07                    ; Copy the character (8 bytes) to the bitmap
+@loop:
+@read_ptr       := * + 1
+        lda     font,x
+@write_ptr      := * + 1
         sta     $2000,x
         dex
-        bpl     b6F4D
+        bpl     @loop
         rts
 
 
