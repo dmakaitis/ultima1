@@ -192,9 +192,10 @@ init_15B0_15D8:
         dex
         bpl     @loop
 
-j68E7:  inc     d6A16
-        jsr     set_memory_locations_to_zero
-        jsr     s6F57
+animate_intro_screen:
+        inc     intro_loop_counter
+        jsr     erase_bitmap_center
+        jsr     erase_bitmap_sides
         jsr     s6978
         jsr     enable_sprites
         jsr     s6D7F
@@ -202,17 +203,17 @@ j68E7:  inc     d6A16
         lda     #$00
         jsr     s6E37
         jsr     s6CCE
-        jsr     s6F57
+        jsr     erase_bitmap_sides
         lda     #$01
         jsr     s6E37
         jsr     s6C17
         jsr     s6CCE
-        jsr     s6F57
+        jsr     erase_bitmap_sides
         lda     #$02
         jsr     s6E37
         jsr     s6CCE
         jsr     s6CCE
-        jsr     s6F57
+        jsr     erase_bitmap_sides
         jsr     s6A96
         jsr     s6A37
         jsr     s6CCE
@@ -232,7 +233,7 @@ b6946:  lda     #$10
         jsr     wait_for_key_press
         dec     $86
         bpl     b6946
-        jmp     j68E7
+        jmp     animate_intro_screen
 
 
 
@@ -294,68 +295,83 @@ s6978:  lda     #$00
         sta     $84
         sta     $87
         tax
-b698D:  sta     $6400,x
+
+@loop:  sta     $6400,x                 ; Set $6400-$65FF to $00
         sta     $6500,x
         inx
-        bne     b698D
-        ldx     #$12
-b6998:  lda     #$03
+        bne     @loop
+
+        ldx     #$12                    ; Set $6540-$6552 and $6582-$6594 to $03
+@loop2: lda     #$03
         sta     $6540,x
         lda     #$00
         sta     $6582,x
         dex
-        bpl     b6998
-        ldx     #$07
-b69A7:  lda     d6A2F,x
+        bpl     @loop2
+
+        ldx     #$07                    ; Copy $6A2F-$6A36 to $63F8-$63FF
+@loop3: lda     d6A2F,x
         sta     $63F8,x
         dex
-        bpl     b69A7
-        lda     #$00
+        bpl     @loop3
+
+        lda     #$00                    ; Set hi bit of x coord of all sprites to 0
         sta     VIC_SPR_HI_X
-        lda     #$1E
+
+        lda     #$1E                    ; Draw sprites 0, 5, 6, and 7 behind screen content
         sta     VIC_SPR_BG_PRIO
-        ldx     #$0F
-b69BC:  lda     sprite_coordinates,x
+
+        ldx     #$0F                    ; Set X/Y coordinates and colors for all sprites
+@sprite_position_loop:
+        lda     sprite_coordinates,x
         sta     VIC_SPR0_X,x
         cpx     #$08
-        bcs     b69CC
+        bcs     @skip_set_color
         lda     sprite_colors,x
         sta     VIC_SPR0_COLOR,x
-b69CC:  dex
-        bpl     b69BC
-        ldx     #$3F
+@skip_set_color:
+        dex
+        bpl     @sprite_position_loop
+
+        ldx     #$3F                    ; Set $6540-$65BF to $FF
         lda     #$FF
-b69D3:  sta     $6540,x
+@loop4: sta     $6540,x
         sta     $6580,x
         dex
-        bpl     b69D3
-        lda     d6A16
+        bpl     @loop4
+
+        lda     intro_loop_counter
         and     #$0F
         beq     b69F9
-        ldx     #$26
-b69E5:  lda     d765D,x
+
+        ldx     #$26                    ; Copy $765D-$7683 to $64C0-$64E6
+@loop5: lda     d765D,x
         sta     $64C0,x
-        lda     d7684,x
+        lda     d7684,x                 ; Copy $7684-$76AA to $6500-$6526
         sta     $6500,x
         dex
-        bpl     b69E5
+        bpl     @loop5
         lda     #$00
         sta     $85
         rts
-b69F9:  ldx     #$0E
-b69FB:  lda     d7518,x
+
+b69F9:  ldx     #$0E                    ; Copy $7518-$7526 to $64C0 and $6500
+@loop6: lda     d7518,x
         sta     $64C0,x
         sta     $6500,x
         dex
-        bpl     b69FB
+        bpl     @loop6
+
         lda     #$FF
         sta     $85
-        lda     #$B2
+        lda     #$B2                    ; Set sprite 5 Y position
         sta     VIC_SPR5_Y
-        lda     #$02
+        lda     #$02                    ; Set sprite 5 color
         sta     VIC_SPR5_COLOR
         rts
-d6A16:  .byte   $00
+
+intro_loop_counter:
+        .byte   $00
 sprite_coordinates:
         .byte   $44,$C4,$00,$00,$00,$00,$53,$A5
         .byte   $60,$A5,$00,$A8,$00,$00,$00,$00
@@ -619,13 +635,37 @@ b6BCE:  tya
 ;-----------------------------------------------------------
 ;
 ;
-; Sets a memory block to $00s. The memory locations are
-; calculated using the values in $1200-$137F and 
-; $15B0-$15FF.
+; Erases (sets to zero) the bitmap from (72,20) to
+; (105,116).
+;
+; Specifically, the following locations:
+;
+; $42CC-$42CF
+; $42D4-$42D7
+; $42DC-$42DF
+; $42E4-$42E7
+;
+; $4408-$4427
+; $4548-$4567
+; $4668-$46A7
+; $47C8-$47E7
+; $4908-$4927
+; $4A48-$4A67
+; $4BB8-$4BA7
+; $4CC8-$4CE7
+; $2E08-$4E27
+; $2F48-$4F67
+; $5088-$50A7
+;
+; $51C8-$51CC
+; $51D0-$51D4
+; $51D8-$51DC
+; $51E0-$51E4
 ;-----------------------------------------------------------
 
-set_memory_locations_to_zero:
+erase_bitmap_center:
         ldx     #$60
+
 @calculate_next_address:
         ldy     #$1E
         lda     $1214,x
@@ -636,6 +676,7 @@ set_memory_locations_to_zero:
         adc     $15D8,y
         adc     #$20
         sta     $61
+
         ldy     #$00
 @loop:  lda     #$00
         sta     ($60),y
@@ -645,6 +686,7 @@ set_memory_locations_to_zero:
         tay
         cpy     #$18
         bne     @loop
+
         dex
         bpl     @calculate_next_address
         rts
@@ -899,7 +941,7 @@ return_from_routine:
 
 s6DA9:  lda     $83
         beq     return_from_routine
-        lda     d6A16
+        lda     intro_loop_counter
         and     #$03
         bne     return_from_routine
         lda     $79
@@ -1077,13 +1119,29 @@ d6F52           := * + 2
 
 
 ;-----------------------------------------------------------
+;                      erase_bitmap_sides
+;
+; Erases (sets to zero) the bitmap screen from (224,48) to
+; (319,111) and (0,56) to (135,119).
+;
+; $4860-$4947
+; $48A0-$4A87
+; $4AE0-$4BC7
+; $4C20-$4D07
+; $4D60-$4E47
+; $4EA0-$4F87
+; $4FE0-$50C7
+; $5120-$5207
 ;-----------------------------------------------------------
 
-s6F57:  lda     #$06
-        asl     a
-        asl     a
-        asl     a
-        tax
+erase_bitmap_sides:
+        lda     #$06
+        asl
+        asl
+        asl
+        tax                             ; X = $06 * 8 = $30
+
+@calculate_next_address:
         ldy     #$0B
         lda     $1200,x
         clc
@@ -1093,22 +1151,30 @@ s6F57:  lda     #$06
         adc     $15D8,y
         adc     #$20
         sta     $61
+
         ldx     #$07
-b6F74:  ldy     #$E7
+
+@next_x:
+        ldy     #$E7
         lda     #$00
-b6F78:  sta     ($60),y
+
+@next_y:
+        sta     ($60),y
         dey
         cpy     #$FF
-        bne     b6F78
-        lda     $60
+        bne     @next_y
+
+        lda     $60                     ; Advance pointer at $60 by $0140
         clc
         adc     #$40
         sta     $60
         lda     $61
         adc     #$01
         sta     $61
+
         dex
-        bne     b6F74
+        bne     @next_x
+
         rts
 
 
@@ -1291,6 +1357,7 @@ d6FA8:  .byte   $00,$3F,$FF,$FF,$FF,$FF,$FF,$FF
         .byte   $E0,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $C6,$C6,$C6,$B1,$8D,$A0,$C8,$C5
+
 d7518:  .byte   $E0,$C0,$00,$7C,$70,$00,$FF,$FC
         .byte   $00,$FF,$FF,$00,$6F,$ED,$80,$18
         .byte   $00,$00,$7C,$00,$00,$7E,$00,$00
