@@ -40,14 +40,17 @@ verify: all
 	./chkfile in.prg
 
 clean:
-	$(MAKE) -C util clean
+	-$(MAKE) -C util clean
 	rm -Rf build
 	rm -Rf tmp
 	rm -Rf maps
 	rm -Rf assets/lo
 	rm -Rf assets/intro
 
-build/%.o: src/%.s build maps assets/lo assets/intro
+build/lo.o: assets/lo
+build/in.o: assets/intro
+
+build/%.o: src/%.s build maps
 	ca65 $< -o $@ -I include -I assets
 
 utils:
