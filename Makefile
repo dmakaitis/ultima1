@@ -40,6 +40,7 @@ verify: all
 	./chkfile in.prg
 
 clean:
+	$(MAKE) -C util clean
 	rm -Rf build
 	rm -Rf tmp
 	rm -Rf maps
@@ -48,3 +49,6 @@ clean:
 
 build/%.o: src/%.s build maps assets/lo assets/intro
 	ca65 $< -o $@ -I include -I assets
+
+utils:
+	$(MAKE) -C util
