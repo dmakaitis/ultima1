@@ -2,6 +2,7 @@
 #include <iterator>
 #include <algorithm>
 #include <iostream>
+#include <vector>
 
 #include "bitmaputils.hpp"
 
@@ -86,18 +87,20 @@ public:
  *  blockFormat 	true if the image is stored as 8x8 blocks; false if the image is row sequential
  *  compressed      true if the image is RLE compressed; false otherwise
  */
-void displayBitmap(char* filename, int imageWidth, bool blockFormat, bool compressed) {
+std::vector<char> loadBitmap(char* filename, int imageWidth, bool blockFormat, bool compressed) {
+	std::vector<char> bitmap;
+
 	if(imageWidth % 8 != 0) {
 		std::cout << "ERROR: Image width must be a multiple of 8" << std::endl;
-		return;
+		return bitmap;
 	}
 
 	StreamFilter input(filename, compressed);
 
 	if(blockFormat) {
-		int blocksPerRow = imageWidth / 8;
 		std::unique_ptr<char[]> buffer(new char[imageWidth]);
 
+		int bytesPerRow = imageWidth / 8;
 		int colPtr = 0;
 		int ptr = 0;
 		int count = 0;
@@ -108,13 +111,9 @@ void displayBitmap(char* filename, int imageWidth, bool blockFormat, bool compre
 
 			count++;
 			if(count % imageWidth == 0) {
-				// Print 8 rows...
-				ptr = 0;
-				for(int row = 0; row < 8; row++) {
-					for(int col = 0; col < blocksPerRow; col++) {
-						printAsBinary(buffer[ptr++]);
-					}
-					std::cout << std::endl;
+				// Add buffer to the bitmap
+				for(int i = 0; i < imageWidth; i++) {
+					bitmap.push_back(buffer[i]);
 				}
 				
 				count = 0;
@@ -124,27 +123,20 @@ void displayBitmap(char* filename, int imageWidth, bool blockFormat, bool compre
 				colPtr++;
 				ptr = colPtr;
 			} else {
-				ptr += blocksPerRow;
+				ptr += bytesPerRow;
 			}
 			byte = input.get();
 		}
 		std::cout << std::endl;
 	} else {
-		int x = 0;
 		int byte = input.get();
 		while(!input.eof()) {
-			printAsBinary(byte);
-
-			x += 8;
-			if(x >= imageWidth) {
-				x = 0;
-				std::cout << std::endl;
-			}
-
+			bitmap.push_back(byte);
 			byte = input.get();
 		}
-		std::cout << std::endl;
 	}
+
+	return bitmap;
 }
 
 /*
@@ -201,7 +193,21 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
-	displayBitmap(filename, width, block, compressed);
+	std::vector<char> bitmap = loadBitmap(filename, width, block, compressed);
+
+	// Now, print the bitmap...
+	int bytesPerRow = width / 8;
+	int count = 0;
+	for(std::vector<char>::const_iterator ptr = bitmap.begin(); ptr != bitmap.end(); ptr++) {
+		printAsBinary(*ptr);
+		count++;
+		if(count >= bytesPerRow) {
+			count = 0;
+			std::cout << std::endl;
+		}
+	}
+
+	std::cout << std::endl;
 
 	return 0;
 }
