@@ -1,4 +1,6 @@
-all : build/u1.prg build/hello.prg build/lo.prg build/in.prg
+.PHONY: all verify clean utils
+
+all: build/u1.prg build/hello.prg build/lo.prg build/in.prg
 
 build/u1.prg: src/u1.cfg build/u1.o
 	ld65 -C $< build/u1.o -o $@ -vm -m maps/u1.map
@@ -24,7 +26,8 @@ assets/lo: orig/lo.prg
 
 assets/intro: orig/in.prg
 	mkdir -p assets/intro
-	dd if=orig/in.prg of=assets/intro/image.bin bs=1 skip=5021 count=2367
+	dd if=orig/in.prg of=assets/intro/osi.bin bs=1 skip=1962 count=273
+	dd if=orig/in.prg of=assets/intro/ultima.bin bs=1 skip=2242 count=1104
 	dd if=orig/in.prg of=assets/intro/horse0.bin bs=1 skip=3369 count=42
 	dd if=orig/in.prg of=assets/intro/horse1.bin bs=1 skip=3411 count=42
 	dd if=orig/in.prg of=assets/intro/horse2.bin bs=1 skip=3453 count=42
@@ -32,6 +35,7 @@ assets/intro: orig/in.prg
 	dd if=orig/in.prg of=assets/intro/horse4.bin bs=1 skip=3537 count=42
 	dd if=orig/in.prg of=assets/intro/horse5.bin bs=1 skip=3579 count=42
 	dd if=orig/in.prg of=assets/intro/horse6.bin bs=1 skip=3621 count=42
+	dd if=orig/in.prg of=assets/intro/image.bin bs=1 skip=5021 count=2367
 
 verify: all
 	./chkfile u1.prg

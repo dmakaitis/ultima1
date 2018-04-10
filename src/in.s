@@ -23,10 +23,14 @@
         .addr   $2000
 
 
+
+
 temp_ptr                        := $60
 temp_ptr2                       := $62
 
+frame_ctr                       := $79
 horse_anim_index                := $7A
+pause_ctr                       := $86
 
 bitmap_row_addr_table_low       := $1200
 bitmap_row_addr_table_high      := $12C0
@@ -55,8 +59,6 @@ sprite_5_image                  := bitmap_memory + $40 * $93    ; $64C0
 sprite_5b_image                 := bitmap_memory + $40 * $94    ; $6500
 sprite_6_image                  := bitmap_memory + $40 * $97    ; $65C0
 sprite_7_image                  := bitmap_memory + $40 * $97    ; $65C0
-
-L6444                           := $6444
 
 .code
 
@@ -251,6 +253,9 @@ build_bitmap_col_offset_table:
         dex
         bpl     @loop
 
+
+
+
 animate_intro_screen:
         inc     intro_loop_counter
         jsr     erase_bitmap_72_20_to_105_116
@@ -258,40 +263,48 @@ animate_intro_screen:
         jsr     setup_sprites
         jsr     enable_sprites
         jsr     load_horse_sprite
-        jsr     draw_origin_logo
+
+        jsr     draw_origin_logo        ; Display "Origin Systems Presents"
         lda     #$00
         jsr     draw_text
-        jsr     s6CCE
-        jsr     erase_bitmap_sides
+        jsr     wait_6_seconds
+
+        jsr     erase_bitmap_sides      ; Display "A new release of..."
         lda     #$01
         jsr     draw_text
         jsr     s6C17
-        jsr     s6CCE
-        jsr     erase_bitmap_sides
+        jsr     wait_6_seconds
+
+        jsr     erase_bitmap_sides      ; Display "Lord British's..."
         lda     #$02
         jsr     draw_text
-        jsr     s6CCE
-        jsr     s6CCE
-        jsr     erase_bitmap_sides
+        jsr     wait_6_seconds
+        jsr     wait_6_seconds
+
+        jsr     erase_bitmap_sides      ; Animate "Ultima I"
         jsr     s6A96
         jsr     s6A37
-        jsr     s6CCE
+        jsr     wait_6_seconds
         jsr     s6AE0
+
+        lda     #$20                    ; Pause for $400 frames (about 17 seconds), checking
+        sta     pause_ctr               ; for keypresses every $20 frames (about half a second)
+@pause_loop:
         lda     #$20
-        sta     $86
-b6933:  lda     #$20
-        sta     key_press_wait_time
-        jsr     s6CD3
-        dec     $86
-        bne     b6933
-        jsr     disable_sprites
+        sta     wait_frames_ctr
+        jsr     wait_frames
+        dec     pause_ctr
+        bne     @pause_loop
+
+        jsr     disable_sprites         ; Display the large Origin logo (still at $2000), and restart the intro
+        lda     #$10                    ; Check for keypresses every quarter second ($10 frames), and stay here
+        sta     pause_ctr               ; for a total of 4 seconds (256 frames).
+@origin_loop:
         lda     #$10
-        sta     $86
-b6946:  lda     #$10
-        sta     key_press_wait_time
+        sta     wait_frames_ctr
         jsr     wait_for_key_press
-        dec     $86
-        bpl     b6946
+        dec     pause_ctr
+        bpl     @origin_loop
         jmp     animate_intro_screen
 
 
@@ -359,7 +372,7 @@ setup_sprites:
         lda     #$00
         sta     $7B
         sta     horse_anim_index
-        sta     $79
+        sta     frame_ctr
         sta     $7C
         sta     $7E
         sta     $82
@@ -498,6 +511,7 @@ draw_origin_logo:
         sta     @load_address + 1
 
         ldx     #$38                    ; Copy onto rows 56 through 77
+
 @next_x:ldy     #$13                    ; Get address for pixel (160,56)
         lda     bitmap_row_addr_table_low,x
         clc
@@ -537,7 +551,7 @@ draw_origin_logo:
 ;-----------------------------------------------------------
 ;-----------------------------------------------------------
 
-s6A96:  ldx     #$30
+s6A96:  ldx     #$30                    ; Calculate address of (72,11) and put in temp_ptr2
         ldy     #$0B
         lda     bitmap_row_addr_table_low,x
         clc
@@ -547,25 +561,30 @@ s6A96:  ldx     #$30
         adc     bitmap_col_offset_table_high,y
         adc     #$20
         sta     temp_ptr2 + 1
-        lda     #$C0
+
+        lda     #<ultima_logo           ; Get starting address of Ultima logo
         sta     temp_ptr
-        lda     #$70
+        lda     #>ultima_logo
         sta     temp_ptr + 1
+
         ldx     #$06
-b6AB7:  ldy     #$00
-b6AB9:  lda     (temp_ptr),y
+
+b6AB7:  ldy     #$00                    ; Copy a 184x8 pixel block
+@next_y:lda     (temp_ptr),y
         sta     (temp_ptr2),y
         iny
         cpy     #$B8
-        bcc     b6AB9
-        lda     temp_ptr
+        bcc     @next_y
+
+        lda     temp_ptr                ; Advance source pointer by 184 bytes
         clc
         adc     #$B8
         sta     temp_ptr
         lda     temp_ptr + 1
         adc     #$00
         sta     temp_ptr + 1
-        lda     temp_ptr2
+
+        lda     temp_ptr2               ; Advance target pointer by 320 bytes
         clc
         adc     #$40
         sta     temp_ptr2
@@ -631,8 +650,8 @@ b6B31:  tya
         cpx     #$71
         bcc     b6AFA
         lda     #$08
-        sta     key_press_wait_time
-        jsr     s6CD3
+        sta     wait_frames_ctr
+        jsr     wait_frames
         inc     $7C
         lda     $7C
         cmp     #$70
@@ -708,8 +727,8 @@ b6BCE:  tya
         cpx     #$1D
         bcc     b6BA2
         lda     #$10
-        sta     key_press_wait_time
-        jsr     s6CD3
+        sta     wait_frames_ctr
+        jsr     wait_frames
         inc     $7E
         lda     $7E
         cmp     #$1D
@@ -771,8 +790,8 @@ s6C17:  lda     #$FE
         lda     #$1E
         sta     VIC_SPR_BG_PRIO
 b6C28:  lda     #$0A
-        sta     key_press_wait_time
-        jsr     s6CD3
+        sta     wait_frames_ctr
+        jsr     wait_frames
         ldx     $81
         inx
         cpx     #$03
@@ -850,24 +869,46 @@ d6CCB:  .byte   $2F,$5F,$8F
 
 
 ;-----------------------------------------------------------
+;                       wait_6_seconds
+;
+; Pauses for 6 seconds (240 frames), while updating
+; animations, then checks to see if the user is pressing a
+; key to exit the intro page.
+;
+; This is a convenience method for putting $F0 into
+; 'wait_frames_ctr', then calling 'wait_frames'.
 ;-----------------------------------------------------------
 
-s6CCE:  lda     #$F0
-        sta     key_press_wait_time
+wait_6_seconds:
+        lda     #$F0                    ; Set number of frames to pause for keypress to $F0
+        sta     wait_frames_ctr
 
-s6CD3:  lda     VIC_CTRL1               ; Wait for raster to return to top of screen
-        bpl     s6CD3
+
+
+
+;-----------------------------------------------------------
+;                       wait_frames
+;
+; Pauses for the number of frames stored in
+; 'wait_frames_ctr', while updating animations, then
+; checks to see if the user is pressing a key to exit the
+; intro page.
+;-----------------------------------------------------------
+
+wait_frames:
+        lda     VIC_CTRL1               ; Wait for raster to return to top of screen
+        bpl     wait_frames
 @wait_for_raster:
         lda     VIC_HLINE
         bne     @wait_for_raster
 
-        inc     $79
+        inc     frame_ctr
         jsr     s6D2B
         jsr     load_horse_sprite
         jsr     set_6444
         jsr     s6DA9
-        dec     key_press_wait_time
-        bne     s6CD3
+        dec     wait_frames_ctr
+        bne     wait_frames
         beq     check_for_key_press
 
 
@@ -880,7 +921,7 @@ s6CD3:  lda     VIC_CTRL1               ; Wait for raster to return to top of sc
 ; is pressing a key. If they are, exit the intro.
 ;
 ; The amount of delay before checking for a key press is
-; set by placing a value in 'key_press_wait_time'.
+; set by placing a value in 'wait_frames_ctr'.
 ;-----------------------------------------------------------
 
 wait_for_key_press:
@@ -891,12 +932,13 @@ wait_for_key_press:
         bne     @wait_for_raster
 
         ldx     #$00                    ; Delay
-@delay:  pha
+@delay: pha
         pla
         inx
         bne     @delay
-        dec     key_press_wait_time
+        dec     wait_frames_ctr
         bne     wait_for_key_press
+
 check_for_key_press:
         jsr     KERNEL_SCNKEY           ; Is the user pressing a key?
         jsr     KERNEL_GETIN
@@ -907,7 +949,7 @@ check_for_key_press:
 @wait_for_user:
         rts
 
-key_press_wait_time:
+wait_frames_ctr:
         .byte   $40
 
 
@@ -916,21 +958,21 @@ key_press_wait_time:
 ;-----------------------------------------------------------
 ;                         set_6444
 ;
-; Sets the byte at $644 to either a $07 or $06, depending on
-; the value stored at $79.
+; Sets the byte at $6444 to either a $07 or $06, depending
+; on the value stored in the 'frame_ctr' ($79).
 ;-----------------------------------------------------------
 
 set_6444:
         lda     $82
         beq     @exit
         ldx     #$07
-        lda     $79
+        lda     frame_ctr
         lsr
         lsr
         cmp     #$08
         bcc     @b6D27
         ldx     #$06
-@b6D27: stx     L6444
+@b6D27: stx     sprite_1_image + 4
 @exit:  rts
 
 
@@ -939,7 +981,7 @@ set_6444:
 ;-----------------------------------------------------------
 ;-----------------------------------------------------------
 
-s6D2B:  lda     $79
+s6D2B:  lda     frame_ctr
         and     #$03
         beq     b6D32
         rts
@@ -959,7 +1001,7 @@ b6D3E:  tax
         tay
         lda     d6D6F,x
         sta     screen_memory,y
-        lda     $79
+        lda     frame_ctr
         and     #$1F
         bne     b6D66
         lda     $51CD
@@ -984,7 +1026,7 @@ d6D6F:  .byte   $10,$30,$10,$60,$30,$70,$00,$A0
 ;-----------------------------------------------------------
 
 load_horse_sprite:
-        lda     $79
+        lda     frame_ctr
         and     #$3F
         bne     return_from_routine
 
@@ -1023,7 +1065,7 @@ s6DA9:  lda     $83
         lda     intro_loop_counter
         and     #$03
         bne     return_from_routine
-        lda     $79
+        lda     frame_ctr
         and     #$07
         bne     return_from_routine
         lda     $84
@@ -1277,167 +1319,13 @@ horse_anim_frames:
         .byte   $00,$05,$06,$05,$06,$05,$06,$FF
 
 origin_logo:
-        .byte   $00,$3F,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$C0
-        .byte   $00,$7F,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$C0
-        .byte   $00,$E0,$00,$00,$38,$00,$00,$00,$00,$00,$00,$00,$C0
-        .byte   $00,$C0,$06,$00,$30,$00,$00,$00,$00,$00,$00,$00,$C0
-        .byte   $01,$80,$1E,$00,$30,$78,$1F,$03,$0F,$06,$30,$31,$80
-        .byte   $01,$80,$0C,$00,$60,$FC,$3F,$86,$3F,$86,$30,$31,$80
-        .byte   $03,$00,$18,$00,$61,$86,$31,$86,$31,$8C,$70,$63,$00
-        .byte   $03,$00,$18,$00,$C3,$0C,$63,$0C,$60,$0C,$78,$63,$00
-        .byte   $06,$10,$30,$20,$C3,$0C,$6E,$0C,$60,$18,$D8,$C6,$00
-        .byte   $06,$3F,$FF,$F1,$86,$18,$DC,$18,$CE,$18,$CC,$C6,$00
-        .byte   $0C,$7F,$FF,$F1,$86,$18,$C6,$18,$DE,$31,$8D,$8C,$00
-        .byte   $0C,$20,$60,$43,$0C,$31,$86,$31,$86,$31,$87,$8C,$00
-        .byte   $18,$00,$C0,$03,$0C,$31,$86,$31,$8C,$63,$07,$18,$00
-        .byte   $18,$00,$C0,$06,$0F,$E3,$0C,$63,$FC,$63,$03,$18,$00
-        .byte   $30,$01,$80,$06,$07,$C3,$0C,$61,$F0,$C6,$06,$30,$00
-        .byte   $30,$01,$80,$0C,$00,$00,$00,$00,$00,$00,$00,$30,$00
-        .byte   $60,$07,$80,$0C,$7F,$FF,$FF,$FF,$FF,$FF,$FE,$60,$00
-        .byte   $60,$03,$00,$18,$FF,$FF,$FF,$FF,$FF,$FF,$FC,$60,$00
-        .byte   $E0,$00,$00,$38,$00,$00,$00,$00,$00,$00,$00,$C0,$00
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$C0,$00
-        .byte   $7F,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$80,$00
+        .incbin "intro/osi.bin"
 
-        .byte       $00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$0C,$0F,$07
-        .byte   $00,$00,$00,$00,$00,$03,$0F,$FE
-        .byte   $00,$00,$00,$00,$00,$06,$07,$03
-        .byte   $00,$00,$00,$00,$00,$06,$9E,$FC
-        .byte   $00,$00,$00,$00,$00,$00,$01,$03
-        .byte   $00,$00,$00,$00,$00,$C0,$C0,$C0
-        .byte   $00,$00,$00,$00,$00,$00,$00,$01
-        .byte   $00,$00,$00,$00,$00,$00,$00,$80
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$03
-        .byte   $00,$00,$00,$00,$00,$00,$00,$E0
-        .byte   $00,$00,$00,$00,$00,$00,$01,$03
-        .byte   $00,$00,$00,$00,$0F,$7F,$FF,$FF
-        .byte   $00,$00,$00,$00,$F8,$FF,$FF,$FF
-        .byte   $00,$00,$00,$01,$0F,$FF,$FF,$FF
-        .byte   $00,$30,$70,$E0,$E0,$C0,$80,$00
-        .byte   $07,$03,$01,$01,$01,$01,$01,$01
-        .byte   $FE,$FC,$F8,$F8,$F8,$F8,$F8,$F8
-        .byte   $03,$01,$00,$00,$00,$00,$00,$00
-        .byte   $FC,$F8,$F0,$F0,$F0,$F0,$F0,$F0
-        .byte   $0F,$3F,$0F,$0F,$0F,$0F,$0F,$0F
-        .byte   $C0,$C0,$C0,$C0,$C0,$C0,$C1,$C1
-        .byte   $01,$03,$03,$07,$0F,$7F,$FF,$FF
-        .byte   $80,$80,$80,$80,$80,$FC,$FC,$FC
-        .byte   $00,$01,$03,$03,$01,$00,$00,$00
-        .byte   $00,$80,$C0,$C0,$80,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$80
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $06,$0D,$0D,$0D,$0D,$06,$03,$00
-        .byte   $30,$D8,$58,$98,$58,$30,$E0,$00
-        .byte   $07,$07,$0F,$1C,$18,$00,$00,$00
-        .byte   $FE,$E0,$00,$00,$00,$00,$00,$00
-        .byte   $00,$FF,$7E,$7E,$7E,$7E,$7E,$7E
-        .byte   $7C,$60,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $01,$01,$01,$01,$01,$01,$01,$01
-        .byte   $F8,$F8,$F8,$F8,$F8,$F8,$F8,$F8
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $F0,$F0,$F0,$F0,$F0,$F0,$F0,$F0
-        .byte   $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
-        .byte   $C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
-        .byte   $1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F
-        .byte   $80,$80,$80,$80,$80,$80,$80,$80
-        .byte   $00,$01,$03,$0F,$3F,$07,$07,$07
-        .byte   $C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
-        .byte   $01,$03,$0F,$1F,$3F,$1F,$1F,$1F
-        .byte   $9F,$FF,$FF,$FF,$FF,$C1,$C1,$80
-        .byte   $87,$CF,$FF,$FF,$FF,$FE,$FE,$FC
-        .byte   $F8,$FE,$FF,$FF,$FF,$0F,$0F,$07
-        .byte   $01,$01,$01,$80,$C0,$C0,$E0,$E0
-        .byte   $C7,$FF,$FF,$F0,$70,$38,$00,$00
-        .byte   $F8,$FE,$FF,$7F,$3F,$3F,$3F,$1F
-        .byte   $00,$00,$00,$00,$00,$00,$00,$80
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $7E,$7E,$7E,$7E,$7E,$7E,$7E,$7E
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $01,$01,$01,$01,$01,$01,$01,$00
-        .byte   $F8,$F8,$F8,$FC,$FC,$FE,$FF,$FF
-        .byte   $00,$00,$00,$01,$01,$03,$07,$FF
-        .byte   $F8,$FC,$FC,$FC,$FC,$FC,$FC,$F8
-        .byte   $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
-        .byte   $C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
-        .byte   $1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F
-        .byte   $80,$80,$80,$80,$80,$80,$82,$86
-        .byte   $07,$07,$07,$07,$07,$07,$07,$07
-        .byte   $C0,$C0,$C0,$C0,$C0,$C0,$C0,$C0
-        .byte   $1F,$1F,$1F,$1F,$1F,$1F,$1F,$1F
-        .byte   $80,$80,$80,$80,$80,$80,$80,$80
-        .byte   $FC,$FC,$FC,$FC,$FC,$FC,$FC,$FC
-        .byte   $07,$07,$07,$07,$07,$07,$07,$07
-        .byte   $E0,$E0,$E0,$E0,$E0,$E1,$E1,$E1
-        .byte   $1E,$7F,$FF,$F1,$F0,$F0,$F0,$F0
-        .byte   $1F,$1F,$9F,$9F,$1F,$1F,$1F,$3F
-        .byte   $80,$80,$80,$80,$80,$80,$C0,$C0
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $7E,$7E,$7E,$7E,$7E,$7E,$7E,$7E
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $FF,$7F,$1F,$03,$00,$00,$00,$00
-        .byte   $FF,$FF,$FF,$FE,$00,$00,$00,$00
-        .byte   $F8,$F0,$C0,$00,$00,$00,$00,$00
-        .byte   $0F,$0F,$1F,$3F,$00,$00,$00,$00
-        .byte   $C0,$C0,$E0,$F0,$00,$00,$00,$00
-        .byte   $0F,$0F,$07,$03,$00,$00,$00,$00
-        .byte   $CE,$FC,$F8,$F0,$00,$00,$00,$00
-        .byte   $07,$07,$07,$1F,$00,$00,$00,$00
-        .byte   $C0,$C0,$C0,$F0,$00,$00,$00,$00
-        .byte   $1F,$1F,$1F,$7F,$00,$00,$00,$00
-        .byte   $80,$80,$80,$E3,$00,$00,$00,$00
-        .byte   $FC,$FC,$FC,$FF,$00,$00,$00,$00
-        .byte   $07,$07,$07,$0F,$0F,$0F,$1F,$1E
-        .byte   $C0,$C0,$C0,$80,$80,$00,$00,$00
-        .byte   $F8,$FF,$FF,$7F,$00,$00,$00,$00
-        .byte   $7F,$EF,$CF,$87,$00,$00,$00,$00
-        .byte   $C0,$C0,$E0,$F0,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$01,$03,$07
-        .byte   $00,$00,$00,$0E,$7E,$FF,$FF,$FF
-        .byte   $7E,$7E,$7E,$FF,$00,$FF,$FF,$FF
-        .byte   $00,$00,$01,$0F,$7F,$FF,$FF,$FC
-        .byte   $30,$70,$E0,$E0,$C0,$80,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $3C,$78,$60,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $07,$0F,$1C,$00,$00,$00,$00,$00
-        .byte   $E0,$00,$00,$00,$00,$00,$00,$00
-        .byte   $3F,$00,$00,$00,$00,$00,$00,$00
-        .byte   $E0,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00
+
+ultima_logo:
+        .incbin "intro/ultima.bin"
+
         .byte   $C6,$C6,$C6,$B1,$8D,$A0,$C8,$C5
 
 d7518:  .byte   $E0,$C0,$00,$7C,$70,$00,$FF,$FC

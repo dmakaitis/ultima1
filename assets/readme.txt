@@ -11,3 +11,7 @@ intro/horse5.bin	IN.PRG
 intro/horse6.bin	IN.PRG
 
 intro/image.bin 	IN.PRG		Compressed image to display on the intro page when loading the game.
+
+intro/osi.bin		IN.PRG		104x21 Origin systems logo, arranged top row of pixels, then second, etc.
+
+intro/ultima.bin	IN.PRG		Ultima I logo, arranged in C64 bitmap format (first 8x8 block, then second 8x8, etc.)
