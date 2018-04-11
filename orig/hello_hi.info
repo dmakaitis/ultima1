@@ -1,15 +1,15 @@
 GLOBAL {
-	INPUTNAME	"hello.prg";
-	OUTPUTNAME	"hello_hi.s";
+	INPUTNAME	"orig/files/hello.prg";
+	OUTPUTNAME	"orig/src/hello_hi.s";
 	STARTADDR	$C000;
 	INPUTOFFS	$0402;
 	PAGELENGTH	0;
 	CPU			"6502";
 };
 
-ASMINC	{ FILE "c64.inc"; };
-ASMINC	{ FILE "../src/kernel.inc"; };
-ASMINC	{ FILE "../src/global.inc"; };
+ASMINC	{ FILE "orig/c64.inc"; };
+ASMINC	{ FILE "include/kernel.inc"; };
+ASMINC	{ FILE "include/global.inc"; };
 
 RANGE	{ START $C000;	END $C041;	TYPE TextTable; };
 RANGE	{ START $C042;	END $C19E;	TYPE Code; };
@@ -29,9 +29,6 @@ RANGE	{ START $C5E3;	END $CFFE;	TYPE AddrTable; };
 LABEL	{ NAME "NMIVec_HI";				ADDR $0319; };
 
 LABEL	{ NAME "driver_1541";			ADDR $C042; };
-
-LABEL	{ NAME "hi_routine_1";			ADDR $C480; };
-LABEL	{ NAME "hi_routine_2";			ADDR $C483; };
 
 LABEL	{ NAME "do_hi_routine_2";		ADDR $C48E; };
 LABEL	{ NAME "do_hi_routine_1";		ADDR $C4F9; };

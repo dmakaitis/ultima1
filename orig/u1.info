@@ -1,13 +1,13 @@
 GLOBAL {
-	INPUTNAME	"u1.prg";
-	OUTPUTNAME	"u1.s";
+	INPUTNAME	"orig/files/u1.prg";
+	OUTPUTNAME	"orig/src/u1.s";
 	STARTADDR	$02D5;
 	PAGELENGTH	0;
 	CPU			"6502";
 };
 
-ASMINC	{ FILE "c64.inc"; };
-ASMINC	{ FILE "../src/kernel.inc"; };
+ASMINC	{ FILE "orig/c64.inc"; };
+ASMINC	{ FILE "include/kernel.inc"; };
 
 SEGMENT	{ START $02D5;	END $02D6;	NAME "LOADADDR"; };
 SEGMENT	{ START $02D7;	END $02FC;	NAME "code"; };

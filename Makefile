@@ -50,6 +50,8 @@ clean:
 	rm -Rf maps
 	rm -Rf assets/lo
 	rm -Rf assets/intro
+	rm -Rf orig/files
+	rm -Rf orig/src
 
 build/lo.o: assets/lo
 build/in.o: assets/intro
@@ -59,3 +61,47 @@ build/%.o: src/%.s build maps
 
 utils:
 	$(MAKE) -C util
+
+orig/prg/u1.prg: ultima1.d64 orig
+	-mkdir -p orig/files
+	c1541 $< -read u1 orig/files/u1.prg
+
+orig/src/u1.s: orig/u1.info orig/prg/u1.prg
+	-mkdir -p orig/src
+	da65 -i orig/u1.info
+
+orig/prg/hello.prg: ultima1.d64 orig
+	-mkdir -p orig/files
+	c1541 $< -read hello orig/files/hello.prg
+
+orig/src/hello.s: orig/hello.info orig/prg/hello.prg
+	-mkdir -p orig/src
+	da65 -i orig/hello.info
+
+orig/src/hello_hi.s: orig/hello_hi.info orig/prg/hello.prg
+	-mkdir -p orig/src
+	da65 -i orig/hello_hi.info
+
+orig/src/hello_1541.s: orig/hello_1541.info orig/prg/hello.prg
+	-mkdir -p orig/src
+	da65 -i orig/hello_1541.info
+
+orig/src/hello_1541_0500.s: orig/hello_1541_0500.info orig/prg/hello.prg
+	-mkdir -p orig/src
+	da65 -i orig/hello_1541_0500.info
+
+orig/prg/lo.prg: ultima1.d64 orig
+	-mkdir -p orig/files
+	c1541 $< -read lo orig/files/lo.prg
+
+orig/src/lo.s: orig/lo.info orig/prg/lo.prg
+	-mkdir -p orig/src
+	da65 -i orig/lo.info
+
+orig/prg/in.prg: ultima1.d64 orig
+	-mkdir -p orig/files
+	c1541 $< -read in orig/files/in.prg
+
+orig/src/in.s: orig/in.info orig/prg/in.prg
+	-mkdir -p orig/src
+	da65 -i orig/in.info

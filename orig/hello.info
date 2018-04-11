@@ -1,15 +1,15 @@
 GLOBAL {
-	INPUTNAME	"hello.prg";
-	OUTPUTNAME	"hello.s";
+	INPUTNAME	"orig/files/hello.prg";
+	OUTPUTNAME	"orig/src/hello.s";
 	STARTADDR	$8000;
 	INPUTOFFS	$0002;
 	PAGELENGTH	0;
 	CPU			"6502";
 };
 
-ASMINC	{ FILE "c64.inc"; };
-ASMINC	{ FILE "../src/kernel.inc"; };
-ASMINC	{ FILE "../src/global.inc"; };
+ASMINC	{ FILE "orig/c64.inc"; };
+ASMINC	{ FILE "include/kernel.inc"; };
+ASMINC	{ FILE "include/global.inc"; };
 
 RANGE	{ START $8000;	END $811C;	TYPE Code; };
 RANGE	{ START $811D;	END $8187;	TYPE TextTable; };
@@ -23,10 +23,6 @@ LABEL	{ NAME "lo_main"; 				ADDR $0C00; };
 LABEL	{ NAME "hello_main";			ADDR $8000; };
 
 LABEL	{ NAME "selected_drive_type";	ADDR $B000; };
-
-LABEL	{ NAME "load_file_cached";		ADDR $C480; };
-LABEL	{ NAME "save_file";				ADDR $C483; };
-LABEL	{ NAME "load_file";				ADDR $C486; };
 
 ########################
 # Subroutines
