@@ -10,17 +10,17 @@
 
 # First, make sure we have a tmp directory to work with.
 
-if [ ! -d tmp ] ; then
-	mkdir tmp
+if [ ! -d build/tmp ] ; then
+	mkdir -p build/tmp
 fi
 
 echo "Verifying file: " $1
 # Generate the hex dumps to compare
 
-xxd build/$1 > tmp/$1.new.xxd
-xxd orig/files/$1 > tmp/$1.old.xxd
+xxd build/prg/$1 > build/tmp/$1.new.xxd
+xxd build/orig/prg/$1 > build/tmp/$1.old.xxd
 
-diff tmp/$1.old.xxd tmp/$1.new.xxd
+diff build/tmp/$1.old.xxd build/tmp/$1.new.xxd
 
 # If the files match, print a nice message so we know the comparison was
 # actually done.

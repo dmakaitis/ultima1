@@ -5,4 +5,4 @@ viewbitmap: $(viewbitmap-objects)
 	c++ -o $@ $(viewbitmap-objects) -lpng
 
 clean:
-	rm viewbitmap *.o
+	-rm viewbitmap *.o

@@ -1,6 +1,6 @@
 GLOBAL {
-    INPUTNAME   "orig/files/in.prg";
-    OUTPUTNAME  "orig/src/in.s";
+    INPUTNAME   "build/orig/prg/in.prg";
+    OUTPUTNAME  "build/orig/src/in.s";
     STARTADDR   $6800;
     INPUTOFFS   $0002;
     PAGELENGTH  0;

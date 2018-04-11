@@ -1,6 +1,6 @@
 GLOBAL {
-	INPUTNAME	"orig/files/u1.prg";
-	OUTPUTNAME	"orig/src/u1.s";
+	INPUTNAME	"build/orig/prg/u1.prg";
+	OUTPUTNAME	"build/orig/src/u1.s";
 	STARTADDR	$02D5;
 	PAGELENGTH	0;
 	CPU			"6502";
