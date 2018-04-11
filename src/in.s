@@ -1319,12 +1319,12 @@ horse_anim_frames:
         .byte   $00,$05,$06,$05,$06,$05,$06,$FF
 
 origin_logo:
-        .incbin "intro/osi.bin"
+        .incbin "osi.bin"
 
         .byte   $00,$00,$00,$00,$00,$00,$00
 
 ultima_logo:
-        .incbin "intro/ultima.bin"
+        .incbin "ultima.bin"
 
         .byte   $C6,$C6,$C6,$B1,$8D,$A0,$C8,$C5
 
@@ -1332,25 +1332,25 @@ d7518:  .byte   $E0,$C0,$00,$7C,$70,$00,$FF,$FC
         .byte   $00,$FF,$FF,$00,$6F,$ED,$80
 
 horse_frame_0:
-        .incbin "intro/horse0.bin"
+        .incbin "horse0.bin"
 
 horse_frame_1:
-        .incbin "intro/horse1.bin"
+        .incbin "horse1.bin"
 
 horse_frame_2:
-        .incbin "intro/horse2.bin"
+        .incbin "horse2.bin"
 
 horse_frame_3:
-        .incbin "intro/horse3.bin"
+        .incbin "horse3.bin"
 
 horse_frame_4:
-        .incbin "intro/horse4.bin"
+        .incbin "horse4.bin"
 
 horse_frame_5:
-        .incbin "intro/horse5.bin"
+        .incbin "horse5.bin"
 
 horse_frame_6:
-        .incbin "intro/horse6.bin"
+        .incbin "horse6.bin"
 
         .byte   $B0,$B0
 
@@ -1536,4 +1536,4 @@ d7B6B:  .byte   $00,$07,$80,$00,$07,$E0,$00,$07
 
 compressed_image:
         
-        .incbin "intro/image.bin"
+        .incbin "image.bin"

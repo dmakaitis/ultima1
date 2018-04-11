@@ -37,7 +37,7 @@ load_file       := $C486
 
 .code
 
-        .incbin "lo/font.bin"
+        .incbin "font.bin"
 
 
 

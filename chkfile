@@ -18,7 +18,7 @@ echo "Verifying file: " $1
 # Generate the hex dumps to compare
 
 xxd build/$1 > tmp/$1.new.xxd
-xxd orig/$1 > tmp/$1.old.xxd
+xxd orig/files/$1 > tmp/$1.old.xxd
 
 diff tmp/$1.old.xxd tmp/$1.new.xxd
 
