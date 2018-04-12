@@ -143,22 +143,35 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
-    png_infop end_info = png_create_info_struct(png_ptr);
-    if(!end_info) {
-        std::cerr << "Failed to create PNG end info struct" << std::endl;
-        exit(1);
-    }
+    // png_infop end_info = png_create_info_struct(png_ptr);
+    // if(!end_info) {
+    //     std::cerr << "Failed to create PNG end info struct" << std::endl;
+    //     exit(1);
+    // }
 
     png_init_io(png_ptr, fp);
 
-    png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+    png_read_info(png_ptr, info_ptr);
 
     int width = png_get_image_width(png_ptr, info_ptr);
     int height = png_get_image_height(png_ptr, info_ptr);
 
+    std::cout << "Image size: " << width << " x " << height << std::endl;
+
     std::unique_ptr<png_bytep[]> row_pointers(new png_bytep[height]);
 
-    png_read_image(png_ptr, row_pointers);
+    png_read_image(png_ptr, row_pointers.get());
+
+    std::cout << "Image read" << std::endl;
+
+    for(int y = 0; y < height; y++) {
+        png_bytep ptr = row_pointers[y];
+        std::cout << "Got pointer for row " << y << ": " << (long) ptr << std::endl;
+        for(int x = 0; x < width; x += 8) {
+            // printAsBinary(*ptr++);
+        }
+        std::cout << std::endl;
+    }
 
     //     png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     //     png_infop info_ptr = png_create_info_struct(png_ptr);
