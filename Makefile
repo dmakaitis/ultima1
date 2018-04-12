@@ -53,12 +53,15 @@ $(PRG_OBJ)/%.o: src/%.s build
 # The following rules are for building command line
 # utilities that are used by other parts of the build
 
-utils = dimage
+utils = dimage cimage
 
 utils: $(addprefix $(BIN_OUT)/, $(utils))
 
 $(BIN_OUT)/dimage: $(BIN_OBJ)/dimage.o
 	c++ -o $@ $(BIN_OBJ)/dimage.o -lpng
+
+$(BIN_OUT)/cimage: $(BIN_OBJ)/cimage.o
+	c++ -o $@ $(BIN_OBJ)/cimage.o -lpng
 
 $(BIN_OBJ)/%.o: util/%.cpp build
 	c++ -c -o $@ $<
