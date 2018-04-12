@@ -1,50 +1,67 @@
-.PHONY: all verify clean utils origsrc compileassets
+.PHONY: all u1files verify clean utils origsrc assets compileassets
 
 U1FILES = u1 hello lo in
+PRG_OBJ = build/prgobj
 PRG_OUT = build/prg
 ASSETS_OUT = build/assets
 MAPS_OUT = build/maps
 ORIG_PRG_OUT = build/orig/prg
 ORIG_SRC_OUT = build/orig/src
+BIN_OBJ = build/binobj
+BIN_OUT = build/bin
 
-all: $(addprefix $(PRG_OUT)/, $(addsuffix .prg, $(U1FILES)))
+u1files: $(addprefix $(PRG_OUT)/, $(addsuffix .prg, $(U1FILES)))
 
-$(PRG_OUT)/hello.prg: src/hello.cfg build/hello.o build/hello_1541_bootstrap.o build/hello_1541_fastload.o
-	ld65 -C $< build/hello.o build/hello_1541_bootstrap.o build/hello_1541_fastload.o -o $@ -vm -m $(MAPS_OUT)/hello.map
+all: u1files
 
-$(PRG_OUT)/%.prg: src/%.cfg build/%.o
-	ld65 -C $< build/$*.o -o $@ -vm -m $(MAPS_OUT)/$*.map
+$(PRG_OUT)/hello.prg: src/hello.cfg $(PRG_OBJ)/hello.o $(PRG_OBJ)/hello_1541_bootstrap.o $(PRG_OBJ)/hello_1541_fastload.o
+	ld65 -C $< $(PRG_OBJ)/hello.o $(PRG_OBJ)/hello_1541_bootstrap.o $(PRG_OBJ)/hello_1541_fastload.o -o $@ -vm -m $(MAPS_OUT)/hello.map
+
+$(PRG_OUT)/%.prg: src/%.cfg $(PRG_OBJ)/%.o
+	ld65 -C $< $(PRG_OBJ)/$*.o -o $@ -vm -m $(MAPS_OUT)/$*.map
 
 build: 
+	-@mkdir -p $(PRG_OBJ)
 	-@mkdir -p $(PRG_OUT)
 	-@mkdir -p $(MAPS_OUT)
 	-@mkdir -p $(ASSETS_OUT)
 	-@mkdir -p $(ORIG_PRG_OUT)
 	-@mkdir -p $(ORIG_SRC_OUT)
+	-@mkdir -p $(BIN_OBJ)
+	-@mkdir -p $(BIN_OUT)
 
-verify: all $(addprefix $(ORIG_PRG_OUT)/, $(addsuffix .prg, $(U1FILES)))
+verify: u1files $(addprefix $(ORIG_PRG_OUT)/, $(addsuffix .prg, $(U1FILES)))
 	./chkfile u1.prg
 	./chkfile hello.prg
 	./chkfile lo.prg
 	./chkfile in.prg
 
 clean:
-	-$(MAKE) -C util clean
 	-rm -Rf build
-	-rm -Rf orig/files
-	-rm -Rf orig/src
+	-rm -Rf assets/*.png
 
 lo_assets = font
 in_assets = osi ultima horse0 horse1 horse2 horse3 horse4 horse5 horse6 image
 
-build/lo.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(lo_assets)))
-build/in.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(in_assets)))
+$(PRG_OBJ)/lo.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(lo_assets)))
+$(PRG_OBJ)/in.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(in_assets)))
 
-build/%.o: src/%.s build
+$(PRG_OBJ)/%.o: src/%.s build
 	ca65 $< -o $@ -I include -I $(ASSETS_OUT)
 
-utils:
-	$(MAKE) -C util
+###########################################################
+# The following rules are for building command line
+# utilities that are used by other parts of the build
+
+utils = dimage
+
+utils: $(addprefix $(BIN_OUT)/, $(utils))
+
+$(BIN_OUT)/dimage: $(BIN_OBJ)/dimage.o
+	c++ -o $@ $(BIN_OBJ)/dimage.o -lpng
+
+$(BIN_OBJ)/%.o: util/%.cpp build
+	c++ -c -o $@ $<
 
 ###########################################################
 # The following rules are for extracting disassembled code
@@ -70,13 +87,52 @@ $(ORIG_SRC_OUT)/lo.s: $(ORIG_PRG_OUT)/lo.prg
 $(ORIG_SRC_OUT)/in.s: $(ORIG_PRG_OUT)/in.prg
 
 ###########################################################
+# The following rules extract assets from the original
+# game files.
+
+pngassets =	font osi ultima horse0 horse1 horse2 horse3 horse4 horse5 horse6 \
+			image
+
+assets: $(addprefix assets/, $(addsuffix .png, $(pngassets)))
+
+assets/font.png: $(ORIG_PRG_OUT)/lo.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -b -w 128 -s 2 -n 1024
+
+assets/osi.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 104 -s 1962 -n 273
+
+assets/ultima.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -b -w 184 -s 2242 -n 1104
+
+assets/horse0.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3369 -n 42
+
+assets/horse1.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3411 -n 42
+
+assets/horse2.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3453 -n 42
+
+assets/horse3.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3495 -n 42
+
+assets/horse4.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3537 -n 42
+
+assets/horse5.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3579 -n 42
+
+assets/horse6.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3621 -n 42
+
+assets/image.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -bc -w 320 -s 5021 -n 2367
+
+###########################################################
 # The following rules compile assets for inclusion in
 # game files.
 
-assets =	font osi ultima horse0 horse1 horse2 horse3 horse4 horse5 horse6 \
-			image
-
-compileassets: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(assets)))
+compileassets: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(pngassets)))
 
 $(ASSETS_OUT)/font.bin: $(ORIG_PRG_OUT)/lo.prg build
 	dd if=$< of=$@ bs=1 skip=2 count=1024
