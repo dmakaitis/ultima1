@@ -59,6 +59,7 @@ public:
                 switch(byte) {
                     case 0xda:
                         endOfCompressed = true;
+                        repeats = 1;
                         break;
                     case 0x00:
                     case 0x10:
@@ -71,6 +72,7 @@ public:
 
                         // Treat '0' repeats as 256...
                         if(repeats == 0) repeats = 256;
+
                         break;
                     default:
                         repeats = 1;

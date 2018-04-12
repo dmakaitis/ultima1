@@ -1537,3 +1537,5 @@ d7B6B:  .byte   $00,$07,$80,$00,$07,$E0,$00,$07
 compressed_image:
         
         .incbin "image.bin"
+
+        .byte   $b0

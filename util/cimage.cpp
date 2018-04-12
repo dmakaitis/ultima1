@@ -25,8 +25,6 @@ int main(int argc, char** argv) {
     bool help = false;
     bool block = false;
     bool compressed = false;
-    // int skip = 0;
-    // int numbytes = -1;
     bool quiet = false;
 
     static struct option options[] = {
@@ -35,9 +33,6 @@ int main(int argc, char** argv) {
         { "compressed", no_argument,        0,  'c' },
         { "input",      required_argument,  0,  'i' },
         { "output",     required_argument,  0,  'o' },
-        // { "width",      required_argument,  0,  'w' },
-        // { "skip",       required_argument,  0,  's' },
-        // { "numbytes",   required_argument,  0,  'n' },
         { "quiet",      no_argument,        0,  'q' }
     };
 
@@ -55,21 +50,12 @@ int main(int argc, char** argv) {
             case 'i':
                 filename = optarg;
                 break;
-            // case 'n':
-            //     numbytes = atoi(optarg);
-            //     break;
             case 'o':
                 outFilename = optarg;
                 break;
             case 'q':
                 quiet = true;
                 break;
-            // case 's':
-            //     skip = atoi(optarg);
-            //     break;
-            // case 'w':
-            //     width = atoi(optarg);
-            //     break;
             case '?':
                 help = true;
                 break;
@@ -83,36 +69,9 @@ int main(int argc, char** argv) {
         std::cout << "  -b, --block         The image is stored as 8x8 blocks of pixels" << std::endl;
         std::cout << "  -c, --compressed    The image is compressed using RLE" << std::endl;
         std::cout << "  -i, --input         Set the input filename (required)" << std::endl;
-        // std::cout << "  -n, --numbytes      How many bytes to read for the image" << std::endl;
         std::cout << "  -o, --output        Set the output filename to save in PNG format" << std::endl;
-        // std::cout << "  -s, --skip          How many bytes to skip in the input file before reading the image" << std::endl;
-        // std::cout << "  -w, --width         Set the image width in pixels (required)" << std::endl;
         exit(1);
     }
-
-    // std::vector<char> bitmap = loadBitmap(filename, width, block, compressed, skip, numbytes);
-
-    // int bytesPerRow = width / 8;
-
-    // // Now, print the bitmap...
-    // if(!quiet) {
-    //     int count = 0;
-    //     for(std::vector<char>::const_iterator ptr = bitmap.begin(); ptr != bitmap.end(); ptr++) {
-    //         printAsBinary(*ptr);
-    //         count++;
-    //         if(count >= bytesPerRow) {
-    //             count = 0;
-    //             std::cout << std::endl;
-    //         }
-    //     }
-
-    //     std::cout << std::endl;
-    // }
-
-    // int height = bitmap.size() / bytesPerRow;
-    // int bit_depth = 1;
-
-    // std::cout << "Image size: " << width << " x " << bitmap.size() / bytesPerRow << std::endl;
 
     // Read the PNG image:
         
@@ -143,61 +102,90 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
-    // png_infop end_info = png_create_info_struct(png_ptr);
-    // if(!end_info) {
-    //     std::cerr << "Failed to create PNG end info struct" << std::endl;
-    //     exit(1);
-    // }
-
     png_init_io(png_ptr, fp);
-
-    png_read_info(png_ptr, info_ptr);
+    png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
 
     int width = png_get_image_width(png_ptr, info_ptr);
     int height = png_get_image_height(png_ptr, info_ptr);
 
     std::cout << "Image size: " << width << " x " << height << std::endl;
 
-    std::unique_ptr<png_bytep[]> row_pointers(new png_bytep[height]);
+    png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
 
-    png_read_image(png_ptr, row_pointers.get());
-
-    std::cout << "Image read" << std::endl;
-
-    for(int y = 0; y < height; y++) {
-        png_bytep ptr = row_pointers[y];
-        std::cout << "Got pointer for row " << y << ": " << (long) ptr << std::endl;
-        for(int x = 0; x < width; x += 8) {
-            // printAsBinary(*ptr++);
+    if(!quiet) {
+        for(int y = 0; y < height; y++) {
+            png_bytep ptr = row_pointers[y];
+            // std::cout << "Got pointer for row " << y << ": " << (long) ptr << std::endl;
+            for(int x = 0; x < width; x += 8) {
+                printAsBinary(*ptr++);
+            }
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
     }
 
-    //     png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    //     png_infop info_ptr = png_create_info_struct(png_ptr);
-    //     // setup error callbacks
-    //     png_init_io(png_ptr, fp);
+    if(outFilename) {
 
-    //     // Step 4.2 - Write callbacks
+        // Copy data to buffer
 
-    //     // Step 4.3 - Info contents
+        std::vector<char> buffer;
+        if(block) {
+            if(height % 8 != 0) {
+                std::cerr << "Image height must be a multiple of 8 to save in block format" << std::endl;
+                exit(1);
+            }
 
-    //     png_set_IHDR(png_ptr, info_ptr, width, height, bit_depth, PNG_COLOR_TYPE_GRAY, 
-    //         PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+            for(int y = 0; y < height; y += 8) {
+                int x, xptr;
+                for(x = 0, xptr = 0; x < width; x += 8, xptr++) {
+                    for(int yy = 0; yy < 8; yy++) {
+                        buffer.push_back(row_pointers[y + yy][xptr]);
+                    }
+                }
+            }
+        } else {
+            for(int y = 0; y < height; y++) {
+                png_bytep ptr = row_pointers[y];
+                for(int x = 0; x < width; x += 8) {
+                    buffer.push_back(*ptr++);
+                }
+            }
+        }
 
-    //     // Step 4.5 - Write file
+        // Now write the buffer to the file
 
-    //     std::vector<png_bytep> row_pointers;
-    //     png_bytep bitmapPtr = (png_bytep)(&(*(bitmap.begin())));
-    //     for(int i = 0; i < height; i++) {
-    //         row_pointers.push_back(bitmapPtr);
-    //         bitmapPtr += bytesPerRow;
-    //     }
-    //     png_set_rows(png_ptr, info_ptr, &(*(row_pointers.begin())));
+        std::ofstream output(outFilename, std::ios::binary);
 
-    //     png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+        if(compressed) {
+            for(std::vector<char>::const_iterator b = buffer.begin(); b != buffer.end(); b++) {
+                char value = *b;
 
-    //     fclose(fp);
-    // }
+                output.put(value);
+
+                switch((unsigned char) value) {
+                    case 0x00:
+                    case 0x10:
+                    case 0xff:
+                    case 0xe6:
+                    case 0x16:
+                    case 0x50:
+                        int repeats = 0;
+                        while(*b == value && b != buffer.end() && repeats < 256) {
+                            repeats++;
+                            b++;
+                        }
+                        b--;
+                        if(repeats == 256) {
+                            repeats = 0;
+                        }
+                        output.put((unsigned char) repeats);
+                }
+            }
+            // Write end of compressed image marker:
+            output.put(0xda);
+        } else {
+            output.write(&buffer[0], buffer.size());
+        }
+    }
+
     return 0;
 }

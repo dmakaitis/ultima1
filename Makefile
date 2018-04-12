@@ -137,35 +137,20 @@ assets/image.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 
 compileassets: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(pngassets)))
 
-$(ASSETS_OUT)/font.bin: $(ORIG_PRG_OUT)/lo.prg build
-	dd if=$< of=$@ bs=1 skip=2 count=1024
+$(ASSETS_OUT)/font.bin: assets/font.png $(BIN_OUT)/cimage
+	$(BIN_OUT)/cimage -qb -i $< -o $@
 
-$(ASSETS_OUT)/osi.bin: $(ORIG_PRG_OUT)/in.prg build
-	dd if=$< of=$@ bs=1 skip=1962 count=273
+$(ASSETS_OUT)/osi.bin: assets/osi.png $(BIN_OUT)/cimage
+	$(BIN_OUT)/cimage -q -i $< -o $@
 
-$(ASSETS_OUT)/ultima.bin: $(ORIG_PRG_OUT)/in.prg build
-	dd if=$< of=$@ bs=1 skip=2242 count=1104
+$(ASSETS_OUT)/ultima.bin: assets/ultima.png $(BIN_OUT)/cimage
+	$(BIN_OUT)/cimage -qb -i $< -o $@
 
-$(ASSETS_OUT)/horse0.bin: $(ORIG_PRG_OUT)/in.prg build
-	dd if=$< of=$@ bs=1 skip=3369 count=42
+$(ASSETS_OUT)/horse%.bin: assets/horse%.png $(BIN_OUT)/cimage
+	$(BIN_OUT)/cimage -q -i $< -o $@
 
-$(ASSETS_OUT)/horse1.bin: $(ORIG_PRG_OUT)/in.prg build
-	dd if=$< of=$@ bs=1 skip=3411 count=42
-
-$(ASSETS_OUT)/horse2.bin: $(ORIG_PRG_OUT)/in.prg build
-	dd if=$< of=$@ bs=1 skip=3453 count=42
-
-$(ASSETS_OUT)/horse3.bin: $(ORIG_PRG_OUT)/in.prg build
-	dd if=$< of=$@ bs=1 skip=3495 count=42
-
-$(ASSETS_OUT)/horse4.bin: $(ORIG_PRG_OUT)/in.prg build
-	dd if=$< of=$@ bs=1 skip=3537 count=42
-
-$(ASSETS_OUT)/horse5.bin: $(ORIG_PRG_OUT)/in.prg build
-	dd if=$< of=$@ bs=1 skip=3579 count=42
-
-$(ASSETS_OUT)/horse6.bin: $(ORIG_PRG_OUT)/in.prg build
-	dd if=$< of=$@ bs=1 skip=3621 count=42
+# The intro image needs to be read from the original IN file since
+# it includes data beyond the actual end of the image
 
 $(ASSETS_OUT)/image.bin: $(ORIG_PRG_OUT)/in.prg build
-	dd if=$< of=$@ bs=1 skip=5021 count=2367
+	dd if=$< of=$@ bs=1 skip=5021 count=2366
