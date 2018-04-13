@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 
+#include <string.h>
 #include <getopt.h>
 #include <png.h>
 
@@ -248,6 +249,17 @@ void saveAsPng(const char* filename, const std::vector<char>& bitmap, int width,
 
     png_set_IHDR(png_ptr, info_ptr, width, height, bit_depth, PNG_COLOR_TYPE_GRAY, 
         PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+    if(extra.size() > 0) {
+        png_unknown_chunk unknownChunk;
+
+        strcpy((char *)unknownChunk.name, "daTa");
+        unknownChunk.data = (unsigned char *)&extra[0];
+        unknownChunk.size = extra.size();
+        unknownChunk.location = PNG_AFTER_IDAT;
+
+        png_set_unknown_chunks(png_ptr, info_ptr, &unknownChunk, 1);
+    }
 
     // Step 4.5 - Write file
 
