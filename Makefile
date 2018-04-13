@@ -129,7 +129,7 @@ assets/horse6.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3621 -n 42
 
 assets/image.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
-	$(BIN_OUT)/dimage -q -i $< -o $@ -bc -w 320 -h 200 -s 5021 -n 2367
+	$(BIN_OUT)/dimage -q -i $< -o $@ -bc -w 320 -h 200 -s 5021 -n 2367 -C 192
 
 ###########################################################
 # The following rules compile assets for inclusion in

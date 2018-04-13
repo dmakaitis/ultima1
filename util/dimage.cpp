@@ -8,6 +8,25 @@
 #include <getopt.h>
 #include <png.h>
 
+const png_color C64_PALETTE[] = {
+    0x00, 0x00, 0x00,  // black
+    0xff, 0xff, 0xff,   // white
+    0x68, 0x37, 0x2b,   // red
+    0x70, 0xa4, 0xb2,   // cyan
+    0x6f, 0x3d, 0x86,   // purple
+    0x58, 0x8d, 0x43,   // green
+    0x35, 0x28, 0x79,   // blue
+    0xb8, 0xc7, 0x6f,   // yellow
+    0x6f, 0x4f, 0x25,   // orange
+    0x43, 0x39, 0x00,   // brown
+    0x9a, 0x67, 0x59,   // light red
+    0x44, 0x44, 0x44,   // dark grey
+    0x6c, 0x6c, 0x6c,   // grey
+    0x9a, 0xd2, 0x84,   // light green
+    0x6c, 0x5e, 0xb5,   // light blue
+    0x95, 0x95, 0x95    // light grey
+};
+
 void printAsBinary(char c) {
     int mask = 0x80;
     while(mask) {
@@ -178,6 +197,7 @@ std::vector<char> getBitmap(const std::vector<char>& data, int imageWidth, int i
                 count = 0;
                 colPtr = 0;
                 ptr = colPtr;
+                rowsRead += 8;
             } else if(count % 8 == 0) {
                 colPtr++;
                 ptr = colPtr;
@@ -222,6 +242,50 @@ void printBitmap(const std::vector<char>& bitmap, int bytesPerRow) {
 }
 
 /*
+ * Converts a 1bpp bitmap to a 4bpp image using an image of C64
+ * color memory to determine the color of each pixel in the bitmap.
+ *
+ * bitmap           the bitmap data.
+ * colorMem         image of color memory.
+ * width            image width in pixels.
+ * height           image height in pixels.
+ * colorOffset      the offset where color data actually starts in color memory.
+ */
+std::vector<char> convertTo4bpp(const std::vector<char>& bitmap, const std::vector<char>& colorMem, int width, int height, int colorOffset) {
+    std::vector<char> output;
+
+    int bytesPerRow = width / 8;
+
+    int bitmapPtr = 0;
+
+    for(int y = 0; y < height; y++) {
+        int colorPtr = colorOffset + bytesPerRow * (y / 8);
+
+        for(int x = 0; x < bytesPerRow; x++) {
+            unsigned char bitmapByte = (unsigned char)bitmap[bitmapPtr++];
+            unsigned char colorByte = (unsigned char)colorMem[colorPtr++];
+
+            unsigned char offColor = colorByte & 0x0f;
+            unsigned char onColor = (colorByte >> 4) & 0x0f;
+
+            unsigned char mask = 0x80;
+
+            for(int i = 0; i < 4; i++) {
+                unsigned char out = bitmapByte & mask ? onColor : offColor;
+                out <<= 4;
+                mask >>= 1;
+                out |= bitmapByte & mask ? onColor : offColor;
+                mask >>= 1;
+
+                output.push_back((char) out);
+            }
+        }
+    }
+
+    return output;
+}
+
+/*
  * Saves a bitmap as a PNG file.
  *
  * filename         the output filename.
@@ -229,9 +293,17 @@ void printBitmap(const std::vector<char>& bitmap, int bytesPerRow) {
  * width            the width of the bitmap in pixels.
  * height           the height of the bitmap in pixels.
  * extra            any extra data that should be included that isn't part of the bitmap.
+ * color            true if the image should be saved as a 4bpp color image; false for a 1bpp black and white image.
+ * colorOffset      the offset into 'extra' data where the C64 color map is located.
  */
-void saveAsPng(const char* filename, const std::vector<char>& bitmap, int width, int height, const std::vector<char>& extra) {
+void saveAsPng(const char* filename, const std::vector<char>& bitmap, int width, int height, const std::vector<char>& extra, bool color, int colorOffset) {
     int bytesPerRow = width / 8;
+
+    if(color && extra.size() < (width / 8) * (height / 8)) {
+        std::cout << "WARNING: Not enough color data to convert to color bitmap - falling back to 1bpp" << std::endl;
+        std::cout << "(need " << ((width / 8) * (height / 8)) << "bytes; read " << extra.size() << " bytes)" << std::endl;
+        color = false;
+    }
 
     // Step 4.1 - Setup
 
@@ -245,10 +317,15 @@ void saveAsPng(const char* filename, const std::vector<char>& bitmap, int width,
 
     // Step 4.3 - Info contents
 
-    int bit_depth = 1;
+    int bit_depth = color ? 4 : 1;
+    int color_type = color ? PNG_COLOR_TYPE_PALETTE : PNG_COLOR_TYPE_GRAY;
 
-    png_set_IHDR(png_ptr, info_ptr, width, height, bit_depth, PNG_COLOR_TYPE_GRAY, 
+    png_set_IHDR(png_ptr, info_ptr, width, height, bit_depth, color_type, 
         PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+    if(color) {
+        png_set_PLTE(png_ptr, info_ptr, C64_PALETTE, 16);
+    }
 
     if(extra.size() > 0) {
         png_unknown_chunk unknownChunk;
@@ -263,8 +340,11 @@ void saveAsPng(const char* filename, const std::vector<char>& bitmap, int width,
 
     // Step 4.5 - Write file
 
+    std::vector<char> data = color ? convertTo4bpp(bitmap, extra, width, height, colorOffset) : bitmap;
+    bytesPerRow *= color ? 4 : 1;
+
     std::vector<png_bytep> row_pointers;
-    png_bytep bitmapPtr = (png_bytep)(&(*(bitmap.begin())));
+    png_bytep bitmapPtr = (png_bytep)(&(*(data.begin())));
     for(int i = 0; i < height; i++) {
         row_pointers.push_back(bitmapPtr);
         bitmapPtr += bytesPerRow;
@@ -272,6 +352,7 @@ void saveAsPng(const char* filename, const std::vector<char>& bitmap, int width,
     png_set_rows(png_ptr, info_ptr, &(*(row_pointers.begin())));
 
     png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+    
 
     fclose(fp);
 }
@@ -290,6 +371,8 @@ int main(int argc, char** argv) {
     int skip = 0;
     int numbytes = -1;
     bool quiet = false;
+    bool color = false;
+    int colorOffset = 0;
 
     static struct option options[] = {
         { "help",       no_argument,        0,  '?' },
@@ -301,19 +384,24 @@ int main(int argc, char** argv) {
         { "skip",       required_argument,  0,  's' },
         { "numbytes",   required_argument,  0,  'n' },
         { "quiet",      no_argument,        0,  'q' },
-        { "height",     required_argument,  0,  'h' }
+        { "height",     required_argument,  0,  'h' },
+        { "color",      required_argument,  0,  'C' }
     };
 
     int option_index = 0;
 
     int c;
-    while((c = getopt_long(argc, argv, "bci:o:w:s:n:qh:", options, &option_index)) != -1) {
+    while((c = getopt_long(argc, argv, "bci:o:w:s:n:qh:C:", options, &option_index)) != -1) {
         switch(c) {
             case 'b':
                 block = true;
                 break;
             case 'c':
                 compressed = true;
+                break;
+            case 'C':
+                color = true;
+                colorOffset = atoi(optarg);
                 break;
             case 'h':
                 height = atoi(optarg);
@@ -348,9 +436,10 @@ int main(int argc, char** argv) {
         std::cout << "Options:" <<std::endl;
         std::cout << "  -b, --block         The image is stored as 8x8 blocks of pixels" << std::endl;
         std::cout << "  -c, --compressed    The image is compressed using RLE" << std::endl;
+        std::cout << "  -C, --color         The image is in color (color memory should immediately follow bitmap memory in the data)" << std::endl;
         std::cout << "  -h, --height        The image height" << std::endl;
         std::cout << "  -i, --input         Set the input filename (required)" << std::endl;
-        std::cout << "  -n, --numbytes      How many bytes to read for the image" << std::endl;
+        std::cout << "  -n, --numbytes      How many bytes of data to read for the image" << std::endl;
         std::cout << "  -o, --output        Set the output filename to save in PNG format" << std::endl;
         std::cout << "  -s, --skip          How many bytes to skip in the input file before reading the image" << std::endl;
         std::cout << "  -w, --width         Set the image width in pixels (required)" << std::endl;
@@ -385,7 +474,7 @@ int main(int argc, char** argv) {
     // Save it as a PNG:
 
     if(outFilename) {
-        saveAsPng(outFilename, bitmap, width, height, extra);
+        saveAsPng(outFilename, bitmap, width, height, extra, color, colorOffset);
     }
 
     return 0;
