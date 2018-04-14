@@ -9,6 +9,7 @@
 #include <png.h>
 
 typedef std::vector<uint8_t> ByteArray;
+typedef std::vector<uint32_t> DWordArray;
 
 void printAsBinary(uint8_t c) {
     int mask = 0x80;
@@ -118,7 +119,7 @@ void saveFile(const char* filename, ByteArray& buffer, bool compressed) {
     }
 }
 
-ByteArray loadPng(const char* filename, int &width, int &height, ByteArray& extraData) {
+ByteArray loadPng(const char* filename, int &width, int &height, DWordArray& palette, ByteArray& extraData) {
         
     // Step 3.1 - Setup
 
@@ -127,13 +128,6 @@ ByteArray loadPng(const char* filename, int &width, int &height, ByteArray& extr
         std::cerr << "Failed to open input file: " << filename << std::endl;
         exit(1);
     }
-
-    // fread(header, 1, number, fp);
-    // is_png = !png_sig_cmp(header, 0, number);
-    // if(!is_png) {
-    //     std::cerr << "Input file is not a PNG image" << std::endl;
-    //     exit(1);
-    // }
 
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if(!png_ptr) {
@@ -155,7 +149,18 @@ ByteArray loadPng(const char* filename, int &width, int &height, ByteArray& extr
     width = png_get_image_width(png_ptr, info_ptr);
     height = png_get_image_height(png_ptr, info_ptr);
 
+    png_colorp paletteData;
+    int paletteSize;
+    png_get_PLTE(png_ptr, info_ptr, &paletteData, &paletteSize);
+    for(int i = 0; i < paletteSize; i++) {
+        uint32_t color = paletteData[i].red << 16;
+        color |= paletteData[i].green << 8;
+        color |= paletteData[i].blue;
+        palette.push_back(color);
+    }
+
     std::cout << "Image size: " << width << " x " << height << std::endl;
+    std::cout << "Palette size: " << palette.size() << " colors" << std::endl;
     std::cout << "Extra data: " << extraData.size() << " bytes" << std::endl;
 
     return convertToBitmap(png_ptr, info_ptr);
@@ -224,7 +229,8 @@ int main(int argc, char** argv) {
         
     int width, height;
     ByteArray extraData;
-    ByteArray bitmap = loadPng(filename, width, height, extraData);
+    DWordArray palette;
+    ByteArray bitmap = loadPng(filename, width, height, palette, extraData);
 
     if(!quiet) {
         printBitmap(bitmap, width, height);
