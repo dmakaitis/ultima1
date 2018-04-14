@@ -216,6 +216,7 @@ int main(int argc, char** argv) {
         std::cout << "  -c, --compressed    The image is compressed using RLE" << std::endl;
         std::cout << "  -i, --input         Set the input filename (required)" << std::endl;
         std::cout << "  -o, --output        Set the output filename to save in PNG format" << std::endl;
+        std::cout << "  -q, --quiet         Do not print a copy of the bitmap to console" << std::endl;
         exit(1);
     }
 
