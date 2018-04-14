@@ -15,6 +15,21 @@ void printAsBinary(char c) {
     }
 }
 
+int readExtraData(png_structp png_ptr, png_unknown_chunkp chunk) {
+    if(strcmp((const char*)chunk->name, "daTa") == 0) {
+        std::vector<char>* extra = (std::vector<char>*) png_get_user_chunk_ptr(png_ptr);
+
+        char* data = (char*) chunk->data;
+        for(int i = 0; i < chunk->size; i++) {
+            extra->push_back(*data++);
+        }
+
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 /*
  * Parses arguments, then passes control to displayBitmap
  */
@@ -102,6 +117,11 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
+    // png_set_keep_unknown_chunks(png_ptr, PNG_HANDLE_CHUNK_ALWAYS, (const unsigned char *)"daTa", 1);
+    // png_set_keep_unknown_chunks(png_ptr, PNG_HANDLE_CHUNK_ALWAYS, NULL, 0);
+    std::vector<char> extraData;
+    png_set_read_user_chunk_fn(png_ptr, &extraData, readExtraData);
+
     png_init_io(png_ptr, fp);
     png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
 
@@ -109,6 +129,13 @@ int main(int argc, char** argv) {
     int height = png_get_image_height(png_ptr, info_ptr);
 
     std::cout << "Image size: " << width << " x " << height << std::endl;
+    std::cout << "Extra data: " << extraData.size() << " bytes" << std::endl;
+
+    // png_unknown_chunkpp unknownChunks;
+    // int unknownChunkCount = png_get_unknown_chunks(png_ptr, info_ptr, unknownChunks);
+    // if(unknownChunkCount > 0) {
+    //     std::cout << "Found " << unknownChunkCount << " unknown chunks";
+    // }
 
     png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
 
@@ -150,6 +177,9 @@ int main(int argc, char** argv) {
                 }
             }
         }
+
+        // Append any extra data...
+        buffer.insert(buffer.end(), extraData.begin(), extraData.end());
 
         // Now write the buffer to the file
 
