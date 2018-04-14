@@ -36,13 +36,54 @@ ByteArray convertToBitmap(png_structp png_ptr, png_infop info_ptr) {
     int width = png_get_image_width(png_ptr, info_ptr);
     int height = png_get_image_height(png_ptr, info_ptr);
     png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
+    int bit_depth = png_get_bit_depth(png_ptr, info_ptr);
+
+    uint8_t byte;
+    uint8_t mask;
+    uint8_t imageByte;
+    uint8_t imageMask;
 
     for(int y = 0; y < height; y++) {
         png_bytep ptr = row_pointers[y];
-        for(int x = 0; x < width; x += 8) {
-            bitmap.push_back(*ptr++);
+
+        switch(bit_depth) {
+            case 4:
+                for(int x = 0; x < width; x += 8) {
+                    byte = 0x00;
+                    mask = 0x80;
+
+                    for(int xx = 0; xx < 4; xx++) {
+                        imageByte = *ptr++;
+                        imageMask = 0xf0;
+                        if(imageByte & imageMask) {
+                            byte |= mask;
+                        }
+                        mask >>= 1;
+                        imageMask >>= 4;
+                        if(imageByte & imageMask) {
+                            byte |= mask;
+                        }
+                        mask >>= 1;
+                    }
+
+                    bitmap.push_back(byte);
+                }
+
+                break;
+
+            case 1:
+                for(int x = 0; x < width; x += 8) {
+                    bitmap.push_back(*ptr++);
+                }
+                break;
+
+            default:
+                std::cerr << "ERROR: Unrecognized bit depth: " << bit_depth << std::endl;
+                return bitmap;
         }
     }
+
+    std::cout << "Bitmap size: " << bitmap.size() << " bytes" << std::endl;
 
     return bitmap;
 }
@@ -119,7 +160,7 @@ void saveFile(const char* filename, ByteArray& buffer, bool compressed) {
     }
 }
 
-ByteArray loadPng(const char* filename, int &width, int &height, DWordArray& palette, ByteArray& extraData) {
+ByteArray loadPng(const char* filename, int &width, int &height, ByteArray& extraData) {
         
     // Step 3.1 - Setup
 
@@ -149,6 +190,7 @@ ByteArray loadPng(const char* filename, int &width, int &height, DWordArray& pal
     width = png_get_image_width(png_ptr, info_ptr);
     height = png_get_image_height(png_ptr, info_ptr);
 
+    DWordArray palette;
     png_colorp paletteData;
     int paletteSize;
     png_get_PLTE(png_ptr, info_ptr, &paletteData, &paletteSize);
@@ -229,8 +271,7 @@ int main(int argc, char** argv) {
         
     int width, height;
     ByteArray extraData;
-    DWordArray palette;
-    ByteArray bitmap = loadPng(filename, width, height, palette, extraData);
+    ByteArray bitmap = loadPng(filename, width, height, extraData);
 
     if(!quiet) {
         printBitmap(bitmap, width, height);

@@ -154,3 +154,6 @@ $(ASSETS_OUT)/horse%.bin: assets/horse%.png $(BIN_OUT)/cimage
 
 $(ASSETS_OUT)/image.bin: $(ORIG_PRG_OUT)/in.prg build
 	dd if=$< of=$@ bs=1 skip=5021 count=2366
+
+# $(ASSETS_OUT)/image.bin: assets/image.png $(BIN_OUT)/cimage
+# 	$(BIN_OUT)/cimage -qbc -i $< -o $@
