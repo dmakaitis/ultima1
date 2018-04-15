@@ -41,7 +41,8 @@ clean:
 	-rm -Rf assets/*.png
 
 lo_assets = font
-in_assets = osi ultima horse0 horse1 horse2 horse3 horse4 horse5 horse6 image
+in_assets = intro_studio intro_title intro_horse0 intro_horse1 intro_horse2 \
+			intro_horse3 intro_horse4 intro_horse5 intro_horse6 intro_backdrop
 
 $(PRG_OBJ)/lo.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(lo_assets)))
 $(PRG_OBJ)/in.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(in_assets)))
@@ -101,34 +102,34 @@ assets: $(addprefix assets/, $(addsuffix .png, $(pngassets)))
 assets/font.png: $(ORIG_PRG_OUT)/lo.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -b -w 128 -s 2 -n 1024
 
-assets/osi.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+assets/intro_studio.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -w 104 -s 1962 -n 273
 
-assets/ultima.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+assets/intro_title.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -b -w 184 -s 2242 -n 1104
 
-assets/horse0.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+assets/intro_horse0.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3369 -n 42
 
-assets/horse1.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+assets/intro_horse1.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3411 -n 42
 
-assets/horse2.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+assets/intro_horse2.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3453 -n 42
 
-assets/horse3.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+assets/intro_horse3.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3495 -n 42
 
-assets/horse4.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+assets/intro_horse4.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3537 -n 42
 
-assets/horse5.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+assets/intro_horse5.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3579 -n 42
 
-assets/horse6.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+assets/intro_horse6.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3621 -n 42
 
-assets/image.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+assets/intro_backdrop.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -bc -w 320 -h 200 -s 5021 -n 2367 -C 192
 
 ###########################################################
@@ -140,14 +141,14 @@ compileassets: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(pngassets)))
 $(ASSETS_OUT)/font.bin: assets/font.png $(BIN_OUT)/cimage
 	$(BIN_OUT)/cimage -qb -i $< -o $@
 
-$(ASSETS_OUT)/osi.bin: assets/osi.png $(BIN_OUT)/cimage
+$(ASSETS_OUT)/intro_studio.bin: assets/intro_studio.png $(BIN_OUT)/cimage
 	$(BIN_OUT)/cimage -q -i $< -o $@
 
-$(ASSETS_OUT)/ultima.bin: assets/ultima.png $(BIN_OUT)/cimage
+$(ASSETS_OUT)/intro_title.bin: assets/intro_title.png $(BIN_OUT)/cimage
 	$(BIN_OUT)/cimage -qb -i $< -o $@
 
-$(ASSETS_OUT)/horse%.bin: assets/horse%.png $(BIN_OUT)/cimage
+$(ASSETS_OUT)/intro_horse%.bin: assets/intro_horse%.png $(BIN_OUT)/cimage
 	$(BIN_OUT)/cimage -q -i $< -o $@
 
-$(ASSETS_OUT)/image.bin: assets/image.png $(BIN_OUT)/cimage
+$(ASSETS_OUT)/intro_backdrop.bin: assets/intro_backdrop.png $(BIN_OUT)/cimage
 	$(BIN_OUT)/cimage -qbc -C 192 -i $< -o $@
