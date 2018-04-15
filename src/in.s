@@ -262,9 +262,9 @@ animate_intro_screen:
         jsr     erase_text_area
         jsr     setup_sprites
         jsr     enable_sprites
-        jsr     load_horse_sprite
+        jsr     update_horse_animation
 
-        jsr     draw_origin_logo        ; Display "Origin Systems Presents"
+        jsr     draw_studio_logo        ; Display "Origin Systems Presents"
         lda     #$00
         jsr     draw_text
         jsr     wait_6_seconds
@@ -282,7 +282,7 @@ animate_intro_screen:
         jsr     wait_6_seconds
 
         jsr     erase_text_area         ; Animate "Ultima I"
-        jsr     s6A96
+        jsr     draw_title_logo
         jsr     s6A37
         jsr     wait_6_seconds
         jsr     s6AE0
@@ -498,21 +498,21 @@ b6A48:  lda     (temp_ptr),y
 
 
 ;-----------------------------------------------------------
-;                      draw_origin_logo
+;                     draw_studio_logo
 ;
-; Draws the Ultima logo on the screen from (160,56) to
-; (264,77)
+; Draws the Ultima logo on the screen from (152,56) to
+; (256,77)
 ;-----------------------------------------------------------
 
-draw_origin_logo:
-        lda     #<origin_logo           ; Reset load address to start of data
+draw_studio_logo:
+        lda     #<studio_logo           ; Reset load address to start of data
         sta     @load_address
-        lda     #>origin_logo
+        lda     #>studio_logo
         sta     @load_address + 1
 
         ldx     #$38                    ; Copy onto rows 56 through 77
 
-@next_x:ldy     #$13                    ; Get address for pixel (160,56)
+@next_x:ldy     #$13                    ; Get address for pixel (152,56)
         lda     bitmap_row_addr_table_low,x
         clc
         adc     bitmap_col_offset_table_low,y
@@ -525,7 +525,7 @@ draw_origin_logo:
         ldy     #$00
 @next_y:
 @load_address   := * + 1
-        lda     origin_logo             ; Copy 104 pixel wide row
+        lda     studio_logo             ; Copy 104 pixel wide row
         sta     (temp_ptr),y
 
         inc     @load_address           ; Advance the load address by 1
@@ -549,9 +549,14 @@ draw_origin_logo:
 
 
 ;-----------------------------------------------------------
+;                       draw_title_logo
+;
+; Draws the title logo at (88, 48). The logo is 184 pixels
+; wide and 48 pixels high.
 ;-----------------------------------------------------------
 
-s6A96:  ldx     #$30                    ; Calculate address of (72,11) and put in temp_ptr2
+draw_title_logo:
+        ldx     #$30                    ; Calculate address of (88, 48) and put in temp_ptr2
         ldy     #$0B
         lda     bitmap_row_addr_table_low,x
         clc
@@ -562,9 +567,9 @@ s6A96:  ldx     #$30                    ; Calculate address of (72,11) and put i
         adc     #$20
         sta     temp_ptr2 + 1
 
-        lda     #<ultima_logo           ; Get starting address of Ultima logo
+        lda     #<title_logo            ; Get starting address of Ultima logo
         sta     temp_ptr
-        lda     #>ultima_logo
+        lda     #>title_logo
         sta     temp_ptr + 1
 
         ldx     #$06
@@ -902,7 +907,7 @@ wait_frames:
 
         inc     frame_ctr
         jsr     s6D2B
-        jsr     load_horse_sprite
+        jsr     update_horse_animation
         jsr     set_6444
         jsr     s6DA9
         dec     wait_frames_ctr
@@ -1017,13 +1022,13 @@ d6D6F:  .byte   $10,$30,$10,$60,$30,$70,$00,$A0
 
 
 ;-----------------------------------------------------------
-;                      load_horse_sprite
+;                    update_horse_animation
 ;
 ; Selects the next frame of the horse animation to load into
 ; sprite 0. 
 ;-----------------------------------------------------------
 
-load_horse_sprite:
+update_horse_animation:
         lda     frame_ctr
         and     #$3F
         bne     return_from_routine
@@ -1097,14 +1102,15 @@ b6DE4:  lda     $85
         bcc     b6E0F
         cmp     #$3A
         bcs     b6E0F
-        jsr     s6E10
+        
+        jsr     get_bitmap_value
         ora     #$40
         sta     (temp_ptr),y
         bne     b6E0F
 b6E03:  lda     #$19
         sec
         sbc     $84
-        jsr     s6E10
+        jsr     get_bitmap_value
         and     #$BF
         sta     (temp_ptr),y
 b6E0F:  rts
@@ -1113,22 +1119,39 @@ b6E0F:  rts
 
 
 ;-----------------------------------------------------------
+;                      get_bitmap_value
+;
+; Gets the value stored in bitmap memory for one of 10
+; possible addresses. The memory address will contain the
+; pixel located a (56, 122 + (A & 0x0f)) where A is the
+; value in the accumulator when the method is called. The
+; value of that location in bitmap memory will be in the
+; accumulator when the method returns.
 ;-----------------------------------------------------------
 
-s6E10:  and     #$0F
+get_bitmap_value:
+        and     #$0F
         asl     a
         tax
-        lda     d6E23,x
+        lda     @addresses,x
         sta     temp_ptr
-        lda     d6E24,x
+        lda     @addresses + 1,x
         sta     temp_ptr + 1
         ldy     #$00
         lda     (temp_ptr),y
         rts
-d6E23:  .byte   $FA
-d6E24:  .byte   $52,$FB,$52,$FC,$52,$FD,$52,$FE
-        .byte   $52,$FF,$52,$38,$54,$39,$54,$3A
-        .byte   $54,$3B,$54
+
+@addresses:
+        .addr   $52FA           ; (56,122)
+        .addr   $52FB           ; (56,123)
+        .addr   $52FC           ; (56,124)
+        .addr   $52FD           ; (56,125)
+        .addr   $52FE           ; (56,126)
+        .addr   $52FF           ; (56,127)
+        .addr   $5438           ; (56,128)
+        .addr   $5439           ; (56,129)
+        .addr   $543A           ; (56,130)
+        .addr   $543B           ; (56,131)
 
 
 
@@ -1145,7 +1168,7 @@ draw_text:
         asl                             ; x = a * 2
         tax
 
-        lda     #$0B                    ; Set initial cursor position
+        lda     #$0B                    ; Set initial cursor position to (11, 7) in text coordinates
         sta     $32
         lda     #$07
         sta     $33
@@ -1209,8 +1232,8 @@ draw_text:
 ;-----------------------------------------------------------
 ;                       draw_character
 ;
-; Character to draw is in the accumulator
-; Cursor position is in $32 (x) and $33 (y)
+; Character to draw is in the accumulator. Cursor position 
+; is in $32 (x) and $33 (y) in character units.
 ;-----------------------------------------------------------
 
 draw_character:
@@ -1263,7 +1286,7 @@ draw_character:
 ;                       erase_text_area
 ;
 ; Erases (sets to zero) the bitmap screen from (88,48) to
-; (319,103).
+; (319,103), or (11,6) to (39,12) in text coordinates.
 ;-----------------------------------------------------------
 
 erase_text_area:
@@ -1311,17 +1334,19 @@ erase_text_area:
 
 
 
+.data
+
 horse_anim_frames:
         .byte   $00,$01,$00,$01,$02,$01,$00,$01
         .byte   $02,$03,$04,$03,$04,$03,$02,$01
         .byte   $00,$05,$06,$05,$06,$05,$06,$FF
 
-origin_logo:
+studio_logo:
         .incbin "intro_studio.bin"
 
         .byte   $00,$00,$00,$00,$00,$00,$00
 
-ultima_logo:
+title_logo:
         .incbin "intro_title.bin"
 
         .byte   $C6,$C6,$C6,$B1,$8D,$A0,$C8,$C5

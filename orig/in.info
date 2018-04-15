@@ -20,7 +20,7 @@ RANGE   { START $6D16;  END $6D16;  TYPE ByteTable; };
 RANGE   { START $6D17;  END $6D66;  TYPE Code; };
 RANGE   { START $6D67;  END $6D7E;  TYPE ByteTable; };
 RANGE   { START $6D7F;  END $6E22;  TYPE Code; };
-RANGE   { START $6E23;  END $6E36;  TYPE ByteTable; };
+RANGE   { START $6E23;  END $6E36;  TYPE AddrTable; };
 RANGE   { START $6E37;  END $6E6B;  TYPE Code; };
 RANGE   { START $6E6C;  END $6E71;  TYPE AddrTable; };
 RANGE   { START $6E72;  END $6F16;  TYPE TextTable; };
