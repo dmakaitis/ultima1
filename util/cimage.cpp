@@ -11,75 +11,347 @@
 typedef std::vector<uint8_t> ByteArray;
 typedef std::vector<uint32_t> DWordArray;
 
-void printAsBinary(uint8_t c) {
+const uint32_t C64_PALETTE[] = {
+    0x00000000,     // black
+    0x00ffffff,     // white
+    0x0068372b,     // red
+    0x0070a4b2,     // cyan
+    0x006f3d86,     // purple
+    0x00588d43,     // green
+    0x00352879,     // blue
+    0x00b8c76f,     // yellow
+    0x006f4f25,     // orange
+    0x00433900,     // brown
+    0x009a6759,     // light red
+    0x00444444,     // dark grey
+    0x006c6c6c,     // grey
+    0x009ad284,     // light green
+    0x006c5eb5,     // light blue
+    0x00959595      // light grey
+};
+
+/*
+ * Prints a byte of data in binary format to the console.
+ *
+ * c    the byte to print.
+ * on   the character to print for on bits.
+ * off  the character to print for off bits.
+ */
+void printAsBinary(uint8_t c, char on = '*', char off = '.') {
     int mask = 0x80;
     while(mask) {
-        std::cout << (c & mask ? "*" : ".");
+        std::cout << (c & mask ? on : off);
         mask = mask >> 1;
     }
 }
 
-void printBitmap(ByteArray& bitmap, int width, int height) {
+/*
+ * Prints the bitmap as a series of binary outputs to the console.
+ *
+ * c    the byte to print.
+ * on   the character to print for on bits.
+ * off  the character to print for off bits.
+ */
+void printBitmap(ByteArray& bitmap, int width, int height, char on = '*', char off = '.') {
     auto ptr = bitmap.begin();
 
     for(int y = 0; y < height; y++) {
         for(int x = 0; x < width; x += 8) {
-            printAsBinary(*ptr++);
+            printAsBinary(*ptr++, on, off);
         }
         std::cout << std::endl;
     }
 }
 
-ByteArray convertToBitmap(png_structp png_ptr, png_infop info_ptr) {
-    ByteArray bitmap;
+/*
+ * Constructs a palette for a greyscale image. The palette will contain
+ * the appropriate number of entries for the given bit depth with
+ * luminosity progressing linearly from 0.0 to 1.0 from the first to
+ * last entries of the palette.
+ *
+ * bitDepth     the bit depth of the image.
+ */
+DWordArray buildGreyscalePalette(int bitDepth) {
+    DWordArray palette;
+
+    int numColors;
+    unsigned int step;
+
+    // Possible bit depths: 1, 2, 4, 8, 16
+    switch(bitDepth) {
+        case 1:
+            numColors = 2;
+            step = 0x100;
+            break;
+        case 2:
+            numColors = 4;
+            step = 0x40;
+            break;
+        case 4:
+            numColors = 16;
+            step = 0x10;
+            break;
+        case 8:
+            numColors = 256;
+            step = 0x01;
+            break;
+        case 16:
+            // TODO: Support 16 bit greyscale...
+        default:
+            std::cerr << "ERROR: Unsupported bit depth for greyscale image: " << bitDepth << std::endl;
+            exit(1);        
+    }
+
+    uint32_t luminosity = 0x00;
+    for(int i = 0; i < numColors; i++) {
+        uint32_t color = (luminosity << 16) | (luminosity << 8) | luminosity;
+        palette.push_back(color);
+        luminosity += step;
+        if(luminosity >= 256) {
+            luminosity = 0xff;
+        }
+    }
+
+    return palette;
+}
+
+/*
+ * Reads a color palette from the PNG image.
+ *
+ * png_ptr      the pointer to the PNG struct.
+ * info_ptr     the pointer to the PNG image info header.
+ */
+DWordArray readColorPalette(png_structp png_ptr, png_infop info_ptr) {
+    DWordArray palette;
+
+    png_colorp paletteData;
+    int paletteSize;
+
+    png_get_PLTE(png_ptr, info_ptr, &paletteData, &paletteSize);
+    for(int i = 0; i < paletteSize; i++) {
+        uint32_t color = paletteData[i].red << 16;
+        color |= paletteData[i].green << 8;
+        color |= paletteData[i].blue;
+        palette.push_back(color);
+    }
+
+    return palette;
+}
+
+/*
+ * Gets a palette that can be used to translate bitmap values in a
+ * PNG image to their actual colors.
+ *
+ * png_ptr      the pointer to the PNG struct.
+ * info_ptr     the pointer to the PNG image info header.
+ */
+DWordArray getPalette(png_structp png_ptr, png_infop info_ptr) {
+    DWordArray palette;
+
+    png_byte color_type = png_get_color_type(png_ptr, info_ptr);
+
+    switch(color_type) {
+        case 0:
+            // greyscale
+            palette = buildGreyscalePalette(png_get_bit_depth(png_ptr, info_ptr));
+            break;
+        case 3:
+            // Palette based
+            palette = readColorPalette(png_ptr, info_ptr);
+            break;
+        case 2:
+            // TODO: support RBG images
+            // RGB - possible bit depths: 8, 16
+        case 4:
+            // TODO: support LA images
+            // Greyscale + alpha - possible bit depths: 8, 16
+        case 6:
+            // TODO: support RBGA images
+            // RGBA - possible bit depths: 8, 16
+        default:
+            std::cerr << "ERROR: Unsupported color type: " << (int) color_type << std::endl;
+            exit(1);
+    }
+
+    return palette;
+}
+
+/*
+ * Unpacks the pixels from a row of bytes in a PNG image. The resulting
+ * vector will contain exactly one pixel per entry.
+ *
+ * rowBytes     the number of bytes per row of the image.
+ * width        the width of the image.
+ * bitDepth     the bit depth of the image.
+ */
+DWordArray unpackPixels(png_bytep rowBytes, int width, int bitDepth) {
+    DWordArray pixels;
+
+    png_byte mask;
+    int rot;
+    int x;
+    uint32_t index;
+
+    int pixelsPerByte;
+    png_byte initialMask;
+
+    // Possible bit depths: 1, 2, 4, 8, 16
+    switch(bitDepth) {
+        case 1:
+            pixelsPerByte = 8;
+            break;
+        case 2:
+            pixelsPerByte = 4;
+            break;
+        case 4:
+            pixelsPerByte = 2;
+            break;
+        case 8:
+            pixelsPerByte = 1;
+            break;
+        case 16:
+            // TODO: Support 16 bpp images...
+        default:
+            std::cerr << "ERROR: Unsupported bit depth: " << bitDepth << std::endl;
+            exit(1);        
+    }
+
+    for(x = 0; x < width; x += pixelsPerByte, rowBytes++) {
+        rot = 8 - bitDepth;
+        mask = (0xff << rot) & 0xff;
+        while(mask) {
+            index = (*rowBytes & mask) >> rot;
+            pixels.push_back(index);
+            mask >>= bitDepth;
+            rot -= bitDepth;
+        }
+    }
+
+    return pixels;
+}
+
+/*
+ * Converts a PNG image to true color. The resulting vector will contain
+ * exactly one entry per pixel, where each entry will be an RGBA value,
+ * with the alpha being in the most significant byte, then red, green, and
+ * finally blue in the least significant byte.
+ *
+ * png_ptr      the pointer to the PNG struct.
+ * info_ptr     the pointer to the PNG image info header.
+ */
+DWordArray convertToTrueColor(png_structp png_ptr, png_infop info_ptr) {
+    DWordArray image;
 
     int width = png_get_image_width(png_ptr, info_ptr);
     int height = png_get_image_height(png_ptr, info_ptr);
     png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
     int bit_depth = png_get_bit_depth(png_ptr, info_ptr);
+    png_byte color_type = png_get_color_type(png_ptr, info_ptr);
 
-    uint8_t byte;
-    uint8_t mask;
-    uint8_t imageByte;
-    uint8_t imageMask;
+    DWordArray palette;
+    DWordArray rowPixels;
+
+    switch(color_type) {
+        case 0:
+        case 3:
+            palette = getPalette(png_ptr, info_ptr);
+            for(int y = 0; y < height; y++) {
+                rowPixels = unpackPixels(row_pointers[y], width, bit_depth);
+                for(DWordArray::const_iterator x = rowPixels.begin(); x != rowPixels.end(); x++) {
+                    image.push_back(palette[*x]);
+                }
+            }
+            break;
+        default:
+            std::cerr << "ERROR: Unsupported color type: " << (int) color_type << std::endl;
+    }
+
+    return image;
+}
+
+/*
+ * Calculates the difference between to colors and returns it as
+ * a double value. There are no particular units of measurement, but
+ * differences between colors can be compared to find which combination
+ * of colors are more similar. Differences are calculated in RGB space.
+ *
+ * colorA   the first color to compare.
+ * colorB   the second color to compare.
+ */
+double calculateColorDifference(uint32_t colorA, uint32_t colorB) {
+    uint32_t mask = 0x00ff0000;
+    int rotate = 16;
+
+    double diff = 0.0;
+
+    while(mask) {
+        double valueA = (double)((colorA & mask) >> rotate) / 255.0;
+        double valueB = (double)((colorB & mask) >> rotate) / 255.0;
+
+        double d = valueB - valueA;
+
+        diff += d * d;
+
+        mask >>= 8;
+        rotate -= 8;
+    }
+
+    return diff;
+}
+
+/*
+ * Converts a PNG image into a bitmap that can be displayed on the C64.
+ * If available, additional data containing the color memory of the C64
+ * can be passed in to assist in converting the image in such a way as 
+ * the bitmap will most resemble the original PNG image. Otherwise, the
+ * method will assume that on pixels will be displayed as white, and off
+ * pixels as black, and convert the image accordingly.
+ *
+ * png_ptr              the pointer to the PNG struct.
+ * info_ptr             the pointer to the PNG image info header.
+ * extra                any extra data that might contain color memory values.
+ * colorMemoryOffset    the offset into extra where color memory values can be found,
+ *                      or -1 to indicate that no color memory values are present.
+ *
+ * TODO: If no color memory data is present, enable this method to calculate
+ *       optimal color memory values to display the input image.
+ */
+ByteArray convertToBitmap(png_structp png_ptr, png_infop info_ptr, ByteArray& extra, int colorMemoryOffset) {
+    ByteArray bitmap;
+
+    int width = png_get_image_width(png_ptr, info_ptr);
+    int height = png_get_image_height(png_ptr, info_ptr);
+
+    DWordArray image = convertToTrueColor(png_ptr, info_ptr);
+
+    int ptr = 0;
 
     for(int y = 0; y < height; y++) {
-        png_bytep ptr = row_pointers[y];
+        int colorMemPtr = colorMemoryOffset + 40 * (y / 8);
 
-        switch(bit_depth) {
-            case 4:
-                for(int x = 0; x < width; x += 8) {
-                    byte = 0x00;
-                    mask = 0x80;
+        for(int x = 0; x < width; x += 8) {
+            uint8_t colorMemValue = colorMemoryOffset >= 0 && colorMemPtr < extra.size() ? extra[colorMemPtr++] : 0x10;
 
-                    for(int xx = 0; xx < 4; xx++) {
-                        imageByte = *ptr++;
-                        imageMask = 0xf0;
-                        if(imageByte & imageMask) {
-                            byte |= mask;
-                        }
-                        mask >>= 1;
-                        imageMask >>= 4;
-                        if(imageByte & imageMask) {
-                            byte |= mask;
-                        }
-                        mask >>= 1;
-                    }
+            uint32_t offColor = C64_PALETTE[colorMemValue & 0x0f];
+            uint32_t onColor = C64_PALETTE[(colorMemValue & 0xf0) >> 4];
 
-                    bitmap.push_back(byte);
+            uint8_t mask = 0x80;
+            uint8_t byte = 0x00;
+
+            while(mask) {
+                uint32_t color = image[ptr++];
+
+                double diffOn = calculateColorDifference(color, onColor);
+                double diffOff = calculateColorDifference(color, offColor);
+
+                if(diffOff > diffOn) {
+                    byte |= mask;
                 }
 
-                break;
+                mask >>= 1;
+            }
 
-            case 1:
-                for(int x = 0; x < width; x += 8) {
-                    bitmap.push_back(*ptr++);
-                }
-                break;
-
-            default:
-                std::cerr << "ERROR: Unrecognized bit depth: " << bit_depth << std::endl;
-                return bitmap;
+            bitmap.push_back(byte);
         }
     }
 
@@ -88,6 +360,14 @@ ByteArray convertToBitmap(png_structp png_ptr, png_infop info_ptr) {
     return bitmap;
 }
 
+/*
+ * Converts a row-sequential bitmap into C64 block format so that the image is
+ * stored as a sequence of 8x8 bitmaps.
+ *
+ * bitmap   the row-sequential bitmap to convert.
+ * width    the bitmap width.
+ * height   the bitmap height.
+ */
 ByteArray convertToBlockFormat(ByteArray bitmap, int width, int height) {
     ByteArray buffer;
 
@@ -110,6 +390,14 @@ ByteArray convertToBlockFormat(ByteArray bitmap, int width, int height) {
     return buffer;
 }
 
+/*
+ * Reads any extra data that might be stored in the PNG image.
+ * The method will look for extra data in a 'daTa' chunk in the
+ * PNG image.
+ *
+ * png_ptr  the PNG structure.
+ * chunk    the unknown chunk that might contain extra data.
+ */
 int readExtraData(png_structp png_ptr, png_unknown_chunkp chunk) {
     if(strcmp((const char*)chunk->name, "daTa") == 0) {
         std::vector<char>* extra = (std::vector<char>*) png_get_user_chunk_ptr(png_ptr);
@@ -125,6 +413,13 @@ int readExtraData(png_structp png_ptr, png_unknown_chunkp chunk) {
     }
 }
 
+/*
+ * Saves the buffer to a file.
+ *
+ * filename     the output filename.
+ * buffer       the sequence of bytes to save.
+ * compressed   if the data should be compressed using RLE compression.
+ */
 void saveFile(const char* filename, ByteArray& buffer, bool compressed) {
     std::ofstream output(filename, std::ios::binary);
 
@@ -160,7 +455,18 @@ void saveFile(const char* filename, ByteArray& buffer, bool compressed) {
     }
 }
 
-ByteArray loadPng(const char* filename, int &width, int &height, ByteArray& extraData) {
+/*
+ * Loads a PNG file and returns it as a bitmap.
+ *
+ * filename             the PNG image filename.
+ * width                the width of the image will be output to this variable.
+ * height               the height of the image will be output to this variable.
+ * extraData            any extra data in the PNG file will be stored in this vector.
+ * colorMemoryOffset    offset into 'extraData' where suggested color memory values can be
+ *                      found once loaded from the PNG image, or -1 to indicate that no
+ *                      color memory values are expected to be found in the image.
+ */ 
+ByteArray loadPng(const char* filename, int &width, int &height, ByteArray& extraData, int colorMemoryOffset) {
         
     // Step 3.1 - Setup
 
@@ -190,26 +496,17 @@ ByteArray loadPng(const char* filename, int &width, int &height, ByteArray& extr
     width = png_get_image_width(png_ptr, info_ptr);
     height = png_get_image_height(png_ptr, info_ptr);
 
-    DWordArray palette;
-    png_colorp paletteData;
-    int paletteSize;
-    png_get_PLTE(png_ptr, info_ptr, &paletteData, &paletteSize);
-    for(int i = 0; i < paletteSize; i++) {
-        uint32_t color = paletteData[i].red << 16;
-        color |= paletteData[i].green << 8;
-        color |= paletteData[i].blue;
-        palette.push_back(color);
-    }
+    DWordArray palette = getPalette(png_ptr, info_ptr);
 
     std::cout << "Image size: " << width << " x " << height << std::endl;
     std::cout << "Palette size: " << palette.size() << " colors" << std::endl;
     std::cout << "Extra data: " << extraData.size() << " bytes" << std::endl;
 
-    return convertToBitmap(png_ptr, info_ptr);
+    return convertToBitmap(png_ptr, info_ptr, extraData, colorMemoryOffset);
 }
 
 /*
- * Parses arguments, then passes control to displayBitmap
+ * Parses arguments, then converts the image.
  */
 int main(int argc, char** argv) {
     // int width = -1;
@@ -219,6 +516,7 @@ int main(int argc, char** argv) {
     bool block = false;
     bool compressed = false;
     bool quiet = false;
+    int colorMemoryOffset = -1;
 
     static struct option options[] = {
         { "help",       no_argument,        0,  '?' },
@@ -226,19 +524,23 @@ int main(int argc, char** argv) {
         { "compressed", no_argument,        0,  'c' },
         { "input",      required_argument,  0,  'i' },
         { "output",     required_argument,  0,  'o' },
-        { "quiet",      no_argument,        0,  'q' }
+        { "quiet",      no_argument,        0,  'q' },
+        { "color",      required_argument,  0,  'C' }
     };
 
     int option_index = 0;
 
     int c;
-    while((c = getopt_long(argc, argv, "bci:o:w:s:n:q", options, &option_index)) != -1) {
+    while((c = getopt_long(argc, argv, "bci:o:w:s:n:qC:", options, &option_index)) != -1) {
         switch(c) {
             case 'b':
                 block = true;
                 break;
             case 'c':
                 compressed = true;
+                break;
+            case 'C':
+                colorMemoryOffset = atoi(optarg);
                 break;
             case 'i':
                 filename = optarg;
@@ -261,6 +563,7 @@ int main(int argc, char** argv) {
         std::cout << "Options:" <<std::endl;
         std::cout << "  -b, --block         The image is stored as 8x8 blocks of pixels" << std::endl;
         std::cout << "  -c, --compressed    The image is compressed using RLE" << std::endl;
+        std::cout << "  -C, --color         Offset into extra data where expected color memory is located" << std::endl;
         std::cout << "  -i, --input         Set the input filename (required)" << std::endl;
         std::cout << "  -o, --output        Set the output filename to save in PNG format" << std::endl;
         std::cout << "  -q, --quiet         Do not print a copy of the bitmap to console" << std::endl;
@@ -271,7 +574,7 @@ int main(int argc, char** argv) {
         
     int width, height;
     ByteArray extraData;
-    ByteArray bitmap = loadPng(filename, width, height, extraData);
+    ByteArray bitmap = loadPng(filename, width, height, extraData, colorMemoryOffset);
 
     if(!quiet) {
         printBitmap(bitmap, width, height);

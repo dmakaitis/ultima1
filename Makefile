@@ -149,11 +149,5 @@ $(ASSETS_OUT)/ultima.bin: assets/ultima.png $(BIN_OUT)/cimage
 $(ASSETS_OUT)/horse%.bin: assets/horse%.png $(BIN_OUT)/cimage
 	$(BIN_OUT)/cimage -q -i $< -o $@
 
-# The intro image needs to be read from the original IN file since
-# it includes data beyond the actual end of the image
-
-$(ASSETS_OUT)/image.bin: $(ORIG_PRG_OUT)/in.prg build
-	dd if=$< of=$@ bs=1 skip=5021 count=2366
-
-# $(ASSETS_OUT)/image.bin: assets/image.png $(BIN_OUT)/cimage
-# 	$(BIN_OUT)/cimage -qbc -i $< -o $@
+$(ASSETS_OUT)/image.bin: assets/image.png $(BIN_OUT)/cimage
+	$(BIN_OUT)/cimage -qbc -C 192 -i $< -o $@

@@ -9,7 +9,7 @@
 #include <png.h>
 
 const png_color C64_PALETTE[] = {
-    0x00, 0x00, 0x00,  // black
+    0x00, 0x00, 0x00,   // black
     0xff, 0xff, 0xff,   // white
     0x68, 0x37, 0x2b,   // red
     0x70, 0xa4, 0xb2,   // cyan
@@ -27,10 +27,17 @@ const png_color C64_PALETTE[] = {
     0x95, 0x95, 0x95    // light grey
 };
 
-void printAsBinary(char c) {
+/*
+ * Prints a byte of data in binary format to the console.
+ *
+ * c    the byte to print.
+ * on   the character to print for on bits.
+ * off  the character to print for off bits.
+ */
+void printAsBinary(uint8_t c, char on = '*', char off = '.') {
     int mask = 0x80;
     while(mask) {
-        std::cout << (c & mask ? "*" : ".");
+        std::cout << (c & mask ? on : off);
         mask = mask >> 1;
     }
 }
