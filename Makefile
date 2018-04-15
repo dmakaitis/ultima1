@@ -1,5 +1,9 @@
 .PHONY: all u1files verify clean utils origsrc assets compileassets
 
+# U1 files original order: 
+#		u1, tc, ma, fi, hello, tw, st, 
+#		dd, lo, ge, ou, ro, p0, ca, pr, 
+#		in , dn, mi, tm, sp, p1, p2, p3
 U1FILES = u1 hello lo in
 PRG_OBJ = build/prgobj
 PRG_OUT = build/prg
@@ -12,10 +16,18 @@ BIN_OUT = build/bin
 
 u1files: $(addprefix $(PRG_OUT)/, $(addsuffix .prg, $(U1FILES)))
 
-all: u1files
+all: build/u1.d64
 
-$(PRG_OUT)/hello.prg: src/hello.cfg $(PRG_OBJ)/hello.o $(PRG_OBJ)/hello_1541_bootstrap.o $(PRG_OBJ)/hello_1541_fastload.o
-	ld65 -C $< $(PRG_OBJ)/hello.o $(PRG_OBJ)/hello_1541_bootstrap.o $(PRG_OBJ)/hello_1541_fastload.o -o $@ -vm -m $(MAPS_OUT)/hello.map
+build/u1.d64: u1files
+	c1541 -format "ultima 1,aa" d64 $@ \
+		-write build/prg/u1.prg u1 \
+		-write build/prg/hello.prg hello \
+		-write build/prg/lo.prg lo \
+		-write build/prg/in.prg in
+
+hello_obj = $(addprefix $(PRG_OBJ)/, $(addsuffix .o, $(basename $(notdir $(wildcard src/hello*.s)))))
+$(PRG_OUT)/hello.prg: src/hello.cfg $(hello_obj)
+	ld65 -C $< $(hello_obj) -o $@ -vm -m $(MAPS_OUT)/hello.map
 
 $(PRG_OUT)/%.prg: src/%.cfg $(PRG_OBJ)/%.o
 	ld65 -C $< $(PRG_OBJ)/$*.o -o $@ -vm -m $(MAPS_OUT)/$*.map
