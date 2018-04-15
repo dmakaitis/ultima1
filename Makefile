@@ -70,7 +70,7 @@ in_assets = intro_studio intro_title intro_horse0 intro_horse1 intro_horse2 \
 			intro_horse3 intro_horse4 intro_horse5 intro_horse6 intro_backdrop
 
 $(PRG_OBJ)/lo/lo.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(lo_assets)))
-$(PRG_OBJ)/in/in.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(in_assets)))
+$(PRG_OBJ)/in/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(in_assets)))
 
 $(PRG_OBJ)/%.o: src/%.s build
 	ca65 $< -o $@ -I include -I $(ASSETS_OUT)
