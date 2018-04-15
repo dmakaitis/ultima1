@@ -228,8 +228,8 @@ build_bitmap_row_addr_table:
 
         ; Initializes data in $15B0-$15D7 and $15D8-$15FF to become a lookup table to
         ; find the offset in memory from the start of a row of pixels to a particular
-        ; column in that row. The first entry in each table is used to find the right-
-        ; most column, and the last entry to find the left-most column. Each table
+        ; column in that row. The first entry in each table is used to find the left-
+        ; most column, and the last entry to find the right-most column. Each table
         ; contains 40 entries, since each byte in memory contains 8 pixels (8 * 40 = 320).
         ;
         ; The table starting at $15B0 contains the least significant byte, and the
@@ -258,8 +258,8 @@ build_bitmap_col_offset_table:
 
 animate_intro_screen:
         inc     intro_loop_counter
-        jsr     erase_bitmap_72_20_to_105_116
-        jsr     erase_bitmap_sides
+        jsr     erase_sword_area
+        jsr     erase_text_area
         jsr     setup_sprites
         jsr     enable_sprites
         jsr     load_horse_sprite
@@ -269,19 +269,19 @@ animate_intro_screen:
         jsr     draw_text
         jsr     wait_6_seconds
 
-        jsr     erase_bitmap_sides      ; Display "A new release of..."
+        jsr     erase_text_area         ; Display "A new release of..."
         lda     #$01
         jsr     draw_text
         jsr     s6C17
         jsr     wait_6_seconds
 
-        jsr     erase_bitmap_sides      ; Display "Lord British's..."
+        jsr     erase_text_area         ; Display "Lord British's..."
         lda     #$02
         jsr     draw_text
         jsr     wait_6_seconds
         jsr     wait_6_seconds
 
-        jsr     erase_bitmap_sides      ; Animate "Ultima I"
+        jsr     erase_text_area         ; Animate "Ultima I"
         jsr     s6A96
         jsr     s6A37
         jsr     wait_6_seconds
@@ -739,19 +739,17 @@ b6BCE:  tya
 
 
 ;-----------------------------------------------------------
-;               erase_bitmap_72_20_to_105_116
+;                       erase_sword_area
 ;
-; Erases (sets to zero) the bitmap from (72,20) to
-; (105,116).
-;
-; Specifically, the following locations:
+; Erases (sets to zero) the bitmap from (240,20) to
+; (271,116).
 ;-----------------------------------------------------------
 
-erase_bitmap_72_20_to_105_116:
+erase_sword_area:
         ldx     #$60
 
 @calculate_next_address:
-        ldy     #$1E
+        ldy     #$1E                    ; Calculate address of (240, x)
         lda     bitmap_row_addr_table_low + $14,x
         clc
         adc     bitmap_col_offset_table_low,y
@@ -762,7 +760,7 @@ erase_bitmap_72_20_to_105_116:
         sta     temp_ptr + 1
 
         ldy     #$00
-@loop:  lda     #$00
+@loop:  lda     #$00                    ; Erase an 32x8 block
         sta     (temp_ptr),y
         tya
         clc
@@ -1262,19 +1260,19 @@ draw_character:
 
 
 ;-----------------------------------------------------------
-;                     erase_bitmap_sides
+;                       erase_text_area
 ;
-; Erases (sets to zero) the bitmap screen from (224,48) to
-; (319,103) and (0,56) to (135,111).
+; Erases (sets to zero) the bitmap screen from (88,48) to
+; (319,103).
 ;-----------------------------------------------------------
 
-erase_bitmap_sides:
+erase_text_area:
         lda     #$06                    ; Lookup address of (224,48)
         asl
         asl
         asl
         tax                             ; Entry 48 in row lookup tables
-        ldy     #$0B                    ; Entry 11 in column lookup tables
+        ldy     #$0B                    ; Entry 11 in column lookup tables (224th pixel from left edge)
 
         lda     bitmap_row_addr_table_low,x
         clc
@@ -1368,6 +1366,7 @@ d765D:  .byte   $1B,$00,$00,$0F,$00,$00,$03,$00
         .byte   $00,$00,$3E,$C0,$00,$39,$E0,$00
         .byte   $3B,$40,$00,$EB,$00,$00,$7F,$80
         .byte   $00,$A2,$80,$00,$24,$80,$00
+
 d7684:  .byte   $01,$80,$00,$07,$80,$00,$0D,$80
         .byte   $00,$01,$80,$00,$0D,$80,$00,$0D
         .byte   $80,$00,$1F,$60,$00,$1C,$F0,$00
@@ -1375,6 +1374,7 @@ d7684:  .byte   $01,$80,$00,$07,$80,$00,$0D,$80
         .byte   $00,$49,$20,$00,$51,$40,$00,$00
         .byte   $00,$00,$18,$D8,$00,$00,$00,$00
         .byte   $00
+
 d76B5:  .byte   $00,$04,$00,$00,$0C,$00,$00,$1C
         .byte   $00,$00,$1C,$00,$00,$3C,$00,$00
         .byte   $3C,$00,$00,$3C,$00,$00,$7C,$00
@@ -1397,6 +1397,7 @@ d76B5:  .byte   $00,$04,$00,$00,$0C,$00,$00,$1C
         .byte   $00,$00,$74,$00,$00,$74,$00,$00
         .byte   $74,$00,$00,$74,$00,$00,$74,$00
         .byte   $00,$74,$00,$00,$74,$00,$00,$74
+
 d7765:  .byte   $00,$00,$74,$00,$00,$74,$00,$00
         .byte   $74,$00,$00,$74,$00,$00,$74,$00
         .byte   $00,$74,$00,$00,$74,$00,$00,$74
@@ -1418,11 +1419,13 @@ d7765:  .byte   $00,$00,$74,$00,$00,$74,$00,$00
         .byte   $80,$00,$1F,$80,$00,$1F,$80,$00
         .byte   $1F,$80,$00,$1F,$80,$00,$1F,$80
         .byte   $00,$1F,$80,$00,$00,$00,$00,$00
+
 d780D:  .byte   $00,$7C,$00,$00,$10,$00,$00,$28
         .byte   $00,$00,$18,$00,$00,$30,$00,$00
         .byte   $18,$00,$00,$38,$00,$00,$7C,$00
         .byte   $00,$7C,$00,$00,$7C,$00,$00,$38
         .byte   $00,$00,$0F,$00,$00,$0F,$00,$00
+
 d7835:  .byte   $00,$00,$00,$01,$20,$00,$03,$F0
         .byte   $00,$03,$F8,$00,$01,$F9,$80,$03
         .byte   $FF,$80,$01,$FF,$00,$00,$FE,$00
@@ -1437,6 +1440,7 @@ d7835:  .byte   $00,$00,$00,$01,$20,$00,$03,$F0
         .byte   $1F,$80,$00,$1F,$80,$00,$1F,$80
         .byte   $00,$1F,$80,$78,$00,$00,$FC,$00
         .byte   $00,$5F,$F8
+
 d78A0:  .byte   $FF,$F9,$FF,$FF,$F1,$FF,$FF,$E1
         .byte   $FF,$FF,$C1,$FF,$FF,$C1,$FF,$FF
         .byte   $81,$FF,$FF,$81,$FF,$FF,$81,$FF
@@ -1483,6 +1487,7 @@ d78A0:  .byte   $FF,$F9,$FF,$FF,$F1,$FF,$FF,$E1
         .byte   $7F,$FF,$F0,$3F,$FF,$F0,$3F,$FF
         .byte   $F0,$3F,$FF,$F0,$3F,$FF,$F0,$3F
         .byte   $FF,$FF,$FF
+
 d7A0B:  .byte   $20,$01,$F8,$F8,$0F,$F8,$FF,$3F
         .byte   $F0,$3E,$FF,$E0,$0D,$FF,$D8,$0F
         .byte   $FF,$BE,$0F,$FE,$7F,$0F,$FF,$F8
@@ -1502,6 +1507,7 @@ d7A0B:  .byte   $20,$01,$F8,$F8,$0F,$F8,$FF,$3F
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
+
 d7AA3:  .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$06
         .byte   $00,$00,$3E,$00,$00,$FE,$00,$00
@@ -1521,12 +1527,14 @@ d7AA3:  .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $80,$00,$0D,$00,$00,$08,$80,$00
         .byte   $04,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
+
 d7B3B:  .byte   $00,$01,$F0,$00,$3F,$F0,$00,$FF
         .byte   $F0,$01,$FF,$F0,$07,$FF,$F0,$0F
         .byte   $FF,$C0,$1F,$FE,$00,$7F,$FE,$00
         .byte   $00,$7C,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
+
 d7B6B:  .byte   $00,$07,$80,$00,$07,$E0,$00,$07
         .byte   $F0,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
