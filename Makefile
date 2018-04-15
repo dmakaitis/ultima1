@@ -25,15 +25,28 @@ build/u1.d64: u1files
 		-write build/prg/lo.prg lo \
 		-write build/prg/in.prg in
 
-hello_obj = $(addprefix $(PRG_OBJ)/, $(addsuffix .o, $(basename $(notdir $(wildcard src/hello*.s)))))
-$(PRG_OUT)/hello.prg: src/hello.cfg $(hello_obj)
+u1_obj = $(addprefix $(PRG_OBJ)/u1/, $(addsuffix .o, $(basename $(notdir $(wildcard src/u1/*.s)))))
+$(PRG_OUT)/u1.prg: src/u1/u1.cfg $(u1_obj)
+	ld65 -C $< $(u1_obj) -o $@ -vm -m $(MAPS_OUT)/u1.map
+
+hello_obj = $(addprefix $(PRG_OBJ)/hello/, $(addsuffix .o, $(basename $(notdir $(wildcard src/hello/*.s)))))
+$(PRG_OUT)/hello.prg: src/hello/hello.cfg $(hello_obj)
 	ld65 -C $< $(hello_obj) -o $@ -vm -m $(MAPS_OUT)/hello.map
 
-$(PRG_OUT)/%.prg: src/%.cfg $(PRG_OBJ)/%.o
-	ld65 -C $< $(PRG_OBJ)/$*.o -o $@ -vm -m $(MAPS_OUT)/$*.map
+lo_obj = $(addprefix $(PRG_OBJ)/lo/, $(addsuffix .o, $(basename $(notdir $(wildcard src/lo/*.s)))))
+$(PRG_OUT)/lo.prg: src/lo/lo.cfg $(lo_obj)
+	ld65 -C $< $(lo_obj) -o $@ -vm -m $(MAPS_OUT)/lo.map
 
+in_obj = $(addprefix $(PRG_OBJ)/in/, $(addsuffix .o, $(basename $(notdir $(wildcard src/in/*.s)))))
+$(PRG_OUT)/in.prg: src/in/in.cfg $(in_obj)
+	ld65 -C $< $(in_obj) -o $@ -vm -m $(MAPS_OUT)/in.map
+
+# $(PRG_OUT)/%.prg: src/%.cfg $(PRG_OBJ)/%.o
+# 	ld65 -C $< $(PRG_OBJ)/$*.o -o $@ -vm -m $(MAPS_OUT)/$*.map
+
+object_dirs = $(addprefix $(PRG_OBJ)/, $(U1FILES))
 build: 
-	-@mkdir -p $(PRG_OBJ)
+	-@mkdir -p $(object_dirs)
 	-@mkdir -p $(PRG_OUT)
 	-@mkdir -p $(MAPS_OUT)
 	-@mkdir -p $(ASSETS_OUT)
@@ -56,8 +69,8 @@ lo_assets = font
 in_assets = intro_studio intro_title intro_horse0 intro_horse1 intro_horse2 \
 			intro_horse3 intro_horse4 intro_horse5 intro_horse6 intro_backdrop
 
-$(PRG_OBJ)/lo.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(lo_assets)))
-$(PRG_OBJ)/in.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(in_assets)))
+$(PRG_OBJ)/lo/lo.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(lo_assets)))
+$(PRG_OBJ)/in/in.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(in_assets)))
 
 $(PRG_OBJ)/%.o: src/%.s build
 	ca65 $< -o $@ -I include -I $(ASSETS_OUT)
