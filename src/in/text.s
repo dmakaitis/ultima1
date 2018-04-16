@@ -9,12 +9,7 @@
 .include "c64.inc"
 .include "kernel.inc"
 .include "global.inc"
-
-.importzp temp_ptr
-.import bitmap_row_addr_table_low
-.import bitmap_row_addr_table_high
-.import bitmap_col_offset_table_low
-.import bitmap_col_offset_table_high
+.include "in.inc"
 
 .export draw_text
 .export erase_text_area
