@@ -3,6 +3,7 @@ temp_ptr2                       := $62
 
 frame_ctr                       := $79
 horse_anim_index                := $7A
+sprite_5_ctr					:= $84
 pause_ctr                       := $86
 
 bitmap_row_addr_table_low       := $1200

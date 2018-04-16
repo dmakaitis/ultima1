@@ -18,7 +18,7 @@
 .export d78A0
 .export title_logo
 .export studio_logo
-.export d7518
+.export car
 .export d7684
 .export d765D
 .export intro_backdrop
@@ -42,8 +42,8 @@ title_logo:
 
         .byte   $C6,$C6,$C6,$B1,$8D,$A0,$C8,$C5
 
-d7518:  .byte   $E0,$C0,$00,$7C,$70,$00,$FF,$FC
-        .byte   $00,$FF,$FF,$00,$6F,$ED,$80
+car:
+        .incbin "intro_car.bin"
 
 horse_frame_0:
         .incbin "intro_horse0.bin"
