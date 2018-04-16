@@ -3,6 +3,7 @@ temp_ptr2                       := $62
 
 frame_ctr                       := $79
 horse_anim_index                := $7A
+sword_ctr                       := $7C
 sprite_5_ctr                    := $84
 car_flag                        := $85
 pause_ctr                       := $86
@@ -34,3 +35,5 @@ sprite_5_image                  := bitmap_memory + $40 * $93    ; $64C0
 sprite_5b_image                 := bitmap_memory + $40 * $94    ; $6500
 sprite_6_image                  := bitmap_memory + $40 * $97    ; $65C0
 sprite_7_image                  := bitmap_memory + $40 * $97    ; $65C0
+
+bitmap_backup                   := $8000

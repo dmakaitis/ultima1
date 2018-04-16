@@ -26,14 +26,15 @@
 .import horse_frame_ptrs
 .import horse_anim_frames
 
+.import sword
+.import sword_mask
+
 .import d7B3B
 .import d7B6B
 .import d7A0B
 .import d7AA3
 .import d7835
 .import d780D
-.import d76B5
-.import d78A0
 
         .setcpu "6502"
 
@@ -66,9 +67,9 @@ animate_intro_screen:
 
         jsr     erase_text_area         ; Animate "Ultima I"
         jsr     draw_title_logo
-        jsr     s6A37
+        jsr     backup_bitmap_memory
         jsr     wait_6_seconds
-        jsr     s6AE0
+        jsr     animate_sword
 
         lda     #$20                    ; Pause for $400 frames (about 17 seconds), checking
         sta     pause_ctr               ; for keypresses every $20 frames (about half a second)
@@ -93,7 +94,24 @@ animate_intro_screen:
 
 
 
-j6955:  jmp     j6955
+infinite_loop:
+        jmp     infinite_loop           ; Does not look like this ever gets called (hopefully)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -101,17 +119,22 @@ j6955:  jmp     j6955
 .segment "CODE_INTRO2"
 
 ;-----------------------------------------------------------
+;                    backup_bitmap_memory
+;
+; Copies bitmap memory to $8000.
 ;-----------------------------------------------------------
 
-s6A37:  lda     #$00
+backup_bitmap_memory:
+        lda     #<bitmap_memory         ; Set temp_ptr to $4000, and temp_ptr2 to $8000
         sta     temp_ptr
         sta     temp_ptr2
         tay
-        lda     #$40
+        lda     #>bitmap_memory
         sta     temp_ptr + 1
-        lda     #$80
+        lda     #>bitmap_backup
         sta     temp_ptr2 + 1
-        ldx     #$20
+
+        ldx     #$20                    ; Copy $2000 bytes from temp_ptr to temp_ptr2
 b6A48:  lda     (temp_ptr),y
         sta     (temp_ptr2),y
         iny
@@ -202,8 +225,10 @@ draw_title_logo:
 
         ldx     #$06
 
-b6AB7:  ldy     #$00                    ; Copy a 184x8 pixel block
-@next_y:lda     (temp_ptr),y
+@next_x:
+        ldy     #$00                    ; Copy a 184x8 pixel block
+@next_y:
+        lda     (temp_ptr),y
         sta     (temp_ptr2),y
         iny
         cpy     #$B8
@@ -225,28 +250,37 @@ b6AB7:  ldy     #$00                    ; Copy a 184x8 pixel block
         adc     #$01
         sta     temp_ptr2 + 1
         dex
-        bne     b6AB7
+        bne     @next_x
         rts
 
 
 
 
 ;-----------------------------------------------------------
+;                       animate_sword
+;
+; Animates the sword rising out of the lake to form part of
+; the Ultima I logo.
 ;-----------------------------------------------------------
 
-s6AE0:  lda     #$70
-        sec
-        sbc     $7C
+animate_sword:
+        lda     #$70                    ; X = 112 - value stored in the sword counter
+        sec                             ; (probably top position of where to draw sword)
+        sbc     sword_ctr
         tax
-        lda     #$B5
-        sta     d6B1D
-        lda     #$76
-        sta     d6B1E
-        lda     #$A0
-        sta     d6B1A
-        lda     #$78
-        sta     d6B1B
-b6AFA:  ldy     #$1E
+
+        lda     #<sword                 ; Setup pointers to data
+        sta     @image_ptr
+        lda     #>sword
+        sta     @image_ptr + 1
+
+        lda     #<sword_mask
+        sta     @mask_ptr
+        lda     #>sword_mask
+        sta     @mask_ptr + 1
+
+@next_x:
+        ldy     #$1E                    ; Calculate address for (240, X) in both bitmap and bitmap backup
         lda     bitmap_row_addr_table_low + $14,x
         clc
         adc     bitmap_col_offset_table_low,y
@@ -255,42 +289,56 @@ b6AFA:  ldy     #$1E
         lda     bitmap_row_addr_table_high + $14,x
         adc     bitmap_col_offset_table_high,y
         adc     #$20
-        sta     temp_ptr + 1
+        sta     temp_ptr + 1            ; temp_ptr has address in bitmap memory
         adc     #$40
-        sta     temp_ptr2 + 1
+        sta     temp_ptr2 + 1           ; temp_ptr2 has address in bitmap backup memory
+
         ldy     #$00
-b6B17:  lda     (temp_ptr2),y
-d6B1A           := * + 1
-d6B1B           := * + 2
-        and     d78A0
-d6B1D           := * + 1
-d6B1E           := * + 2
-        ora     d76B5
+
+@next_y:
+        lda     (temp_ptr2),y           ; Read pixels from backup memory,
+@mask_ptr       := * + 1
+        and     sword_mask              ; clear an area to draw the sword
+@image_ptr      := * + 1
+        ora     sword                   ; draw sword image
         sta     (temp_ptr),y
-        inc     d6B1D
-        bne     b6B29
-        inc     d6B1E
-b6B29:  inc     d6B1A
-        bne     b6B31
-        inc     d6B1B
-b6B31:  tya
+
+        inc     @image_ptr              ; Advance image pointer
+        bne     @image_ptr_updated
+        inc     @image_ptr + 1
+
+@image_ptr_updated:
+        inc     @mask_ptr               ; Advance mask pointer
+        bne     @mask_ptr_updated
+        inc     @mask_ptr + 1
+
+@mask_ptr_updated:
+        tya                             ; Advance right 8 pixels
         clc
         adc     #$08
         tay
         cpy     #$18
-        bcc     b6B17
-        inx
+        bcc     @next_y
+
+        inx                             ; Keep drawing until we have passed line 112
         cpx     #$71
-        bcc     b6AFA
-        lda     #$08
+        bcc     @next_x
+
+        lda     #$08                    ; Wait for 8 frames
         sta     wait_frames_ctr
         jsr     wait_frames
-        inc     $7C
-        lda     $7C
+
+        inc     sword_ctr               ; Update sword counter
+        lda     sword_ctr
         cmp     #$70
-        bcs     b6B52
-        jmp     s6AE0
-b6B52:  ldx     #$54
+        bcs     sword_done
+        jmp     animate_sword
+
+
+
+
+sword_done:
+        ldx     #$54
         lda     #$0D
         sta     d6B78
         lda     #$78
