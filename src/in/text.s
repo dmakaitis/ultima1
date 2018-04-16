@@ -2,7 +2,7 @@
 ;
 ; text.s
 ;
-; Routines for drawing text on the intro page.
+; Routines for drawing and erasing text on the intro page.
 ;
 ;-------------------------------------------------------------------------------
 

@@ -11,7 +11,7 @@
 .include "global.inc"
 .include "in.inc"
 
-.import decompress_backdrop
+.import run_intro
 
         .setcpu "6502"
 
@@ -31,7 +31,7 @@
 
 .code
 
-main:   jmp     decompress_backdrop
+main:   jmp     run_intro
 
 
 
