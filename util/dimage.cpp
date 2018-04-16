@@ -168,7 +168,7 @@ std::vector<char> getBitmap(const std::vector<char>& data, int imageWidth, int i
     std::vector<char> bitmap;
 
     if(imageWidth % 8 != 0) {
-        std::cout << "ERROR: Image width must be a multiple of 8" << std::endl;
+        std::cerr << "ERROR: Image width must be a multiple of 8" << std::endl;
         return bitmap;
     }
 
@@ -177,7 +177,7 @@ std::vector<char> getBitmap(const std::vector<char>& data, int imageWidth, int i
 
     if(blockFormat) {
         if(imageHeight % 8 != 0) {
-            std::cout << "ERROR: Image height must be a multiple of 8 when reading in block mode" << std::endl;
+            std::cerr << "ERROR: Image height must be a multiple of 8 when reading in block mode" << std::endl;
             return bitmap;
         }
 
@@ -457,21 +457,27 @@ int main(int argc, char** argv) {
 
     std::vector<char> data = readData(filename, compressed, skip, numbytes);
 
-    std::cout << "Bytes read: " << data.size() << std::endl;
+    if(!quiet) {
+        std::cout << "Bytes read: " << data.size() << std::endl;
+    }
 
     int bytesPerRow = width / 8;
     if(height < 0) {
         height = data.size() / bytesPerRow;
     }
-    std::cout << "Image size: " << width << " x " << height << std::endl;
+    if(!quiet) {
+        std::cout << "Image size: " << width << " x " << height << std::endl;
+    }
 
     // Get the actual bitmap image from the data:
 
     std::vector<char> bitmap = getBitmap(data, width, height, block);
     std::vector<char> extra(data.begin() + bitmap.size(), data.end());
 
-    std::cout << extra.size() << " extra bytes in input data" << std::endl;
-
+    if(!quiet) {
+        std::cout << extra.size() << " extra bytes in input data" << std::endl;
+    }
+    
     // Print the bitmap if we're not running in quiet mode:
 
     if(!quiet) {

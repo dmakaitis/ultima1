@@ -84,7 +84,7 @@ setup_sprites:
         sta     horse_anim_index
         sta     frame_ctr
         sta     $7C
-        sta     $7E
+        sta     hand_ctr
         sta     $82
         sta     knight_flag
         sta     knight_ctr

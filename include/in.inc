@@ -7,6 +7,7 @@ horse_anim_index                := $7A
 star_ctr                        := $7B
 sword_ctr                       := $7C
 star_ctr2                       := $7D
+hand_ctr                        := $7E
 knight_flag                     := $83
 knight_ctr                      := $84
 car_flag                        := $85

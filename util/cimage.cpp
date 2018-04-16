@@ -312,11 +312,12 @@ double calculateColorDifference(uint32_t colorA, uint32_t colorB) {
  * extra                any extra data that might contain color memory values.
  * colorMemoryOffset    the offset into extra where color memory values can be found,
  *                      or -1 to indicate that no color memory values are present.
+ * quiet                if console output should be suppressed.
  *
  * TODO: If no color memory data is present, enable this method to calculate
  *       optimal color memory values to display the input image.
  */
-ByteArray convertToBitmap(png_structp png_ptr, png_infop info_ptr, ByteArray& extra, int colorMemoryOffset) {
+ByteArray convertToBitmap(png_structp png_ptr, png_infop info_ptr, ByteArray& extra, int colorMemoryOffset, bool quiet) {
     ByteArray bitmap;
 
     int width = png_get_image_width(png_ptr, info_ptr);
@@ -355,7 +356,9 @@ ByteArray convertToBitmap(png_structp png_ptr, png_infop info_ptr, ByteArray& ex
         }
     }
 
-    std::cout << "Bitmap size: " << bitmap.size() << " bytes" << std::endl;
+    if(!quiet) {
+        std::cout << "Bitmap size: " << bitmap.size() << " bytes" << std::endl;
+    }
 
     return bitmap;
 }
@@ -465,8 +468,9 @@ void saveFile(const char* filename, ByteArray& buffer, bool compressed) {
  * colorMemoryOffset    offset into 'extraData' where suggested color memory values can be
  *                      found once loaded from the PNG image, or -1 to indicate that no
  *                      color memory values are expected to be found in the image.
+ * quiet                if console output should be suppressed.
  */ 
-ByteArray loadPng(const char* filename, int &width, int &height, ByteArray& extraData, int colorMemoryOffset) {
+ByteArray loadPng(const char* filename, int &width, int &height, ByteArray& extraData, int colorMemoryOffset, bool quiet) {
         
     // Step 3.1 - Setup
 
@@ -498,11 +502,13 @@ ByteArray loadPng(const char* filename, int &width, int &height, ByteArray& extr
 
     DWordArray palette = getPalette(png_ptr, info_ptr);
 
-    std::cout << "Image size: " << width << " x " << height << std::endl;
-    std::cout << "Palette size: " << palette.size() << " colors" << std::endl;
-    std::cout << "Extra data: " << extraData.size() << " bytes" << std::endl;
+    if(!quiet) {
+        std::cout << "Image size: " << width << " x " << height << std::endl;
+        std::cout << "Palette size: " << palette.size() << " colors" << std::endl;
+        std::cout << "Extra data: " << extraData.size() << " bytes" << std::endl;
+    }
 
-    return convertToBitmap(png_ptr, info_ptr, extraData, colorMemoryOffset);
+    return convertToBitmap(png_ptr, info_ptr, extraData, colorMemoryOffset, quiet);
 }
 
 /*
@@ -574,7 +580,7 @@ int main(int argc, char** argv) {
         
     int width, height;
     ByteArray extraData;
-    ByteArray bitmap = loadPng(filename, width, height, extraData, colorMemoryOffset);
+    ByteArray bitmap = loadPng(filename, width, height, extraData, colorMemoryOffset, quiet);
 
     if(!quiet) {
         printBitmap(bitmap, width, height);

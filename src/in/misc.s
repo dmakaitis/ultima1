@@ -21,12 +21,12 @@
 .import sword
 .import sword_mask
 .import sword_hand
+.import hand
 
 .import d7B3B
 .import d7B6B
 .import d7A0B
 .import d7AA3
-.import d7835
 
 .export animate_sword
 .export backup_bitmap_memory
@@ -259,7 +259,7 @@ animate_sword:
 
 
 sword_done:
-        ldx     #84                     ; X = row 84 in bitmap
+        ldx     #84                     ; X = row 84 in bitmap (starting at row 84 + 20 = 104)
 
         lda     #<sword_hand
         sta     @image_ptr
@@ -267,12 +267,12 @@ sword_done:
         sta     @image_ptr + 1
 
 @next_x:
-        ldy     #$1E                    ; Calculate address for (240, X) in bitmap backup
-        lda     bitmap_row_addr_table_low + $14,x
+        ldy     #(240 / 8)              ; Calculate address for (240, X) in bitmap backup
+        lda     bitmap_row_addr_table_low + 20,x
         clc
         adc     bitmap_col_offset_table_low,y
         sta     temp_ptr2
-        lda     bitmap_row_addr_table_high + $14,x
+        lda     bitmap_row_addr_table_high + 20,x
         adc     bitmap_col_offset_table_high,y
         adc     #$60
         sta     temp_ptr2 + 1
@@ -301,50 +301,66 @@ sword_done:
         cpx     #95
         bcc     @next_x
 
-        lda     #$FF
+        lda     #$FF                    ; Signal the knight that it can now proceed
         sta     knight_flag
-b6B96:  lda     #$35
-        sta     d6BC2
-        lda     #$78
-        sta     d6BC3
-        ldx     $7E
-b6BA2:  ldy     #$1E
-        lda     bitmap_row_addr_table_low + $68,x
+
+
+
+
+remove_hand:
+        lda     #<hand                  ; Animate the hand going back into the lake
+        sta     @image_ptr
+        lda     #>hand
+        sta     @image_ptr + 1
+
+        ldx     hand_ctr                ; Start at pixel (240, 104 + hand_ctr)
+
+@next_x:
+        ldy     #(240 / 8)
+        lda     bitmap_row_addr_table_low + 104,x
         clc
         adc     bitmap_col_offset_table_low,y
         sta     temp_ptr
         sta     temp_ptr2
-        lda     bitmap_row_addr_table_high + $68,x
+        lda     bitmap_row_addr_table_high + 104,x
         adc     bitmap_col_offset_table_high,y
         adc     #$20
-        sta     temp_ptr + 1
+        sta     temp_ptr + 1            ; temp_ptr points to pixel in bitmap memory
         adc     #$40
-        sta     temp_ptr2 + 1
+        sta     temp_ptr2 + 1           ; temp_ptr points to same pixel in bitmap backup
+
         ldy     #$00
-b6BBF:  lda     (temp_ptr2),y
-d6BC2           := * + 1
-d6BC3           := * + 2
-        ora     d7835
-        sta     (temp_ptr),y
-        inc     d6BC2
-        bne     b6BCE
-        inc     d6BC3
-b6BCE:  tya
+@next_y:
+        lda     (temp_ptr2),y           ; Load pixels from backup
+@image_ptr      := * + 1
+        ora     hand                    ; Add in the hand
+        sta     (temp_ptr),y            ; Store it in bitmap memory
+
+        inc     @image_ptr              ; Advance the image pointer
+        bne     @advance_column
+        inc     @image_ptr + 1
+
+@advance_column:
+        tya                             ; Advance to next 8 pixels in row
         clc
         adc     #$08
         tay
-        cpy     #$18
-        bcc     b6BBF
-        inx
-        cpx     #$1D
-        bcc     b6BA2
-        lda     #$10
+        cpy     #24                     ; Copy 24 pixels total
+        bcc     @next_y
+
+        inx                             ; Advance to next row
+        cpx     #29                     ; Draw 29 - hand_ctr rows
+        bcc     @next_x
+
+        lda     #16                     ; Wait for 16 frames
         sta     wait_frames_counter
         jsr     wait_frames
-        inc     $7E
-        lda     $7E
+
+        inc     hand_ctr                ; Update the hand counter, and repeat until it is gone
+        lda     hand_ctr
         cmp     #$1D
-        bcc     b6B96
+        bcc     remove_hand
+
         rts
 
 

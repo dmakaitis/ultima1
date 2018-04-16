@@ -10,8 +10,7 @@
 .export d7B6B
 .export d7A0B
 .export d7AA3
-.export d7835
-.export sword_hand
+
 
 .export intro_backdrop
 
@@ -27,6 +26,8 @@
 
 .export sword
 .export sword_mask
+.export sword_hand
+.export hand
 
         .setcpu "6502"
 
@@ -101,20 +102,10 @@ sword_hand:
 
         .byte   $00
 
-d7835:  .byte   $00,$00,$00,$01,$20,$00,$03,$F0
-        .byte   $00,$03,$F8,$00,$01,$F9,$80,$03
-        .byte   $FF,$80,$01,$FF,$00,$00,$FE,$00
-        .byte   $00,$7E,$00,$00,$3E,$00,$00,$1F
-        .byte   $00,$00,$1F,$00,$00,$0F,$00,$00
-        .byte   $0F,$00,$00,$0F,$00,$00,$0F,$80
-        .byte   $00,$0F,$80,$00,$0F,$80,$00,$0F
-        .byte   $80,$00,$0F,$80,$00,$1F,$80,$00
-        .byte   $1F,$80,$00,$1F,$80,$00,$1F,$80
-        .byte   $00,$1F,$80,$00,$1F,$80,$00,$1F
-        .byte   $80,$00,$1F,$80,$00,$1F,$80,$00
-        .byte   $1F,$80,$00,$1F,$80,$00,$1F,$80
-        .byte   $00,$1F,$80,$78,$00,$00,$FC,$00
-        .byte   $00,$5F,$F8
+hand:  
+        .incbin "intro_hand.bin"
+
+        .byte   $78,$00,$00,$FC,$00,$00,$5F,$F8
 
 sword_mask:
         .incbin "intro_sword_mask.bin"
