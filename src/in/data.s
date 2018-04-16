@@ -6,8 +6,6 @@
 ;
 ;-------------------------------------------------------------------------------
 
-.export horse_frame_ptrs
-.export horse_anim_frames
 .export d7B3B
 .export d7B6B
 .export d7A0B
@@ -16,12 +14,18 @@
 .export d780D
 .export d76B5
 .export d78A0
-.export title_logo
-.export studio_logo
-.export car
-.export d7684
-.export d765D
+
 .export intro_backdrop
+
+.export studio_logo
+.export title_logo
+
+.export horse_frame_ptrs
+.export horse_anim_frames
+
+.export knight_frame_0
+.export knight_frame_1
+.export car
 
         .setcpu "6502"
 
@@ -77,19 +81,14 @@ horse_frame_ptrs:
         .addr   horse_frame_5
         .addr   horse_frame_6
 
-d765D:  .byte   $1B,$00,$00,$0F,$00,$00,$03,$00
-        .byte   $00,$03,$00,$00,$1B,$00,$00,$1B
-        .byte   $00,$00,$3E,$C0,$00,$39,$E0,$00
-        .byte   $3B,$40,$00,$EB,$00,$00,$7F,$80
-        .byte   $00,$A2,$80,$00,$24,$80,$00
+knight_frame_0:
+        .incbin "intro_knight0.bin"
 
-d7684:  .byte   $01,$80,$00,$07,$80,$00,$0D,$80
-        .byte   $00,$01,$80,$00,$0D,$80,$00,$0D
-        .byte   $80,$00,$1F,$60,$00,$1C,$F0,$00
-        .byte   $1D,$A0,$00,$75,$80,$00,$BF,$C0
-        .byte   $00,$49,$20,$00,$51,$40,$00,$00
-        .byte   $00,$00,$18,$D8,$00,$00,$00,$00
-        .byte   $00
+knight_frame_1:
+        .incbin "intro_knight1.bin"
+
+        .byte   $00,$00,$00,$18,$D8,$00,$00,$00
+        .byte   $00,$00
 
 d76B5:  .byte   $00,$04,$00,$00,$0C,$00,$00,$1C
         .byte   $00,$00,$1C,$00,$00,$3C,$00,$00

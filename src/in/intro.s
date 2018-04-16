@@ -20,8 +20,12 @@
 
 .import intro_loop_counter
 
+.import studio_logo
+.import title_logo
+
 .import horse_frame_ptrs
 .import horse_anim_frames
+
 .import d7B3B
 .import d7B6B
 .import d7A0B
@@ -30,8 +34,6 @@
 .import d780D
 .import d76B5
 .import d78A0
-.import title_logo
-.import studio_logo
 
         .setcpu "6502"
 

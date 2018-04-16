@@ -11,9 +11,9 @@
 .include "global.inc"
 .include "in.inc"
 
+.import knight_frame_0
+.import knight_frame_1
 .import car
-.import d7684
-.import d765D
 
 .export enable_sprites
 .export disable_sprites
@@ -140,9 +140,9 @@ setup_sprites:
         beq     @skip_knight
 
         ldx     #$26                    ; Copy $765D-$7683 to $64C0-$64E6
-@loop5: lda     d765D,x
+@loop5: lda     knight_frame_0,x
         sta     sprite_5_image,x
-        lda     d7684,x                 ; Copy $7684-$76AA to $6500-$6526
+        lda     knight_frame_1,x        ; Copy $7684-$76AA to $6500-$6526
         sta     sprite_5b_image,x
         dex
         bpl     @loop5
