@@ -14,6 +14,8 @@
 .export draw_text
 .export erase_text_area
 
+        .setcpu "6502"
+
 .segment "CODE_TEXT"
 
 ;-----------------------------------------------------------

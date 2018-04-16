@@ -33,7 +33,7 @@
 
 .export disable_sprites
 
-
+        .setcpu "6502"
 
 .segment "CODE_INTRO"
 

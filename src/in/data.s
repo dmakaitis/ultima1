@@ -6,9 +6,6 @@
 ;
 ;-------------------------------------------------------------------------------
 
-
-
-
 .export horse_frame_ptrs
 .export horse_anim_frames
 .export d7B3B
@@ -25,6 +22,8 @@
 .export d7684
 .export d765D
 .export intro_backdrop
+
+        .setcpu "6502"
 
 .data
 
