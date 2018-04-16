@@ -5,7 +5,8 @@ temp_ptr2                       := $62
 frame_ctr                       := $79
 horse_anim_index                := $7A
 sword_ctr                       := $7C
-sprite_5_ctr                    := $84
+knight_flag                     := $83
+knight_ctr                      := $84
 car_flag                        := $85
 pause_ctr                       := $86
 

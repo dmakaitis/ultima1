@@ -5,8 +5,6 @@ font				:= $0800
 
 in_main             := $6800
 
-mi_main             := $7400
+lo_main 			:= $0C00
 
-load_file_cached    := $C480
-save_file           := $C483
-load_file           := $C486
+mi_main             := $7400

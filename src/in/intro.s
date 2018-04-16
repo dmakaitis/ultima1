@@ -17,24 +17,23 @@
 .import enable_sprites
 .import disable_sprites
 .import setup_sprites
+.import animate_knight
+.import update_horse_animation
 
 .import intro_loop_counter
 
 .import studio_logo
 .import title_logo
 
-.import horse_frame_ptrs
-.import horse_anim_frames
-
 .import sword
 .import sword_mask
+.import sword_hand
 
 .import d7B3B
 .import d7B6B
 .import d7A0B
 .import d7AA3
 .import d7835
-.import d780D
 
         .setcpu "6502"
 
@@ -264,7 +263,7 @@ draw_title_logo:
 ;-----------------------------------------------------------
 
 animate_sword:
-        lda     #$70                    ; X = 112 - value stored in the sword counter
+        lda     #112                    ; X = 112 - value stored in the sword counter
         sec                             ; (probably top position of where to draw sword)
         sbc     sword_ctr
         tax
@@ -338,12 +337,15 @@ animate_sword:
 
 
 sword_done:
-        ldx     #$54
-        lda     #$0D
-        sta     d6B78
-        lda     #$78
-        sta     d6B79
-b6B5E:  ldy     #$1E
+        ldx     #84                     ; X = row 84 in bitmap
+
+        lda     #<sword_hand
+        sta     @image_ptr
+        lda     #>sword_hand
+        sta     @image_ptr + 1
+
+@next_x:
+        ldy     #$1E                    ; Calculate address for (240, X) in bitmap backup
         lda     bitmap_row_addr_table_low + $14,x
         clc
         adc     bitmap_col_offset_table_low,y
@@ -352,26 +354,33 @@ b6B5E:  ldy     #$1E
         adc     bitmap_col_offset_table_high,y
         adc     #$60
         sta     temp_ptr2 + 1
+
         ldy     #$00
-b6B75:  lda     (temp_ptr2),y
-d6B78           := * + 1
-d6B79           := * + 2
-        ora     d780D
+
+@next_y:
+        lda     (temp_ptr2),y           ; Write the sword hand into the bitmap backup
+@image_ptr      := * + 1
+        ora     sword_hand
         sta     (temp_ptr2),y
-        inc     d6B78
-        bne     b6B84
-        inc     d6B79
-b6B84:  tya
+
+        inc     @image_ptr              ; Advance the image pointer
+        bne     @image_ptr_updated
+        inc     @image_ptr + 1
+
+@image_ptr_updated:
+        tya                             ; Advance right 8 pixels, for a total of 24 pixels copied
         clc
         adc     #$08
         tay
         cpy     #$18
-        bcc     b6B75
-        inx
-        cpx     #$5F
-        bcc     b6B5E
+        bcc     @next_y
+
+        inx                             ; Advance to next row until row 95
+        cpx     #95
+        bcc     @next_x
+
         lda     #$FF
-        sta     $83
+        sta     knight_flag
 b6B96:  lda     #$35
         sta     d6BC2
         lda     #$78
@@ -547,6 +556,21 @@ d6CCB:  .byte   $2F,$5F,$8F
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ;-----------------------------------------------------------
 ;                       wait_6_seconds
 ;
@@ -585,7 +609,7 @@ wait_frames:
         jsr     s6D2B
         jsr     update_horse_animation
         jsr     set_6444
-        jsr     s6DA9
+        jsr     animate_knight
         dec     wait_frames_ctr
         bne     wait_frames
         beq     check_for_key_press
@@ -695,145 +719,6 @@ d6D67:  .byte   $04,$0C,$20,$31,$48,$64,$68,$7E
 d6D6F:  .byte   $10,$30,$10,$60,$30,$70,$00,$A0
         .byte   $10,$30,$00,$60,$30,$70,$10,$A0
 
-
-
-
-;-----------------------------------------------------------
-;                    update_horse_animation
-;
-; Selects the next frame of the horse animation to load into
-; sprite 0. 
-;-----------------------------------------------------------
-
-update_horse_animation:
-        lda     frame_ctr
-        and     #$3F
-        bne     return_from_routine
-
-        inc     horse_anim_index        ; Select the next frame of animation
-        ldx     horse_anim_index
-        lda     horse_anim_frames,x
-        bpl     @in_range
-
-        lda     #$00                    ; Loop back to the first animation frame
-        sta     horse_anim_index
-
-@in_range:
-        asl                             ; Get the pointer to the sprite image for the frame
-        tax
-        lda     horse_frame_ptrs,x
-        sta     temp_ptr
-        lda     horse_frame_ptrs + 1,x
-        sta     temp_ptr + 1
-        ldy     #$29
-@loop:  lda     (temp_ptr),y
-        sta     sprite_0_image,y
-        dey
-        bpl     @loop
-
-return_from_routine:
-        rts
-
-
-
-
-;-----------------------------------------------------------
-;-----------------------------------------------------------
-
-s6DA9:  lda     $83
-        beq     return_from_routine
-
-        lda     intro_loop_counter      ; Only update every 4th time through the intro loop
-        and     #$03
-        bne     return_from_routine
-
-        lda     frame_ctr               ; Only update every 8th frame
-        and     #$07
-        bne     return_from_routine
-
-        lda     sprite_5_ctr            ; Set sprite 5 pointer to either $93 or $94
-        and     #$01
-        clc
-        adc     #$93
-        sta     sprite_5_ptr
-
-        lda     sprite_5_ctr            ; Update X coordinate of sprite 5
-        clc
-        adc     #$20
-        sta     VIC_SPR5_X
-        bcc     b6DD6
-        lda     VIC_SPR_HI_X
-        ora     #$20
-        sta     VIC_SPR_HI_X
-
-b6DD6:  inc     sprite_5_ctr
-        lda     sprite_5_ctr
-        cmp     #$48
-        bcc     b6DE4
-        lda     car_flag
-        bpl     b6DE4
-        dec     sprite_5_ctr
-b6DE4:  lda     car_flag
-        bpl     b6E0F
-        lda     sprite_5_ctr
-        cmp     #$10
-        bcc     b6E0F
-        cmp     #$1A
-        bcc     b6E03
-        cmp     #$30
-        bcc     b6E0F
-        cmp     #$3A
-        bcs     b6E0F
-        
-        jsr     get_bitmap_value
-        ora     #$40
-        sta     (temp_ptr),y
-        bne     b6E0F
-b6E03:  lda     #$19
-        sec
-        sbc     sprite_5_ctr
-        jsr     get_bitmap_value
-        and     #$BF
-        sta     (temp_ptr),y
-b6E0F:  rts
-
-
-
-
-;-----------------------------------------------------------
-;                      get_bitmap_value
-;
-; Gets the value stored in bitmap memory for one of 10
-; possible addresses. The memory address will contain the
-; pixel located a (56, 122 + (A & 0x0f)) where A is the
-; value in the accumulator when the method is called. The
-; value of that location in bitmap memory will be in the
-; accumulator when the method returns.
-;-----------------------------------------------------------
-
-get_bitmap_value:
-        and     #$0F
-        asl     a
-        tax
-        lda     @addresses,x
-        sta     temp_ptr
-        lda     @addresses + 1,x
-        sta     temp_ptr + 1
-        ldy     #$00
-        lda     (temp_ptr),y
-        rts
-
-@addresses:
-        .addr   $52FA           ; (56,122)
-        .addr   $52FB           ; (56,123)
-        .addr   $52FC           ; (56,124)
-        .addr   $52FD           ; (56,125)
-        .addr   $52FE           ; (56,126)
-        .addr   $52FF           ; (56,127)
-        .addr   $5438           ; (56,128)
-        .addr   $5439           ; (56,129)
-        .addr   $543A           ; (56,130)
-        .addr   $543B           ; (56,131)
 
 
 

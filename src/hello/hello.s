@@ -10,6 +10,7 @@
 
 .include "c64.inc"
 .include "kernel.inc"
+.include "global.inc"
 
         .setcpu "6502"
 
@@ -23,8 +24,6 @@ SHIFT_HANDLER_VECTOR:= $028F
 BASIC_IDLE_LOOP_VECTOR:= $0302
 CHROUT_VECTOR   := $0326
 LOAD_VECTOR     := $0330
-
-display_logo    := $0C00
 
 L4946           := $4946
 
@@ -264,7 +263,7 @@ main:   sei
         ; Initialization complete - display the Origin logo
         ;-----------------------------------------------------------
 
-        jmp     display_logo
+        jmp     lo_main
 
 
 

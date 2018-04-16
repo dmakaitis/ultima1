@@ -86,8 +86,8 @@ setup_sprites:
         sta     $7C
         sta     $7E
         sta     $82
-        sta     $83
-        sta     sprite_5_ctr
+        sta     knight_flag
+        sta     knight_ctr
         sta     $87
         tax
 

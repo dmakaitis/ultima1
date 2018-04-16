@@ -11,7 +11,7 @@
 .export d7A0B
 .export d7AA3
 .export d7835
-.export d780D
+.export sword_hand
 
 .export intro_backdrop
 
@@ -96,11 +96,10 @@ sword:
 
         .byte   $00,$00
 
-d780D:  .byte   $00,$7C,$00,$00,$10,$00,$00,$28
-        .byte   $00,$00,$18,$00,$00,$30,$00,$00
-        .byte   $18,$00,$00,$38,$00,$00,$7C,$00
-        .byte   $00,$7C,$00,$00,$7C,$00,$00,$38
-        .byte   $00,$00,$0F,$00,$00,$0F,$00,$00
+sword_hand:
+        .incbin "intro_sword_hand.bin"
+
+        .byte   $00
 
 d7835:  .byte   $00,$00,$00,$01,$20,$00,$03,$F0
         .byte   $00,$03,$F8,$00,$01,$F9,$80,$03

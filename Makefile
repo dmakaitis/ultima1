@@ -68,7 +68,8 @@ clean:
 lo_assets = font
 in_assets = intro_studio intro_title intro_horse0 intro_horse1 intro_horse2 \
 			intro_horse3 intro_horse4 intro_horse5 intro_horse6 intro_backdrop \
-			intro_car intro_knight0 intro_knight1 intro_sword intro_sword_mask
+			intro_car intro_knight0 intro_knight1 intro_sword intro_sword_mask \
+			intro_sword_hand
 
 $(PRG_OBJ)/lo/lo.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(lo_assets)))
 $(PRG_OBJ)/in/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(in_assets)))
@@ -173,6 +174,9 @@ assets/intro_sword.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 assets/intro_sword_mask.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 4258 -n 363
 
+assets/intro_sword_hand.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 4111 -n 39
+
 ###########################################################
 # The following rules compile assets for inclusion in
 # game files.
@@ -204,4 +208,7 @@ $(ASSETS_OUT)/intro_sword.bin: assets/intro_sword.png $(BIN_OUT)/cimage
 	$(BIN_OUT)/cimage -q -i $< -o $@
 
 $(ASSETS_OUT)/intro_sword_mask.bin: assets/intro_sword_mask.png $(BIN_OUT)/cimage
+	$(BIN_OUT)/cimage -q -i $< -o $@
+
+$(ASSETS_OUT)/intro_sword_hand.bin: assets/intro_sword_hand.png $(BIN_OUT)/cimage
 	$(BIN_OUT)/cimage -q -i $< -o $@
