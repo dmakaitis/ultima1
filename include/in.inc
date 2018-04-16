@@ -1,3 +1,4 @@
+temp_value                      := $5E
 temp_ptr                        := $60
 temp_ptr2                       := $62
 

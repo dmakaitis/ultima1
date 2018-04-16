@@ -165,19 +165,21 @@ build_bitmap_row_addr_table:
         ; the table starting at $15D8 contains the most significant byte.
 
 build_bitmap_col_offset_table:
-        lda     #$38
-        sta     $5E
+        lda     #$38                    ; The last entry in the table is $0138
+        sta     temp_value
         lda     #$01
-        sta     $5F
-        ldx     #$27
-@loop:  lda     $5E
+        sta     temp_value + 1
+
+        ldx     #$27                    ; We will load 40 entries
+
+@loop:  lda     temp_value              ; Load the table backwards, each value is $0008 lower than the following
         sta     bitmap_col_offset_table_low,x
         sec
         sbc     #$08
-        sta     $5E
-        lda     $5F
+        sta     temp_value
+        lda     temp_value + 1
         sta     bitmap_col_offset_table_high,x
         sbc     #$00
-        sta     $5F
+        sta     temp_value + 1
         dex
         bpl     @loop

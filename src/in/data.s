@@ -94,7 +94,7 @@ knight_frame_1:
 sword:  
         .incbin "intro_sword.bin"
 
-        .byte   $00,$00,$00,$00,$00
+        .byte   $00,$00
 
 d780D:  .byte   $00,$7C,$00,$00,$10,$00,$00,$28
         .byte   $00,$00,$18,$00,$00,$30,$00,$00

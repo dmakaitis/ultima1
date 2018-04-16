@@ -168,7 +168,7 @@ assets/intro_knight1.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3718 -n 39
 
 assets/intro_sword.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
-	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3767 -n 339
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 3767 -n 342
 
 assets/intro_sword_mask.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 4258 -n 363

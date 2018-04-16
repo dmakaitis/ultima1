@@ -14,6 +14,9 @@
 .export draw_text
 .export erase_text_area
 
+cursor_x        := $32
+cursor_y        := $33
+
         .setcpu "6502"
 
 .segment "CODE_TEXT"
@@ -30,10 +33,10 @@ draw_text:
         asl                             ; x = a * 2
         tax
 
-        lda     #$0B                    ; Set initial cursor position to (11, 7) in text coordinates
-        sta     $32
-        lda     #$07
-        sta     $33
+        lda     #11                     ; Set initial cursor position to (11, 7) in text coordinates
+        sta     cursor_x
+        lda     #7
+        sta     cursor_y
 
         lda     @text_pointers,x        ; Load pointer to text to render
         sta     @load_addr
@@ -49,14 +52,14 @@ draw_text:
 @decode_char:
         bpl     @write_char             ; bit 7 set means newline
 
-        lda     #$0B                    ; Move cursor back to start of line
-        sta     $32
-        inc     $33                     ; Move cursor down one
+        lda     #11                     ; Move cursor back to start of line
+        sta     cursor_x
+        inc     cursor_y                ; Move cursor down one
         bne     @advance_ptr        
 
 @write_char:
         jsr     draw_character
-        inc     $32                     ; Move cursor right one
+        inc     cursor_x                ; Move cursor right one
 
 @advance_ptr:
         inc     @load_addr              ; Advance text pointer
@@ -95,33 +98,37 @@ draw_text:
 ;                       draw_character
 ;
 ; Character to draw is in the accumulator. Cursor position 
-; is in $32 (x) and $33 (y) in character units.
+; is in $32 (x) and $33 (y).
 ;-----------------------------------------------------------
 
 draw_character:
-        sta     $5E
+        sta     temp_value
 
-        lda     $33                     ; Convert cursor coordinates to an address in bitmat memory
+        lda     cursor_y                ; Convert cursor coordinates to an address in bitmat memory
         asl
         asl
         asl
         tax
-        ldy     $32
+
+        ldy     cursor_x
+
         lda     bitmap_row_addr_table_low,x
         clc
         adc     bitmap_col_offset_table_low,y
         sta     @write_ptr
+
         lda     bitmap_row_addr_table_high,x
         adc     bitmap_col_offset_table_high,y
         adc     #$20
         sta     @write_ptr + 1
 
-        lda     $5E                     ; Convert character to render to an address in character memory
+        lda     temp_value              ; Convert character to render to an address in character memory
         asl     a                       ; starting at $0800
         asl     a
         asl     a
         sta     @read_ptr               ; Bottom five bits of character become LSB of read address
-        lda     $5E
+
+        lda     temp_value
         lsr     a                       ; Top three bits + $08 become MSB of read address
         lsr     a
         lsr     a
@@ -131,7 +138,7 @@ draw_character:
         adc     #>font
         sta     @read_ptr + 1
 
-        ldx     #$07                    ; Copy the character (8 bytes) to the bitmap
+        ldx     #7                      ; Copy the character (8 bytes) to the bitmap
 @loop:
 @read_ptr       := * + 1
         lda     font,x
@@ -139,6 +146,7 @@ draw_character:
         sta     $2000,x
         dex
         bpl     @loop
+
         rts
 
 
@@ -147,17 +155,18 @@ draw_character:
 ;-----------------------------------------------------------
 ;                       erase_text_area
 ;
-; Erases (sets to zero) the bitmap screen from (88,48) to
-; (319,103), or (11,6) to (39,12) in text coordinates.
+; Erases (sets to zero) the bitmap screen from (11,6) to 
+; (39,12) in text coordinates.
 ;-----------------------------------------------------------
 
 erase_text_area:
-        lda     #$06                    ; Lookup address of (224,48)
+        lda     #6                      ; Lookup address of (11,6)
         asl
         asl
         asl
-        tax                             ; Entry 48 in row lookup tables
-        ldy     #$0B                    ; Entry 11 in column lookup tables (224th pixel from left edge)
+        tax
+
+        ldy     #11
 
         lda     bitmap_row_addr_table_low,x
         clc
@@ -171,7 +180,7 @@ erase_text_area:
         ldx     #$07                    ; Do 7 sets of 8 rows
 
 @next_x:
-        ldy     #$E7                    ; Erase area 8 rows high and 232 pixels wide
+        ldy     #231                    ; Erase area 8 rows high and 232 pixels wide
         lda     #$00
 
 @next_y:
@@ -180,7 +189,7 @@ erase_text_area:
         cpy     #$FF
         bne     @next_y
 
-        lda     temp_ptr                ; Advance down 8 rows
+        lda     temp_ptr                ; Advance down 8 rows ($0140 bytes)
         clc
         adc     #$40
         sta     temp_ptr
