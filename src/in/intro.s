@@ -722,10 +722,10 @@ b6DD6:  inc     sprite_5_ctr
         lda     sprite_5_ctr
         cmp     #$48
         bcc     b6DE4
-        lda     $85
+        lda     car_flag
         bpl     b6DE4
         dec     sprite_5_ctr
-b6DE4:  lda     $85
+b6DE4:  lda     car_flag
         bpl     b6E0F
         lda     sprite_5_ctr
         cmp     #$10

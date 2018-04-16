@@ -91,21 +91,21 @@ setup_sprites:
         sta     $87
         tax
 
-@loop:  sta     sprite_0_image,x        ; Erase all sprite images
+@loop:  sta     sprite_0_image,x        ; Erase all sprite images (64 * 8 = 512 bytes)
         sta     sprite_0_image + $0100,x
         inx
         bne     @loop
 
         ldx     #$12                    ; Set $6540-$6552 to $03 and $6582-$6594 to $00
-@loop2: lda     #$03                    ; (this seems to get overwritten below)
-        sta     sprite_3_image,x
+@loop2: lda     #$03                    ; (this seems to get overwritten below, so what
+        sta     sprite_3_image,x        ; is this for?)
         lda     #$00
         sta     sprite_4_image + 2,x
         dex
         bpl     @loop2
 
-        ldx     #$07                    ; Set up pointers so the VIC can locate sprite images
-@loop3: lda     sprite_pointers,x
+        ldx     #$07                    ; Set up pointers to tell the VIC where sprite images
+@loop3: lda     sprite_pointers,x       ; are located in bitmap memory
         sta     sprite_0_ptr,x
         dex
         bpl     @loop3
@@ -116,7 +116,7 @@ setup_sprites:
         lda     #$1E                    ; Draw sprites 0, 5, 6, and 7 in front of screen content
         sta     VIC_SPR_BG_PRIO         ; Draw sprites 1, 2, 3, and 4 behind screen content
 
-        ldx     #$0F                    ; Set X/Y coordinates and colors for all sprites
+        ldx     #$0F                    ; Initialize X/Y coordinates and colors for all sprites
 @sprite_position_loop:
         lda     sprite_coordinates,x
         sta     VIC_SPR0_X,x
@@ -135,34 +135,35 @@ setup_sprites:
         dex
         bpl     @loop4
 
-        lda     intro_loop_counter      ; Every 16 times through the intro, do something (knight)
+        lda     intro_loop_counter      ; Every 16 times through the intro, do the car animation
         and     #$0F
-        beq     @skip_knight
+        beq     @init_car
 
-        ldx     #$26                    ; Copy $765D-$7683 to $64C0-$64E6
+        ldx     #$26                    ; Load knight frames into sprite memory
 @loop5: lda     knight_frame_0,x
         sta     sprite_5_image,x
-        lda     knight_frame_1,x        ; Copy $7684-$76AA to $6500-$6526
+        lda     knight_frame_1,x
         sta     sprite_5b_image,x
         dex
         bpl     @loop5
-        lda     #$00
-        sta     $85
+
+        lda     #$00                    ; Clear car flag so knight is properly animated
+        sta     car_flag
         rts
 
-@skip_knight:
-        ldx     #$0E                    ; Copy $7518-$7526 to $64C0 and $6500
+@init_car:
+        ldx     #$0E                    ; Replace knight images with car image
 @loop6: lda     car,x
         sta     sprite_5_image,x
         sta     sprite_5b_image,x
         dex
         bpl     @loop6
 
-        lda     #$FF
-        sta     $85
-        lda     #$B2                    ; Set sprite 5 Y position
+        lda     #$FF                    ; Set car flag so car is properly animated
+        sta     car_flag
+        lda     #$B2                    ; Set sprite 5 Y position (10 pixels below knight position)
         sta     VIC_SPR5_Y
-        lda     #$02                    ; Set sprite 5 color to red
+        lda     #$02                    ; Set sprite 5 color to red (knight is white)
         sta     VIC_SPR5_COLOR
         rts
 
@@ -170,8 +171,14 @@ intro_loop_counter:
         .byte   $00
 
 sprite_coordinates:
-        .byte   $44,$C4,$00,$00,$00,$00,$53,$A5
-        .byte   $60,$A5,$00,$A8,$00,$00,$00,$00
+        .byte   $44,$C4
+        .byte   $00,$00
+        .byte   $00,$00
+        .byte   $53,$A5
+        .byte   $60,$A5
+        .byte   $00,$A8
+        .byte   $00,$00
+        .byte   $00,$00
 
 sprite_colors:
         .byte   $01,$01,$0A,$00,$00,$01,$01,$01
