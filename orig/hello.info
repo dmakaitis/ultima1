@@ -18,8 +18,6 @@ RANGE	{ START $835E;	END $83A9;	TYPE Code; };
 RANGE	{ START $83AA;	END	$8441;	TYPE TextTable; };
 RANGE	{ START $8442;	END	$BFFF;	TYPE Skip; };
 
-LABEL	{ NAME "lo_main"; 				ADDR $0C00; };
-
 LABEL	{ NAME "hello_main";			ADDR $8000; };
 
 LABEL	{ NAME "selected_drive_type";	ADDR $B000; };

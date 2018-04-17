@@ -6,12 +6,6 @@
 ;
 ;-------------------------------------------------------------------------------
 
-.export d7B3B
-.export d7B6B
-.export d7A0B
-.export d7AA3
-
-
 .export intro_backdrop
 
 .export studio_logo
@@ -28,6 +22,12 @@
 .export sword_mask
 .export sword_hand
 .export hand
+
+.export bird_body
+.export bird_body_final
+.export bird_head
+.export bird_head_final
+
 
         .setcpu "6502"
 
@@ -110,59 +110,25 @@ hand:
 sword_mask:
         .incbin "intro_sword_mask.bin"
 
-d7A0B:  .byte   $20,$01,$F8,$F8,$0F,$F8,$FF,$3F
-        .byte   $F0,$3E,$FF,$E0,$0D,$FF,$D8,$0F
-        .byte   $FF,$BE,$0F,$FE,$7F,$0F,$FF,$F8
-        .byte   $07,$FF,$C0,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$F8,$00,$07
-        .byte   $FF,$E0,$07,$FC,$7C,$07,$FF,$BF
-        .byte   $06,$FF,$DC,$07,$7F,$E0,$01,$7F
-        .byte   $F0,$0C,$7F,$C0,$07,$7F,$C0,$00
-        .byte   $7F,$00,$00,$1C,$00,$00,$FC,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$7C,$00,$07,$FF,$80,$0F
-        .byte   $FF,$F0,$0F,$FF,$FF,$0F,$FF,$FC
-        .byte   $0F,$FF,$E8,$07,$F8,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+bird_body:  
+        .incbin "intro_bird_body0.bin"
+        .incbin "intro_bird_body1.bin"
+        .incbin "intro_bird_body2.bin"
+
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
 
-d7AA3:  .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$06
-        .byte   $00,$00,$3E,$00,$00,$FE,$00,$00
-        .byte   $06,$00,$00,$00,$13,$00,$00,$1A
-        .byte   $00,$00,$11,$00,$00,$08,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$06
-        .byte   $00,$00,$3E,$00,$00,$FE,$00,$00
-        .byte   $06,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$06
-        .byte   $00,$00,$3E,$00,$00,$FE,$00,$00
-        .byte   $06,$00,$00,$00,$00,$00,$00,$09
-        .byte   $80,$00,$0D,$00,$00,$08,$80,$00
-        .byte   $04,$00,$00,$00,$00,$00,$00,$00
+bird_head:  
+        .incbin "intro_bird_head0.bin"
+        .incbin "intro_bird_head1.bin"
+        .incbin "intro_bird_head2.bin"
+
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
 
-d7B3B:  .byte   $00,$01,$F0,$00,$3F,$F0,$00,$FF
-        .byte   $F0,$01,$FF,$F0,$07,$FF,$F0,$0F
-        .byte   $FF,$C0,$1F,$FE,$00,$7F,$FE,$00
-        .byte   $00,$7C,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+bird_body_final:
+        .incbin "intro_bird_body3.bin"
 
-d7B6B:  .byte   $00,$07,$80,$00,$07,$E0,$00,$07
-        .byte   $F0,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $28,$00,$00,$24,$00,$00,$28,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+bird_head_final:
+        .incbin "intro_bird_head3.bin"
 
 intro_backdrop:
         

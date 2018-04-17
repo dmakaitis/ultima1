@@ -76,19 +76,28 @@ disable_sprites:
 ; - set whether each sprite should appear in front or
 ;   behind screen content
 ; - set colors for all sprites
+;
+; The following sprites are used:
+;
+; 0 - horse
+; 1 - bird head
+; 2 - bird body
+; 3 - castle backdrop  (used to ensure knight is not visible
+; 4 - castle backdrop   through cracks in the castle)
+; 5 - knight / car
 ;-----------------------------------------------------------
 
 setup_sprites:
         lda     #$00
-        sta     $7B
+        sta     star_ctr
         sta     horse_anim_index
         sta     frame_ctr
-        sta     $7C
+        sta     sword_ctr
         sta     hand_ctr
-        sta     $82
+        sta     bird_done_flag
         sta     knight_flag
         sta     knight_ctr
-        sta     $87
+        sta     $87                     ; Seems to have no purpose
         tax
 
 @loop:  sta     sprite_0_image,x        ; Erase all sprite images (64 * 8 = 512 bytes)
@@ -171,14 +180,14 @@ intro_loop_counter:
         .byte   $00
 
 sprite_coordinates:
-        .byte   $44,$C4
-        .byte   $00,$00
-        .byte   $00,$00
-        .byte   $53,$A5
-        .byte   $60,$A5
-        .byte   $00,$A8
-        .byte   $00,$00
-        .byte   $00,$00
+        .byte   68, 196
+        .byte   0, 0
+        .byte   0, 0
+        .byte   83, 165
+        .byte   96, 165
+        .byte   0, 168
+        .byte   0, 0
+        .byte   0, 0
 
 sprite_colors:
         .byte   $01,$01,$0A,$00,$00,$01,$01,$01

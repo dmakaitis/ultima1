@@ -1,8 +1,8 @@
 ;-------------------------------------------------------------------------------
 ;
-; intro.s
+; bitmap.s
 ;
-; Main loop for the intro page.
+; Code for drawing, animating and erasing bitmap images.
 ;
 ;-------------------------------------------------------------------------------
 
@@ -23,21 +23,15 @@
 .import sword_hand
 .import hand
 
-.import d7B3B
-.import d7B6B
-.import d7A0B
-.import d7AA3
-
 .export animate_sword
 .export backup_bitmap_memory
 .export draw_studio_logo
 .export draw_title_logo
 .export erase_sword_area
-.export s6C17
 
         .setcpu "6502"
 
-.segment "CODE_MISC"
+.segment "CODE_BITMAP"
 
 ;-----------------------------------------------------------
 ;                    backup_bitmap_memory
@@ -82,9 +76,9 @@ draw_studio_logo:
         lda     #>studio_logo
         sta     @load_address + 1
 
-        ldx     #$38                    ; Copy onto rows 56 through 77
+        ldx     #56                     ; Copy onto rows 56 through 77
 
-@next_x:ldy     #$13                    ; Get address for pixel (152,56)
+@next_x:ldy     #(152 / 8)              ; Get address for pixel (152,56)
         lda     bitmap_row_addr_table_low,x
         clc
         adc     bitmap_col_offset_table_low,y
@@ -107,13 +101,13 @@ draw_studio_logo:
 @same_page:
         tya
         clc
-        adc     #$08
+        adc     #8
         tay
-        cpy     #$68
+        cpy     #104
         bcc     @next_y
 
         inx                             ; Advance to next row
-        cpx     #$4D
+        cpx     #77
         bcc     @next_x
         rts
 
@@ -128,8 +122,8 @@ draw_studio_logo:
 ;-----------------------------------------------------------
 
 draw_title_logo:
-        ldx     #$30                    ; Calculate address of (88, 48) and put in temp_ptr2
-        ldy     #$0B
+        ldx     #48                     ; Calculate address of (88, 48) and put in temp_ptr2
+        ldy     #(88 / 8)
         lda     bitmap_row_addr_table_low,x
         clc
         adc     bitmap_col_offset_table_low,y
@@ -147,28 +141,28 @@ draw_title_logo:
         ldx     #$06
 
 @next_x:
-        ldy     #$00                    ; Copy a 184x8 pixel block
+        ldy     #0                      ; Copy a 184x8 pixel block
 @next_y:
         lda     (temp_ptr),y
         sta     (temp_ptr2),y
         iny
-        cpy     #$B8
+        cpy     #184
         bcc     @next_y
 
         lda     temp_ptr                ; Advance source pointer by 184 bytes
         clc
-        adc     #$B8
+        adc     #184
         sta     temp_ptr
         lda     temp_ptr + 1
-        adc     #$00
+        adc     #0
         sta     temp_ptr + 1
 
         lda     temp_ptr2               ; Advance target pointer by 320 bytes
         clc
-        adc     #$40
+        adc     #<320
         sta     temp_ptr2
         lda     temp_ptr2 + 1
-        adc     #$01
+        adc     #>320
         sta     temp_ptr2 + 1
         dex
         bne     @next_x
@@ -201,20 +195,20 @@ animate_sword:
         sta     @mask_ptr + 1
 
 @next_x:
-        ldy     #$1E                    ; Calculate address for (240, X) in both bitmap and bitmap backup
-        lda     bitmap_row_addr_table_low + $14,x
+        ldy     #30                     ; Calculate address for (240, X) in both bitmap and bitmap backup
+        lda     bitmap_row_addr_table_low + 20,x
         clc
         adc     bitmap_col_offset_table_low,y
         sta     temp_ptr
         sta     temp_ptr2
-        lda     bitmap_row_addr_table_high + $14,x
+        lda     bitmap_row_addr_table_high + 20,x
         adc     bitmap_col_offset_table_high,y
         adc     #$20
         sta     temp_ptr + 1            ; temp_ptr has address in bitmap memory
         adc     #$40
         sta     temp_ptr2 + 1           ; temp_ptr2 has address in bitmap backup memory
 
-        ldy     #$00
+        ldy     #0
 
 @next_y:
         lda     (temp_ptr2),y           ; Read pixels from backup memory,
@@ -236,22 +230,22 @@ animate_sword:
 @mask_ptr_updated:
         tya                             ; Advance right 8 pixels
         clc
-        adc     #$08
+        adc     #8
         tay
-        cpy     #$18
+        cpy     #24
         bcc     @next_y
 
         inx                             ; Keep drawing until we have passed line 112
-        cpx     #$71
+        cpx     #113
         bcc     @next_x
 
-        lda     #$08                    ; Wait for 8 frames
+        lda     #8                      ; Wait for 8 frames
         sta     wait_frames_counter
         jsr     wait_frames
 
         inc     sword_ctr               ; Update sword counter
         lda     sword_ctr
-        cmp     #$70
+        cmp     #112
         bcs     sword_done
         jmp     animate_sword
 
@@ -277,7 +271,7 @@ sword_done:
         adc     #$60
         sta     temp_ptr2 + 1
 
-        ldy     #$00
+        ldy     #0
 
 @next_y:
         lda     (temp_ptr2),y           ; Write the sword hand into the bitmap backup
@@ -292,9 +286,9 @@ sword_done:
 @image_ptr_updated:
         tya                             ; Advance right 8 pixels, for a total of 24 pixels copied
         clc
-        adc     #$08
+        adc     #8
         tay
-        cpy     #$18
+        cpy     #24
         bcc     @next_y
 
         inx                             ; Advance to next row until row 95
@@ -329,7 +323,7 @@ remove_hand:
         adc     #$40
         sta     temp_ptr2 + 1           ; temp_ptr points to same pixel in bitmap backup
 
-        ldy     #$00
+        ldy     #0
 @next_y:
         lda     (temp_ptr2),y           ; Load pixels from backup
 @image_ptr      := * + 1
@@ -343,7 +337,7 @@ remove_hand:
 @advance_column:
         tya                             ; Advance to next 8 pixels in row
         clc
-        adc     #$08
+        adc     #8
         tay
         cpy     #24                     ; Copy 24 pixels total
         bcc     @next_y
@@ -358,7 +352,7 @@ remove_hand:
 
         inc     hand_ctr                ; Update the hand counter, and repeat until it is gone
         lda     hand_ctr
-        cmp     #$1D
+        cmp     #29
         bcc     remove_hand
 
         rts
@@ -370,123 +364,33 @@ remove_hand:
 ;                       erase_sword_area
 ;
 ; Erases (sets to zero) the bitmap from (240,20) to
-; (271,116).
+; (263,116).
 ;-----------------------------------------------------------
 
 erase_sword_area:
-        ldx     #$60
+        ldx     #96
 
 @calculate_next_address:
-        ldy     #$1E                    ; Calculate address of (240, x)
-        lda     bitmap_row_addr_table_low + $14,x
+        ldy     #(240 / 8)              ; Calculate address of (240, x)
+        lda     bitmap_row_addr_table_low + 20,x
         clc
         adc     bitmap_col_offset_table_low,y
         sta     temp_ptr
-        lda     bitmap_row_addr_table_high + $14,x
+        lda     bitmap_row_addr_table_high + 20,x
         adc     bitmap_col_offset_table_high,y
         adc     #$20
         sta     temp_ptr + 1
 
-        ldy     #$00
-@loop:  lda     #$00                    ; Erase an 32x8 block
+        ldy     #0
+@loop:  lda     #0                      ; Erase an 24x8 block
         sta     (temp_ptr),y
         tya
         clc
-        adc     #$08
+        adc     #8
         tay
-        cpy     #$18
+        cpy     #24
         bne     @loop
 
         dex
         bpl     @calculate_next_address
         rts
-
-
-
-
-;-----------------------------------------------------------
-;-----------------------------------------------------------
-
-s6C17:  lda     #$FE
-        sta     $7F
-        lda     #$7C
-        sta     $80
-        lda     #$00
-        sta     $81
-        lda     #$1E
-        sta     VIC_SPR_BG_PRIO
-b6C28:  lda     #$0A
-        sta     wait_frames_counter
-        jsr     wait_frames
-        ldx     $81
-        inx
-        cpx     #$03
-        bcc     b6C39
-        ldx     #$00
-b6C39:  stx     $81
-        lda     d6CCB,x
-        tax
-        ldy     #$2F
-b6C41:  lda     d7AA3,x
-        sta     sprite_1_image,y
-        lda     d7A0B,x
-        sta     sprite_2_image,y
-        dex
-        dey
-        bpl     b6C41
-        lda     $80
-        sta     VIC_SPR1_Y
-        sta     VIC_SPR2_Y
-        lda     $7F
-        clc
-        adc     #$40
-        sta     VIC_SPR1_X
-        lda     VIC_SPR_HI_X
-        and     #$FD
-        bcc     b6C6A
-        ora     #$02
-b6C6A:  sta     VIC_SPR_HI_X
-        lda     $7F
-        clc
-        adc     #$44
-        sta     VIC_SPR2_X
-        lda     VIC_SPR_HI_X
-        and     #$FB
-        bcc     b6C7E
-        ora     #$04
-b6C7E:  sta     VIC_SPR_HI_X
-        lda     $81
-        bne     b6C91
-        dec     $80
-        lda     $7F
-        cmp     #$48
-        bcs     b6C91
-        inc     $80
-        inc     $80
-b6C91:  lda     $7F
-        cmp     #$10
-        bne     b6C9C
-        lda     #$18
-        sta     VIC_SPR_BG_PRIO
-b6C9C:  dec     $7F
-        dec     $7F
-        bne     b6C28
-        ldx     #$2F
-b6CA4:  lda     d7B6B,x
-        sta     sprite_1_image,x
-        lda     d7B3B,x
-        sta     sprite_2_image,x
-        dex
-        bpl     b6CA4
-        lda     #$40
-        sta     VIC_SPR2_X
-        lda     #$47
-        sta     VIC_SPR1_X
-        lda     #$6E
-        sta     VIC_SPR1_Y
-        sta     VIC_SPR2_Y
-        lda     #$FF
-        sta     $82
-        rts
-        rts
-d6CCB:  .byte   $2F,$5F,$8F

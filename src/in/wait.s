@@ -14,8 +14,10 @@
 
 .import exit_intro
 
-.import update_horse_animation
+.import animate_horse
 .import animate_knight
+.import animate_bird_eye
+.import animate_stars
 
 .export wait_6_seconds
 .export wait_frames
@@ -63,8 +65,8 @@ wait_frames:
 
         inc     frame_ctr
         jsr     animate_stars
-        jsr     update_horse_animation
-        jsr     set_6444
+        jsr     animate_horse
+        jsr     animate_bird_eye
         jsr     animate_knight
         dec     wait_frames_counter
         bne     wait_frames
@@ -114,83 +116,6 @@ wait_frames_counter:
 
 
 
-;-----------------------------------------------------------
-;                         set_6444
-;
-; Sets the byte at $6444 to either a $07 or $06, depending
-; on the value stored in the 'frame_ctr' ($79). (part of 
-; sprite 1 image?)
-;-----------------------------------------------------------
-
-set_6444:
-        lda     $82
-        beq     @exit
-        ldx     #$07
-        lda     frame_ctr
-        lsr
-        lsr
-        cmp     #$08
-        bcc     @b6D27
-        ldx     #$06
-@b6D27: stx     sprite_1_image + 4
-@exit:  rts
-
-
-
-
-;-----------------------------------------------------------
-;                       animate_stars
-;
-; Updates star colors to make them twinkle.
-;-----------------------------------------------------------
-
-animate_stars:
-        lda     frame_ctr               ; Update once every 4 frames
-        and     #$03
-        beq     @update_counter
-        rts
-
-@update_counter:
-        inc     star_ctr2               ; Cycle from 0 to 8, then repeat
-        lda     star_ctr2
-        cmp     #$09
-        bcc     @update_stars
-
-        lda     #$00                    ; Reset counter
-        sta     star_ctr2
-
-@update_stars:
-        tax
-        inc     star_ctr                ; Cycle from 0 to 7, then repeat
-        lda     star_ctr
-        and     #$07
-        sta     star_ctr
-
-        tay
-        lda     @star_offsets,y
-        tay
-        lda     @star_colors,x
-        sta     screen_memory,y
-
-        lda     frame_ctr               ; Every 32 frames, make the castle flag wave by swapping
-        and     #$1F                    ; the two bytes that comprise the flag in bitmap memory
-        bne     @done                   ; (vertically swap pixels 72-49 on rows 117 and 118)
-
-        lda     bitmap_memory + BITMAP_OFFSET 72, 117
-        pha
-        lda     bitmap_memory + BITMAP_OFFSET 72, 118
-        sta     bitmap_memory + BITMAP_OFFSET 72, 117
-        pla
-        sta     bitmap_memory + BITMAP_OFFSET 72, 118
-
-@done:  rts
-
-@star_offsets:
-        .byte   $04,$0C,$20,$31,$48,$64,$68,$7E
-
-@star_colors:
-        .byte   $10,$30,$10,$60,$30,$70,$00,$A0
-        .byte   $10,$30,$00,$60,$30,$70,$10,$A0
 
 
 

@@ -26,9 +26,11 @@
 +---------------+---------------------------------------------------------------+
 | $0800-$15DD   |   LO.PRG                                                      |
 |               |       $0800-$0BFF - Character set                             |
-|				|		$0C00-$0C9D - Code                                      |
+|               |       $0C00-$0C9D - Code                                      |
 |               |       $0C9E-$1577 - Data (big Origin logo)                    |
 |               |       $1578-$15DA - Code                                      |
+| $1200-$1379   |   Bitmap row lookup table (IN)                                |
+| $15B0-$15FF   |   Bitmap column lookup table (IN)                             |
 |               |                                                               |
 | $1FFE-$1FFF   |   CHROUT Routine                                              |
 |               |                                                               |
@@ -41,6 +43,7 @@
 | $6800-$D701   |   IN.PRG                                                      |
 |               |                                                               |
 | $8000-$83FF   |   Initialization Code (U1 main)                               |
+| $8000-$9FFF   |   Bitmap backup memory (IN)                                   |
 +---------------+---------------------------------------------------------------+
 |                               $C000-$CFFF                                     |
 |                              Upper RAM area                                   |

@@ -69,7 +69,9 @@ lo_assets = font
 in_assets = intro_studio intro_title intro_horse0 intro_horse1 intro_horse2 \
 			intro_horse3 intro_horse4 intro_horse5 intro_horse6 intro_backdrop \
 			intro_car intro_knight0 intro_knight1 intro_sword intro_sword_mask \
-			intro_sword_hand intro_hand
+			intro_sword_hand intro_hand intro_bird_body0 intro_bird_body1 \
+			intro_bird_body2 intro_bird_body3 intro_bird_head0 intro_bird_head1 \
+			intro_bird_head2 intro_bird_head3
 
 $(PRG_OBJ)/lo/lo.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(lo_assets)))
 $(PRG_OBJ)/in/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(in_assets)))
@@ -83,7 +85,7 @@ $(PRG_OBJ)/%.o: src/%.s build
 
 utils = dimage cimage
 
-utils: $(addprefix $(BIN_OUT)/, $(utils))
+utils: build $(addprefix $(BIN_OUT)/, $(utils))
 
 $(BIN_OUT)/dimage: $(BIN_OBJ)/dimage.o
 	c++ -o $@ $(BIN_OBJ)/dimage.o -lpng
@@ -180,6 +182,30 @@ assets/intro_sword_hand.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 assets/intro_hand.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 4151 -n 99
 
+assets/intro_bird_body0.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 4621 -n 48
+
+assets/intro_bird_body1.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 4669 -n 48
+
+assets/intro_bird_body2.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 4717 -n 48
+
+assets/intro_bird_head0.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 4773 -n 48
+
+assets/intro_bird_head1.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 4821 -n 48
+
+assets/intro_bird_head2.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 4869 -n 48
+
+assets/intro_bird_body3.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 4925 -n 48
+
+assets/intro_bird_head3.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -w 24 -s 4973 -n 48
+
 ###########################################################
 # The following rules compile assets for inclusion in
 # game files.
@@ -219,3 +245,8 @@ $(ASSETS_OUT)/intro_sword_hand.bin: assets/intro_sword_hand.png $(BIN_OUT)/cimag
 $(ASSETS_OUT)/intro_hand.bin: assets/intro_hand.png $(BIN_OUT)/cimage
 	$(BIN_OUT)/cimage -q -i $< -o $@
 
+$(ASSETS_OUT)/intro_bird_body%.bin: assets/intro_bird_body%.png $(BIN_OUT)/cimage
+	$(BIN_OUT)/cimage -q -i $< -o $@
+
+$(ASSETS_OUT)/intro_bird_head%.bin: assets/intro_bird_head%.png $(BIN_OUT)/cimage
+	$(BIN_OUT)/cimage -q -i $< -o $@

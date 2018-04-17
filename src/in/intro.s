@@ -25,13 +25,13 @@
 .import erase_sword_area
 .import animate_sword
 
-.import update_horse_animation
+.import animate_horse
 
 .import wait_6_seconds
 .import wait_frames
 .import wait_for_key_press
 
-.import s6C17
+.import animate_bird
 
 .import intro_loop_counter
 .import wait_frames_counter
@@ -218,7 +218,7 @@ intro_loop:
         jsr     erase_text_area
         jsr     setup_sprites
         jsr     enable_sprites
-        jsr     update_horse_animation
+        jsr     animate_horse
 
         jsr     draw_studio_logo        ; Display "Origin Systems Presents"
         lda     #$00
@@ -228,7 +228,7 @@ intro_loop:
         jsr     erase_text_area         ; Display "A new release of..."
         lda     #$01
         jsr     draw_text
-        jsr     s6C17
+        jsr     animate_bird
         jsr     wait_6_seconds
 
         jsr     erase_text_area         ; Display "Lord British's..."

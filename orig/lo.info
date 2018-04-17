@@ -17,8 +17,6 @@ RANGE	{ START $0C9E;	END $155D;	TYPE ByteTable; };
 RANGE	{ START $155E;	END $1577;	TYPE ByteTable; };
 RANGE	{ START $1578;	END $1FFF;	TYPE Code; };
 
-LABEL	{ NAME "main"; 	ADDR $0C00; };
-
 LABEL	{ NAME "origin_logo"; 	ADDR $0C9E; };
 LABEL	{ NAME "origin_logo2"; 	ADDR $0DB6; };
 LABEL	{ NAME "origin_logo3"; 	ADDR $0ECE; };
