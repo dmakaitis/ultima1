@@ -1321,7 +1321,7 @@ read_filenames:
         .byte   "IN"
         .byte   "MI"
         .byte   "LO"
-        .byte   "PR"
+        .byte   "PR"                    ; PR is for copy protection - reading this file should fail
 
 
 

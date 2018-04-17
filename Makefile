@@ -119,6 +119,8 @@ $(ORIG_SRC_OUT)/hello_1541_0500.s: $(ORIG_PRG_OUT)/hello.prg
 $(ORIG_SRC_OUT)/lo.s: $(ORIG_PRG_OUT)/lo.prg
 $(ORIG_SRC_OUT)/in.s: $(ORIG_PRG_OUT)/in.prg
 $(ORIG_SRC_OUT)/mi.s: $(ORIG_PRG_OUT)/mi.prg
+# $(ORIG_SRC_OUT)/pr.s: $(ORIG_PRG_OUT)/pr.prg
+$(ORIG_SRC_OUT)/st.s: $(ORIG_PRG_OUT)/st.prg
 
 ###########################################################
 # The following rules extract assets from the original

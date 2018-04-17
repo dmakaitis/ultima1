@@ -1,0 +1,76 @@
+GLOBAL {
+    INPUTNAME   "build/orig/prg/st.prg";
+    OUTPUTNAME  "build/orig/src/st.s";
+    STARTADDR   $0BFE;
+    PAGELENGTH  0;
+    CPU         "6502";
+};
+
+ASMINC  { FILE "orig/c64.inc"; };
+ASMINC  { FILE "include/kernel.inc"; };
+ASMINC  { FILE "include/global.inc"; };
+ASMINC  { FILE "include/diskio.inc"; };
+
+SEGMENT { START $0BFE;  END $0BFF;  NAME "LOADADDR"; };
+SEGMENT { START $0C00;  END $FFFF;  NAME "code"; };
+
+RANGE   { START $0BFE;  END $0BFF;  TYPE AddrTable; };
+
+RANGE   { START $0C00;  END $1639;  TYPE ByteTable; };
+RANGE   { START $163A;  END $163C;  TYPE Code; };
+RANGE   { START $163D;  END $1645;  TYPE ByteTable; };
+RANGE   { START $1646;  END $1648;  TYPE Code; };
+RANGE   { START $1649;  END $1654;  TYPE ByteTable; };
+RANGE   { START $1655;  END $165A;  TYPE Code; };
+RANGE   { START $165B;  END $1663;  TYPE ByteTable; };
+RANGE   { START $1664;  END $1669;  TYPE Code; };
+RANGE   { START $166A;  END $1672;  TYPE ByteTable; };
+RANGE   { START $1673;  END $1675;  TYPE Code; };
+RANGE   { START $1676;  END $16FF;  TYPE ByteTable; };
+RANGE   { START $1700;  END $171F;  TYPE Code; };
+RANGE   { START $1720;  END $1A14;  TYPE ByteTable; };
+RANGE   { START $1A15;  END $1A77;  TYPE Code; };
+RANGE   { START $1A78;  END $FFFF;  TYPE ByteTable; };
+
+########################
+# Subroutines
+
+LABEL   { NAME "s163A";             ADDR $163A; };
+LABEL   { NAME "s1646";             ADDR $1646; };
+LABEL   { NAME "s1655";             ADDR $1655; };
+LABEL   { NAME "s1658";             ADDR $1658; };
+LABEL   { NAME "s1664";             ADDR $1664; };
+LABEL   { NAME "s1667";             ADDR $1667; };
+LABEL   { NAME "s1673";             ADDR $1673; };
+LABEL   { NAME "s19A0";             ADDR $19A0; };  #
+LABEL   { NAME "s1B72";             ADDR $1B72; };  #
+LABEL   { NAME "s1C81";             ADDR $1C81; };  #
+
+########################
+# Jump targets
+
+LABEL   { NAME "j1700";             ADDR $1700; };  #
+LABEL   { NAME "j1723";             ADDR $1723; };  #
+LABEL   { NAME "j178F";             ADDR $178F; };  #
+LABEL   { NAME "j1A15";             ADDR $1A15; };
+LABEL   { NAME "j1A2C";             ADDR $1A2C; };
+LABEL   { NAME "j1A78";             ADDR $1A78; };  #
+LABEL   { NAME "j1E08";             ADDR $1E08; };  #
+
+########################
+# Branch targets
+
+LABEL   { NAME "b170A";             ADDR $170A; };
+LABEL   { NAME "b171A";             ADDR $171A; };
+LABEL   { NAME "b1A23";             ADDR $1A23; };
+LABEL   { NAME "b1A4C";             ADDR $1A4C; };
+LABEL   { NAME "b1A5D";             ADDR $1A5D; };
+LABEL   { NAME "b1A65";             ADDR $1A65; };
+
+########################
+# Data
+
+LABEL   { NAME "d1600";             ADDR $1600; };
+LABEL   { NAME "d1619";             ADDR $1619; };
+LABEL   { NAME "d1E28";             ADDR $1E28; };
+LABEL   { NAME "d1E2A";             ADDR $1E2A; };
