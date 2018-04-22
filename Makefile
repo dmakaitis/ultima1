@@ -65,7 +65,7 @@ clean:
 	-rm -Rf build
 	-rm -Rf assets/*.png
 
-lo_assets = font
+lo_assets = font osibig
 in_assets = intro_studio intro_title intro_horse0 intro_horse1 intro_horse2 \
 			intro_horse3 intro_horse4 intro_horse5 intro_horse6 intro_backdrop \
 			intro_car intro_knight0 intro_knight1 intro_sword intro_sword_mask \
@@ -73,7 +73,7 @@ in_assets = intro_studio intro_title intro_horse0 intro_horse1 intro_horse2 \
 			intro_bird_body2 intro_bird_body3 intro_bird_head0 intro_bird_head1 \
 			intro_bird_head2 intro_bird_head3
 
-$(PRG_OBJ)/lo/lo.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(lo_assets)))
+$(PRG_OBJ)/lo/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(lo_assets)))
 $(PRG_OBJ)/in/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(in_assets)))
 
 $(PRG_OBJ)/%.o: src/%.s build
@@ -119,20 +119,22 @@ $(ORIG_SRC_OUT)/hello_1541_0500.s: $(ORIG_PRG_OUT)/hello.prg
 $(ORIG_SRC_OUT)/lo.s: $(ORIG_PRG_OUT)/lo.prg
 $(ORIG_SRC_OUT)/in.s: $(ORIG_PRG_OUT)/in.prg
 $(ORIG_SRC_OUT)/mi.s: $(ORIG_PRG_OUT)/mi.prg
-# $(ORIG_SRC_OUT)/pr.s: $(ORIG_PRG_OUT)/pr.prg
 $(ORIG_SRC_OUT)/st.s: $(ORIG_PRG_OUT)/st.prg
 
 ###########################################################
 # The following rules extract assets from the original
 # game files.
 
-pngassets =	font osi ultima horse0 horse1 horse2 horse3 horse4 horse5 horse6 \
+pngassets =	font osibig osi ultima horse0 horse1 horse2 horse3 horse4 horse5 horse6 \
 			image
 
 assets: $(addprefix assets/, $(addsuffix .png, $(pngassets)))
 
 assets/font.png: $(ORIG_PRG_OUT)/lo.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -b -w 128 -s 2 -n 1024
+
+assets/osibig.png: $(ORIG_PRG_OUT)/lo.prg $(BIN_OUT)/dimage
+	$(BIN_OUT)/dimage -q -i $< -o $@ -b -w 280 -s 1184 -n 2240
 
 assets/intro_studio.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 	$(BIN_OUT)/dimage -q -i $< -o $@ -w 104 -s 1962 -n 273
@@ -216,6 +218,9 @@ assets/intro_bird_head3.png: $(ORIG_PRG_OUT)/in.prg $(BIN_OUT)/dimage
 compileassets: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(pngassets)))
 
 $(ASSETS_OUT)/font.bin: assets/font.png $(BIN_OUT)/cimage
+	$(BIN_OUT)/cimage -qb -i $< -o $@
+
+$(ASSETS_OUT)/osibig.bin: assets/osibig.png $(BIN_OUT)/cimage
 	$(BIN_OUT)/cimage -qb -i $< -o $@
 
 $(ASSETS_OUT)/intro_studio.bin: assets/intro_studio.png $(BIN_OUT)/cimage
