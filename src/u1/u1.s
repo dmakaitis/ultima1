@@ -3,7 +3,7 @@
 ; u1.s
 ;
 ; This program simply blanks the screen, then loads the "hello" file into memory
-; at $8000 and passing it control.
+; at $8000 and passes it control.
 ;
 ; This program is positioned so that when it is loaded into memory at $02d7,
 ; the BASIC idle loop vector is overwritten with the value $02d7. The result is

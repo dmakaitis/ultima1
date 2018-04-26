@@ -1,5 +1,5 @@
 ;-----------------------------------------------------------
-;                    _1541_fastload_code
+; 1541fastload.s
 ;
 ; The following section will be copied out to the 1541
 ; drive, and contains the fastload code that will be

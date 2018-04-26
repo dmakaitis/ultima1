@@ -1,5 +1,5 @@
 ;-----------------------------------------------------------
-;                _1541_fastload_bootstrap
+; 1541bootstrap.s
 ;
 ; The following section will be copied out to the 1541 drive
 ; to bootstrap the fastload code. It contains enough code to

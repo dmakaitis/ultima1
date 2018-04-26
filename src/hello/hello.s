@@ -1217,8 +1217,8 @@ load_file_cached_a:
 ;   0b : ST @ $0C00 - ???
 ;   0c : IN @ $6800 - ???
 ;   0d : MI @ $7400 - ???
-;   0e : LO @ $0800 - ???
-;   0f : PR @ $12C0 - ???
+;   0e : LO @ $0800 - Display studio logo
+;   0f : PR @ $12C0 - copy protection test file
 ;   10 : DD @ $B000 - disk driver selection
 ;   11 : RO @ $B000 - ???
 ;   12 : P0 @ $81E2 - Player save slot 1
