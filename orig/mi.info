@@ -3,7 +3,7 @@ GLOBAL {
     OUTPUTNAME  "build/orig/src/mi.s";
     STARTADDR   $73FE;
     PAGELENGTH  0;
-    CPU         "6502";
+    CPU         "6502x";
 };
 
 ASMINC  { FILE "orig/c64.inc"; };
