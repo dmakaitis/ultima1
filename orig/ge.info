@@ -1,0 +1,33 @@
+GLOBAL {
+    INPUTNAME   "build/orig/prg/ge.prg";
+    OUTPUTNAME  "build/orig/src/ge.s";
+    STARTADDR   $8C9C;
+    PAGELENGTH  0;
+    CPU         "6502";
+};
+
+ASMINC  { FILE "orig/c64.inc"; };
+ASMINC  { FILE "include/kernel.inc"; };
+ASMINC  { FILE "include/global.inc"; };
+ASMINC  { FILE "include/diskio.inc"; };
+
+SEGMENT { START $8C9C;  END $8C9D;  NAME "LOADADDR"; };
+SEGMENT { START $8C9E;  END $FFFF;  NAME "code"; };
+
+RANGE   { START $8C9C;  END $8C9D;  TYPE AddrTable; };
+
+RANGE   { START $8C9E;  END $8CAF;  TYPE Code; };
+RANGE   { START $8CB0;  END $FFFF;  TYPE ByteTable; };
+
+########################
+# Subroutines
+
+########################
+# Jump targets
+
+########################
+# Branch targets
+
+########################
+# Data
+
