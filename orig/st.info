@@ -18,15 +18,27 @@ RANGE   { START $0BFE;  END $0BFF;  TYPE AddrTable; };
 
 RANGE   { START $0C00;  END $1639;  TYPE ByteTable; };
 RANGE   { START $163A;  END $163C;  TYPE Code; };
-RANGE   { START $163D;  END $1654;  TYPE ByteTable; };
+RANGE   { START $163D;  END $164E;  TYPE ByteTable; };
+RANGE   { START $164F;  END $1651;  TYPE Code; };
+RANGE   { START $1652;  END $1654;  TYPE ByteTable; };
 RANGE   { START $1655;  END $1657;  TYPE Code; };
 RANGE   { START $1658;  END $1663;  TYPE ByteTable; };
-RANGE   { START $1664;  END $1666;  TYPE Code; };
-RANGE   { START $1667;  END $199F;  TYPE ByteTable; };
+RANGE   { START $1664;  END $1669;  TYPE Code; };
+RANGE   { START $166A;  END $1672;  TYPE ByteTable; };
+RANGE   { START $1673;  END $1675;  TYPE Code; };
+RANGE   { START $1676;  END $16FF;  TYPE ByteTable; };
+RANGE   { START $1700;  END $171F;  TYPE Code; };
+RANGE   { START $1720;  END $178E;  TYPE ByteTable; };
+RANGE   { START $178F;  END $17E9;  TYPE Code; };
+RANGE   { START $17EA;  END $199F;  TYPE ByteTable; };
 RANGE   { START $19A0;  END $1A0C;  TYPE Code; };
 RANGE   { START $1A0D;  END $1A22;  TYPE ByteTable; };
-RANGE   { START $1A23;  END $1A77;  TYPE Code; };
-RANGE   { START $1A78;  END $1E07;  TYPE ByteTable; };
+RANGE   { START $1A23;  END $1B04;  TYPE Code; };
+RANGE   { START $1B05;  END $1B50;  TYPE ByteTable; };
+RANGE   { START $1B51;  END $1B88;  TYPE Code; };
+RANGE   { START $1B89;  END $1C80;  TYPE ByteTable; };
+RANGE   { START $1C81;  END $1C89;  TYPE Code; };
+RANGE   { START $1C8A;  END $1E07;  TYPE ByteTable; };
 RANGE   { START $1E08;  END $1E27;  TYPE Code; };
 RANGE   { START $1E28;  END $1ED4;  TYPE ByteTable; };
 RANGE   { START $1ED5;  END $1F82;  TYPE Code; };
@@ -36,21 +48,35 @@ RANGE   { START $1F83;  END $FFFF;  TYPE ByteTable; };
 # Subroutines
 
 LABEL   { NAME "s163A";             ADDR $163A; };
+LABEL   { NAME "s164F";             ADDR $164F; };
 LABEL   { NAME "s1655";             ADDR $1655; };
 LABEL   { NAME "s1664";             ADDR $1664; };
+LABEL   { NAME "s1667";             ADDR $1667; };
+LABEL   { NAME "s1673";             ADDR $1673; };
 LABEL   { NAME "s19A0";             ADDR $19A0; };
+LABEL   { NAME "s1B51";             ADDR $1B51; };  
+LABEL   { NAME "s1B67";             ADDR $1B67; };  
+LABEL   { NAME "s1B72";             ADDR $1B72; };  
+LABEL   { NAME "s1C81";             ADDR $1C81; };  
+LABEL   { NAME "do_s1673";          ADDR $1E08; };
 LABEL   { NAME "s1ED5";             ADDR $1ED5; };
 
 ########################
 # Jump targets
 
-LABEL   { NAME "j1700";             ADDR $1700; };  #
-LABEL   { NAME "j178F";             ADDR $178F; };  #
-LABEL   { NAME "j1A2C";             ADDR $1A2C; };
-LABEL   { NAME "j1E08";             ADDR $1E08; };
+LABEL   { NAME "do_s1664";          ADDR $1700; };
+LABEL   { NAME "do_s163A";          ADDR $178F; };
+LABEL   { NAME "do_s164F";          ADDR $19A6; };
+LABEL   { NAME "do_s1655";          ADDR $1A2C; };
+LABEL   { NAME "do_s1667";          ADDR $1A78; };
 
 ########################
 # Branch targets
+
+LABEL   { NAME "b170A";             ADDR $170A; };
+LABEL   { NAME "b171A";             ADDR $171A; };
+
+LABEL   { NAME "b17CD";             ADDR $17CD; };
 
 LABEL   { NAME "b19AE";             ADDR $19AE; };
 LABEL   { NAME "b19F1";             ADDR $19F1; };
@@ -61,6 +87,17 @@ LABEL   { NAME "b1A23";             ADDR $1A23; };
 LABEL   { NAME "b1A4C";             ADDR $1A4C; };
 LABEL   { NAME "b1A5D";             ADDR $1A5D; };
 LABEL   { NAME "b1A65";             ADDR $1A65; };
+
+LABEL   { NAME "b1AC6";             ADDR $1AC6; };
+LABEL   { NAME "b1AE7";             ADDR $1AE7; };
+LABEL   { NAME "b1AEF";             ADDR $1AEF; };
+
+LABEL   { NAME "b1B00";             ADDR $1B00; };
+
+LABEL   { NAME "b1B6F";             ADDR $1B6F; };
+
+LABEL   { NAME "b1B7A";             ADDR $1B7A; };
+LABEL   { NAME "b1B88";             ADDR $1B88; };
 
 LABEL   { NAME "b1E1D";             ADDR $1E1D; };
 LABEL   { NAME "b1E27";             ADDR $1E27; };
@@ -85,20 +122,44 @@ LABEL   { NAME "b1F7A";             ADDR $1F7A; };
 ########################
 # Data
 
+LABEL   { NAME "w0400";             ADDR $0400; };
+LABEL   { NAME "w0500";             ADDR $0500; };
+LABEL   { NAME "w0600";             ADDR $0600; };
+LABEL   { NAME "w0700";             ADDR $0700; };
+
 LABEL   { NAME "r1200";             ADDR $1200; };
 LABEL   { NAME "r12C0";             ADDR $12C0; };
+LABEL   { NAME "r1530";             ADDR $1530; };
 LABEL   { NAME "r15B0";             ADDR $15B0; };
 LABEL   { NAME "r15D8";             ADDR $15D8; };
 LABEL   { NAME "r1600";             ADDR $1600; };
 LABEL   { NAME "r1619";             ADDR $1619; };
 LABEL   { NAME "r1632";             ADDR $1632; };
 LABEL   { NAME "r1637";             ADDR $1637; };
+LABEL   { NAME "r1638";             ADDR $1638; };
 LABEL   { NAME "w19F4";             ADDR $19F4; };
-LABEL   { NAME "rw19F5";            ADDR $19F5; };
+LABEL   { NAME "w19F5";             ADDR $19F5; };
 LABEL   { NAME "w19F7";             ADDR $19F7; };
-LABEL   { NAME "rw19F8";            ADDR $19F8; };
-LABEL   { NAME "rw1F83";            ADDR $1F83; };
-LABEL   { NAME "rw1F84";            ADDR $1F84; };
+LABEL   { NAME "w19F8";             ADDR $19F8; };
+LABEL   { NAME "w1AC7";             ADDR $1AC7; };
+LABEL   { NAME "w1AC8";             ADDR $1AC8; };
+LABEL   { NAME "w1ACC";             ADDR $1ACC; };
+LABEL   { NAME "w1ACD";             ADDR $1ACD; };
+LABEL   { NAME "w1ACF";             ADDR $1ACF; };
+LABEL   { NAME "w1AD0";             ADDR $1AD0; };
+LABEL   { NAME "w1B05";             ADDR $1B05; };
+LABEL   { NAME "r1B3F";             ADDR $1B3F; };
+LABEL   { NAME "r1B40";             ADDR $1B40; };
+LABEL   { NAME "w1C7E";             ADDR $1C7E; };
+LABEL   { NAME "w1C80";             ADDR $1C80; };
+LABEL   { NAME "r1E28";             ADDR $1E28; };
+LABEL   { NAME "r1E2A";             ADDR $1E2A; };
+LABEL   { NAME "w1F83";             ADDR $1F83; };
+LABEL   { NAME "w1F84";             ADDR $1F84; };
 
 LABEL	{ NAME "w2000";				ADDR $2000; };
 LABEL	{ NAME "w4000";				ADDR $4000; };
+LABEL	{ NAME "w6000";				ADDR $6000; };
+LABEL	{ NAME "w6100";				ADDR $6100; };
+LABEL	{ NAME "w6200";				ADDR $6200; };
+LABEL	{ NAME "w6300";				ADDR $6300; };

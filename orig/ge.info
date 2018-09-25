@@ -16,17 +16,39 @@ SEGMENT { START $8C9E;  END $FFFF;  NAME "code"; };
 
 RANGE   { START $8C9C;  END $8C9D;  TYPE AddrTable; };
 
-RANGE   { START $8C9E;  END $8CAF;  TYPE Code; };
-RANGE   { START $8CB0;  END $FFFF;  TYPE ByteTable; };
+RANGE   { START $8C9E;  END $8CB8;  TYPE Code; };
+RANGE   { START $8CB9;  END $94BF;  TYPE ByteTable; };
+RANGE   { START $94C0;  END $951F;  TYPE Code; };
+RANGE   { START $9520;  END $FFFF;  TYPE ByteTable; };
 
 ########################
 # Subroutines
+
+LABEL   { NAME "s164F";             ADDR $164F; };
+LABEL   { NAME "s1655";             ADDR $1655; };
+LABEL   { NAME "s1667";             ADDR $1667; };
+LABEL   { NAME "s1673";             ADDR $1673; };
+
+LABEL   { NAME "s83D7";             ADDR $83D7; };
+LABEL   { NAME "s83F6";             ADDR $83F6; };
+LABEL   { NAME "s8411";             ADDR $8411; };
+LABEL   { NAME "s848A";             ADDR $848A; };
+LABEL   { NAME "s84B9";             ADDR $84B9; };
+LABEL   { NAME "s8701";             ADDR $8701; };
+LABEL   { NAME "s870C";             ADDR $870C; };
+
+LABEL   { NAME "s94C0";             ADDR $94C0; }; ##########
+LABEL   { NAME "s94D7";             ADDR $94D7; };
 
 ########################
 # Jump targets
 
 ########################
 # Branch targets
+
+LABEL   { NAME "b94C5";             ADDR $94C5; };
+
+LABEL   { NAME "b94E8";             ADDR $94E8; };
 
 ########################
 # Data
