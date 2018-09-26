@@ -37,7 +37,7 @@ LABEL   { NAME "s84B9";             ADDR $84B9; };
 LABEL   { NAME "s8701";             ADDR $8701; };
 LABEL   { NAME "s870C";             ADDR $870C; };
 
-LABEL   { NAME "s94C0";             ADDR $94C0; }; ##########
+LABEL   { NAME "s94C0";             ADDR $94C0; };
 LABEL   { NAME "s94D7";             ADDR $94D7; };
 
 ########################

@@ -1318,9 +1318,9 @@ read_filenames:
         .byte   "TM"
         .byte   "ST"
 
-        .byte   "IN"
+        .byte   "IN"                    ; Displays Ultima I intro animation
         .byte   "MI"
-        .byte   "LO"
+        .byte   "LO"                    ; Displays Origin logo and loads intro
         .byte   "PR"                    ; PR is for copy protection - reading this file should fail
 
 
