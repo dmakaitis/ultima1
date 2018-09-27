@@ -10,6 +10,7 @@ ASMINC  { FILE "orig/c64.inc"; };
 ASMINC  { FILE "include/kernel.inc"; };
 ASMINC  { FILE "include/global.inc"; };
 ASMINC  { FILE "include/diskio.inc"; };
+ASMINC  { FILE "include/stlib.inc"; };
 
 SEGMENT { START $73FE;  END $73FF;  NAME "LOADADDR"; };
 SEGMENT { START $7400;  END $8CCD;  NAME "code"; };
@@ -48,15 +49,6 @@ RANGE   { START $8CCD;  END $8CCD;  TYPE ByteTable; };
 
 ########################
 # Subroutines
-
-LABEL   { NAME "s163A";             ADDR $163A; };
-LABEL   { NAME "s1646";             ADDR $1646; };
-LABEL   { NAME "s1649";             ADDR $1649; };
-LABEL   { NAME "s1655";             ADDR $1655; };
-LABEL   { NAME "s1658";             ADDR $1658; };
-LABEL   { NAME "s1664";             ADDR $1664; };
-LABEL   { NAME "s1667";             ADDR $1667; };
-LABEL   { NAME "s1673";             ADDR $1673; };
 
 LABEL   { NAME "s8175";             ADDR $8175; };
 LABEL   { NAME "s818F";             ADDR $818F; };
