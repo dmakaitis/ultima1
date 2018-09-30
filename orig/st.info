@@ -51,13 +51,13 @@ RANGE   { START $1F83;  END $FFFF;  TYPE ByteTable; };
 # Subroutines
 
 LABEL   { NAME "do_s1649";                  ADDR $1910; };
-LABEL   { NAME "s19A0";                     ADDR $19A0; };
+LABEL   { NAME "fill_entire_text_row";      ADDR $19A0; };
 LABEL   { NAME "do_set_text_window_small";  ADDR $1A15; };
 LABEL   { NAME "s1B51";                     ADDR $1B51; };  
 LABEL   { NAME "s1B67";                     ADDR $1B67; };  
 LABEL   { NAME "s1B72";                     ADDR $1B72; };  
 LABEL   { NAME "s1C81";                     ADDR $1C81; };  
-LABEL   { NAME "do_s1673";                  ADDR $1E08; };
+LABEL   { NAME "do_buffer_input";           ADDR $1E08; };
 LABEL   { NAME "scan_input";                ADDR $1ED5; };
 
 ########################
@@ -182,30 +182,20 @@ LABEL   { NAME "SCRN_MEM2_0370";    ADDR $6370; };
 ########################
 # Zero Page
 
-LABEL   { NAME "CHAR_REV";      ADDR $1F; };
+LABEL   { NAME "CHAR_REV";          ADDR $1F; };
 
-LABEL   { NAME "CUR_X_OFF";     ADDR $2E; };
-LABEL   { NAME "CUR_X_MAX";     ADDR $2F; };
+LABEL   { NAME "zp43";              ADDR $43; };
+LABEL   { NAME "INPUT_BUFFER";      ADDR $4E; };        # 8 bytes
 
-LABEL   { NAME "zp30";          ADDR $30; };
-LABEL   { NAME "zp31";          ADDR $31; };
-LABEL   { NAME "CUR_X";         ADDR $32; };
-LABEL   { NAME "CUR_Y";         ADDR $33; };
+LABEL   { NAME "INPUT_BUFFER_SIZE"; ADDR $56; };
+LABEL   { NAME "zp57";              ADDR $57; };
+LABEL   { NAME "zp5B";              ADDR $5B; };
+LABEL   { NAME "TMP_5E";            ADDR $5E; };
+LABEL   { NAME "TMP_5F";            ADDR $5F; };
 
-LABEL   { NAME "zp43";          ADDR $43; };
-LABEL   { NAME "zp4E";          ADDR $4E; };
+LABEL   { NAME "TMP_PTR_LO";        ADDR $60; };
+LABEL   { NAME "TMP_PTR_HI";        ADDR $61; };
+LABEL   { NAME "TMP_PTR2_LO";       ADDR $62; };
+LABEL   { NAME "TMP_PTR2_HI";       ADDR $63; };
 
-LABEL   { NAME "zp56";          ADDR $56; };
-LABEL   { NAME "zp57";          ADDR $57; };
-LABEL   { NAME "zp5B";          ADDR $5B; };
-LABEL   { NAME "BM_ADDR_MASK";  ADDR $5C; };
-LABEL   { NAME "BM2_ADDR_MASK"; ADDR $5D; };
-LABEL   { NAME "TMP_5E";        ADDR $5E; };
-LABEL   { NAME "TMP_5F";        ADDR $5F; };
-
-LABEL   { NAME "TMP_PTR_LO";    ADDR $60; };
-LABEL   { NAME "TMP_PTR_HI";    ADDR $61; };
-LABEL   { NAME "TMP_PTR2_LO";   ADDR $62; };
-LABEL   { NAME "TMP_PTR2_HI";   ADDR $63; };
-
-LABEL   { NAME "zpC5";          ADDR $C5; };
+LABEL   { NAME "zpC5";              ADDR $C5; };

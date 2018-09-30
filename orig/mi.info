@@ -105,15 +105,5 @@ LABEL   { NAME "w8C97";             ADDR $8C97; };
 ########################
 # Zero Page
 
-LABEL   { NAME "CUR_X_OFF";     ADDR $2E; };
-LABEL   { NAME "CUR_X_MAX";     ADDR $2F; };
-
-LABEL   { NAME "zp30";          ADDR $30; };
-LABEL   { NAME "zp31";          ADDR $31; };
-LABEL   { NAME "CUR_X";         ADDR $32; };
-LABEL   { NAME "CUR_Y";         ADDR $33; };
-
 LABEL   { NAME "zp56";          ADDR $56; };
 LABEL   { NAME "zp5B";          ADDR $5B; };
-LABEL   { NAME "BM_ADDR_MASK";  ADDR $5C; };
-LABEL   { NAME "BM2_ADDR_MASK"; ADDR $5D; };

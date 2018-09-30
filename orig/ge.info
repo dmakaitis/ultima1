@@ -26,7 +26,7 @@ RANGE   { START $9520;  END $FFFF;  TYPE ByteTable; };
 ########################
 # Subroutines
 
-LABEL   { NAME "s94C0";             ADDR $94C0; };
+LABEL   { NAME "clear_text_area";   ADDR $94C0; };
 LABEL   { NAME "draw_border";       ADDR $94D7; };
 
 ########################
@@ -44,11 +44,3 @@ LABEL   { NAME "b94E8";             ADDR $94E8; };
 
 ########################
 # Zero Page
-
-LABEL   { NAME "CUR_X_OFF";     ADDR $2E; };
-LABEL   { NAME "CUR_X_MAX";     ADDR $2F; };
-
-LABEL   { NAME "zp30";          ADDR $30; };
-LABEL   { NAME "zp31";          ADDR $31; };
-LABEL   { NAME "CUR_X";         ADDR $32; };
-LABEL   { NAME "CUR_Y";         ADDR $33; };
