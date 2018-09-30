@@ -19,21 +19,70 @@ SEGMENT { START $8C9E;  END $FFFF;  NAME "code"; };
 RANGE   { START $8C9C;  END $8C9D;  TYPE AddrTable; };
 
 RANGE   { START $8C9E;  END $8CB8;  TYPE Code; };
-RANGE   { START $8CB9;  END $94BF;  TYPE ByteTable; };
+RANGE   { START $8CB9;  END $8D43;  TYPE TextTable; };
+RANGE   { START $8D44;  END $8D92;  TYPE Code; };
+RANGE   { START $8D93;  END $8D9F;  TYPE TextTable; };
+RANGE   { START $8DA0;  END $8DB2;  TYPE Code; };
+RANGE   { START $8DB3;  END $8DD6;  TYPE TextTable; };
+RANGE   { START $8DD7;  END $8E3F;  TYPE Code; };
+RANGE   { START $8E40;  END $8EBA;  TYPE TextTable; };
+RANGE   { START $8EBB;  END $8EF5;  TYPE Code; };
+RANGE   { START $8EF6;  END $8F0F;  TYPE TextTable; };
+RANGE   { START $8F10;  END $8F5C;  TYPE Code; };
+RANGE   { START $8F5D;  END $9005;  TYPE TextTable; };
+RANGE   { START $9006;  END $908A;  TYPE Code; };
+RANGE   { START $908B;  END $90B4;  TYPE TextTable; };
+RANGE   { START $90B5;  END $90BA;  TYPE Code; };
+RANGE   { START $90BB;  END $90CD;  TYPE TextTable; };
+RANGE   { START $90CE;  END $90E4;  TYPE Code; };
+RANGE   { START $90E5;  END $90EC;  TYPE TextTable; };
+
+RANGE   { START $90ED;  END $90F1;  TYPE Code; };
+RANGE   { START $90F2;  END $94BF;  TYPE ByteTable; };
+
 RANGE   { START $94C0;  END $951F;  TYPE Code; };
 RANGE   { START $9520;  END $FFFF;  TYPE ByteTable; };
 
 ########################
 # Subroutines
 
+LABEL   { NAME "s9359";             ADDR $9359; };
+LABEL   { NAME "s948D";             ADDR $948D; };
 LABEL   { NAME "clear_text_area";   ADDR $94C0; };
 LABEL   { NAME "draw_border";       ADDR $94D7; };
+LABEL   { NAME "s9520";             ADDR $9520; };
+LABEL   { NAME "s9598";             ADDR $9598; };
 
 ########################
 # Jump targets
 
+LABEL   { NAME "j8CA3";             ADDR $8CA3; };
+LABEL   { NAME "j8EE6";             ADDR $8EE6; };
+
 ########################
 # Branch targets
+
+LABEL   { NAME "b8D47";             ADDR $8D47; };
+LABEL   { NAME "b8D56";             ADDR $8D56; };
+LABEL   { NAME "b8D8A";             ADDR $8D8A; };
+LABEL   { NAME "b8DA9";             ADDR $8DA9; };
+LABEL   { NAME "b8DDD";             ADDR $8DDD; };
+LABEL   { NAME "b8DE5";             ADDR $8DE5; };
+LABEL   { NAME "b8E21";             ADDR $8E21; };
+LABEL   { NAME "b8E23";             ADDR $8E23; };
+LABEL   { NAME "b8E31";             ADDR $8E31; };
+LABEL   { NAME "b8EBB";             ADDR $8EBB; };
+LABEL   { NAME "b8EC5";             ADDR $8EC5; };
+LABEL   { NAME "b8F27";             ADDR $8F27; };
+LABEL   { NAME "b8F35";             ADDR $8F35; };
+LABEL   { NAME "b8F3D";             ADDR $8F3D; };
+LABEL   { NAME "b9006";             ADDR $9006; };
+LABEL   { NAME "b901D";             ADDR $901D; };
+LABEL   { NAME "b9030";             ADDR $9030; };
+LABEL   { NAME "b905D";             ADDR $905D; };
+LABEL   { NAME "b906D";             ADDR $906D; };
+LABEL   { NAME "b907C";             ADDR $907C; };
+LABEL   { NAME "b90CE";             ADDR $90CE; };
 
 LABEL   { NAME "b94C5";             ADDR $94C5; };
 
@@ -42,5 +91,31 @@ LABEL   { NAME "b94E8";             ADDR $94E8; };
 ########################
 # Data
 
+LABEL   { NAME "r81E2";             ADDR $81E2; };
+LABEL   { NAME "r81E3";             ADDR $81E3; };
+LABEL   { NAME "r81E7";             ADDR $81E7; };
+
+LABEL   { NAME "w8DE7";             ADDR $8DE7; };
+LABEL   { NAME "w8DEA";             ADDR $8DEA; };
+
+LABEL   { NAME "w8F28";             ADDR $8F28; };
+LABEL   { NAME "w8F29";             ADDR $8F29; };
+LABEL   { NAME "w8F2B";             ADDR $8F2B; };
+LABEL   { NAME "w8F2C";             ADDR $8F2C; };
+
+LABEL   { NAME "w93E7";             ADDR $93E7; };
+LABEL   { NAME "w93E9";             ADDR $93E9; };
+
+LABEL   { NAME "r95F7";             ADDR $95F7; };
+
+LABEL   { NAME "wB000";             ADDR $B000; };
+LABEL   { NAME "rB010";             ADDR $B010; };
+LABEL   { NAME "rB020";             ADDR $B020; };
+LABEL   { NAME "rB030";             ADDR $B030; };
+
+LABEL   { NAME "wC4F8";             ADDR $C4F8; };
+
 ########################
 # Zero Page
+
+LABEL   { NAME "zp01";              ADDR $01; };

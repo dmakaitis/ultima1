@@ -53,11 +53,10 @@ RANGE   { START $8CCD;  END $8CCD;  TYPE ByteTable; };
 
 LABEL   { NAME "s8175";             ADDR $8175; };
 LABEL   { NAME "s818F";             ADDR $818F; };
-LABEL   { NAME "s83AC";             ADDR $83AC; };
+LABEL   { NAME "inc_rts_ptr";       ADDR $83AC; };
 LABEL   { NAME "s83DD";             ADDR $83DD; };
 LABEL   { NAME "s848E";             ADDR $848E; };
 LABEL   { NAME "s84C6";             ADDR $84C6; };
-LABEL   { NAME "s8689";             ADDR $8689; };
 LABEL   { NAME "s8777";             ADDR $8777; };
 
 ########################
@@ -98,8 +97,8 @@ LABEL   { NAME "b8C7A";             ADDR $8C7A; };
 # Data
 
 LABEL   { NAME "text_area_cache";   ADDR $81A7; };
-LABEL   { NAME "w83B5";             ADDR $83B5; };
-LABEL   { NAME "w83B6";             ADDR $83B6; };
+LABEL   { NAME "rts_ptr_lo";        ADDR $83B5; };
+LABEL   { NAME "rts_ptr_hi";        ADDR $83B6; };
 LABEL   { NAME "w8C97";             ADDR $8C97; };
 
 ########################

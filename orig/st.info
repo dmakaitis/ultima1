@@ -28,8 +28,8 @@ RANGE   { START $1655;  END $165A;  TYPE Code; };
 RANGE   { START $165B;  END $1663;  TYPE ByteTable; };
 RANGE   { START $1664;  END $1669;  TYPE Code; };
 RANGE   { START $166A;  END $1672;  TYPE ByteTable; };
-RANGE   { START $1673;  END $1675;  TYPE Code; };
-RANGE   { START $1676;  END $16FF;  TYPE ByteTable; };
+RANGE   { START $1673;  END $1678;  TYPE Code; };
+RANGE   { START $1679;  END $16FF;  TYPE ByteTable; };
 RANGE   { START $1700;  END $171F;  TYPE Code; };
 RANGE   { START $1720;  END $178E;  TYPE ByteTable; };
 RANGE   { START $178F;  END $17E9;  TYPE Code; };
@@ -58,6 +58,7 @@ LABEL   { NAME "s1B67";                     ADDR $1B67; };
 LABEL   { NAME "s1B72";                     ADDR $1B72; };  
 LABEL   { NAME "s1C81";                     ADDR $1C81; };  
 LABEL   { NAME "do_buffer_input";           ADDR $1E08; };
+LABEL   { NAME "do_s1676";                  ADDR $1E3E; };
 LABEL   { NAME "scan_input";                ADDR $1ED5; };
 
 ########################
@@ -141,7 +142,6 @@ LABEL   { NAME "scrmem_y_offset_lo";ADDR $1600; };
 LABEL   { NAME "scrmem_y_offset_hi";ADDR $1619; };
 LABEL   { NAME "r1632";             ADDR $1632; };
 LABEL   { NAME "r1637";             ADDR $1637; };
-LABEL   { NAME "r1638";             ADDR $1638; };
 LABEL   { NAME "bitmap_adr_b_lo";   ADDR $197C; };
 LABEL   { NAME "bitmap_adr_b_hi";   ADDR $197D; };
 LABEL   { NAME "bitmap_adr_lo";     ADDR $197F; };
