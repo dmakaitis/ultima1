@@ -125,8 +125,8 @@ $(ORIG_SRC_OUT)/hello_1541.s: $(ORIG_PRG_OUT)/hello.prg
 $(ORIG_SRC_OUT)/hello_1541_0500.s: $(ORIG_PRG_OUT)/hello.prg
 $(ORIG_SRC_OUT)/lo.s: $(ORIG_PRG_OUT)/lo.prg
 $(ORIG_SRC_OUT)/in.s: $(ORIG_PRG_OUT)/in.prg
-$(ORIG_SRC_OUT)/mi.s: $(ORIG_PRG_OUT)/mi.prg include/stlib.inc
-$(ORIG_SRC_OUT)/ge.s: $(ORIG_PRG_OUT)/ge.prg include/stlib.inc
+$(ORIG_SRC_OUT)/mi.s: $(ORIG_PRG_OUT)/mi.prg include/milib.inc include/stlib.inc
+$(ORIG_SRC_OUT)/ge.s: $(ORIG_PRG_OUT)/ge.prg include/milib.inc include/stlib.inc
 $(ORIG_SRC_OUT)/st.s: $(ORIG_PRG_OUT)/st.prg include/stlib.inc
 
 ###########################################################
