@@ -36,9 +36,11 @@ RANGE   { START $90B5;  END $90BA;  TYPE Code; };
 RANGE   { START $90BB;  END $90CD;  TYPE TextTable; };
 RANGE   { START $90CE;  END $90E4;  TYPE Code; };
 RANGE   { START $90E5;  END $90EC;  TYPE TextTable; };
-
 RANGE   { START $90ED;  END $90F1;  TYPE Code; };
-RANGE   { START $90F2;  END $94BF;  TYPE ByteTable; };
+RANGE   { START $90F3;  END $90F4;  TYPE AddrTable; };
+
+RANGE   { START $90F5;  END $913F;  TYPE Code; };
+RANGE   { START $9140;  END $94BF;  TYPE ByteTable; };
 
 RANGE   { START $94C0;  END $951F;  TYPE Code; };
 RANGE   { START $9520;  END $FFFF;  TYPE ByteTable; };
@@ -83,6 +85,10 @@ LABEL   { NAME "b905D";             ADDR $905D; };
 LABEL   { NAME "b906D";             ADDR $906D; };
 LABEL   { NAME "b907C";             ADDR $907C; };
 LABEL   { NAME "b90CE";             ADDR $90CE; };
+LABEL   { NAME "b910A";             ADDR $910A; };
+LABEL   { NAME "b9119";             ADDR $9119; };
+LABEL   { NAME "b9128";             ADDR $9128; };
+LABEL   { NAME "b913A";             ADDR $913A; };
 
 LABEL   { NAME "b94C5";             ADDR $94C5; };
 
