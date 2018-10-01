@@ -21,12 +21,12 @@ RANGE   { START $0C00;  END $11FF;  TYPE ByteTable; };          # Tile images
 RANGE   { START $1200;  END $1639;  TYPE ByteTable; };          # Lookup tables
 RANGE   { START $163A;  END $171F;  TYPE Code; };
 RANGE   { START $1720;  END $1721;  TYPE ByteTable; };
-
 RANGE   { START $1722;  END $1785;  TYPE Code; };
 RANGE   { START $1786;  END $178E;  TYPE ByteTable; };
-
 RANGE   { START $178F;  END $17E9;  TYPE Code; };
-RANGE   { START $17EA;  END $190F;  TYPE ByteTable; };
+RANGE   { START $17EA;  END $17EB;  TYPE ByteTable; };
+RANGE   { START $17EC;  END $17EC;  TYPE Code; };
+RANGE   { START $17ED;  END $190F;  TYPE ByteTable; };
 RANGE   { START $1910;  END $1B04;  TYPE Code; };
 RANGE   { START $1B05;  END $1B05;  TYPE ByteTable; };
 RANGE   { START $1B06;  END $1B3E;  TYPE Code; };
@@ -44,16 +44,16 @@ RANGE   { START $1F83;  END $1F86;  TYPE ByteTable; };
 # Subroutines
 
 LABEL   { NAME "delay_a_squared";           ADDR $16A0; };
-LABEL   { NAME "do_nothing3";               ADDR $16AC; };
+LABEL   { NAME "do_nothing4";               ADDR $16AC; };
 LABEL   { NAME "clear_main_viewport";       ADDR $16AD; };  
 LABEL   { NAME "swap_bitmaps";              ADDR $1700; };
-LABEL   { NAME "do_nothing";                ADDR $171F; };
-LABEL   { NAME "do_nothing2";               ADDR $1722; };
+LABEL   { NAME "do_nothing2";               ADDR $171F; };
+LABEL   { NAME "do_nothing3";               ADDR $1722; };
 LABEL   { NAME "copy_screen_2_to_1";        ADDR $1723; };
 LABEL   { NAME "do_s168B";                  ADDR $1773; };
 LABEL   { NAME "do_s168E";                  ADDR $17ED; };
 LABEL   { NAME "init_snd_gfx";              ADDR $178F; };
-LABEL   { NAME "do_s163D";                  ADDR $17EC; };
+LABEL   { NAME "do_nothing";                ADDR $17EC; };
 LABEL   { NAME "do_s1691";                  ADDR $1866; };
 LABEL   { NAME "do_s1694";                  ADDR $186A; };
 LABEL   { NAME "scroll_text_area_up";       ADDR $1910; };
