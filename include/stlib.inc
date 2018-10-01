@@ -23,5 +23,6 @@ set_text_window_small   := $1658;
 s165B                   := $165B;
 swap_bitmaps            := $1664;
 draw_char               := $1667;
+s1670                   := $1670;
 buffer_input            := $1673;
 s1676                   := $1676;

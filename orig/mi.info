@@ -59,7 +59,6 @@ LABEL   { NAME "inc_then_read_ptr"; ADDR $83AC; };
 LABEL   { NAME "read_then_inc_ptr"; ADDR $83B8; };
 LABEL   { NAME "print_char_or_esc"; ADDR $83DD; };
 LABEL   { NAME "print_lfcr";        ADDR $83FE; };
-LABEL   { NAME "s848E";             ADDR $848E; };
 LABEL   { NAME "s84C6";             ADDR $84C6; };
 LABEL   { NAME "s8777";             ADDR $8777; };
 
