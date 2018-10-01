@@ -39,16 +39,16 @@ RANGE   { START $178F;  END $17E9;  TYPE Code; };
 RANGE   { START $17EA;  END $190F;  TYPE ByteTable; };
 RANGE   { START $1910;  END $1B04;  TYPE Code; };
 RANGE   { START $1B05;  END $1B05;  TYPE ByteTable; };
-
 RANGE   { START $1B06;  END $1B3E;  TYPE Code; };
 RANGE   { START $1B3F;  END $1B50;  TYPE ByteTable; };
-
 RANGE   { START $1B51;  END $1B88;  TYPE Code; };
 RANGE   { START $1B89;  END $1C80;  TYPE ByteTable; };
 RANGE   { START $1C81;  END $1E27;  TYPE Code; };
 RANGE   { START $1E28;  END $1E2B;  TYPE ByteTable; };
-RANGE   { START $1E2C;  END $1E9D;  TYPE Code; };
-RANGE   { START $1E9E;  END $1ED4;  TYPE ByteTable; };
+
+RANGE   { START $1E2C;  END $1EC4;  TYPE Code; };
+RANGE   { START $1EC5;  END $1ED4;  TYPE ByteTable; };
+
 RANGE   { START $1ED5;  END $1F82;  TYPE Code; };
 RANGE   { START $1F83;  END $1F86;  TYPE ByteTable; };
 
@@ -169,6 +169,10 @@ LABEL   { NAME "b1E7A";             ADDR $1E7A; };
 
 LABEL   { NAME "b1E96";             ADDR $1E96; };
 
+LABEL   { NAME "b1EA4";             ADDR $1EA4; };
+LABEL   { NAME "b1EB9";             ADDR $1EB9; };
+LABEL   { NAME "b1EC1";             ADDR $1EC1; };
+
 LABEL   { NAME "b1EE3";             ADDR $1EE3; };
 LABEL   { NAME "b1EEC";             ADDR $1EEC; };
 LABEL   { NAME "b1F01";             ADDR $1F01; };
@@ -263,6 +267,9 @@ LABEL   { NAME "bitmap_cia_config"; ADDR $1E28; };
 LABEL   { NAME "bitmap_vic_config"; ADDR $1E2A; };
 
 LABEL   { NAME "cursor_char";       ADDR $1E9A; };
+
+LABEL   { NAME "w1EC5";             ADDR $1EC5; };
+LABEL   { NAME "r1ED4";             ADDR $1ED4; };
 
 LABEL   { NAME "w1F83";             ADDR $1F83; };
 LABEL   { NAME "w1F84";             ADDR $1F84; };
