@@ -55,7 +55,7 @@ RANGE   { START $1F83;  END $1F86;  TYPE ByteTable; };
 # Subroutines
 
 LABEL   { NAME "do_copy_screen_2_to_1";     ADDR $1723; };
-LABEL   { NAME "do_s1649";                  ADDR $1910; };
+LABEL   { NAME "do_scroll_text_area_up";    ADDR $1910; };
 LABEL   { NAME "fill_entire_text_row";      ADDR $19A0; };
 LABEL   { NAME "do_set_text_window_small";  ADDR $1A15; };
 LABEL   { NAME "s1B51";                     ADDR $1B51; };  
