@@ -163,19 +163,82 @@ std::vector<char> readData(char *filename, bool compressed, int skip, int size) 
  *  imageWidth      the width of the bitmap in pixels.
  *  imageHeight     the height of the bitmap in pixels.
  *  blockFormat     true if the image is stored as 8x8 blocks; false if the image is row sequential.
+ *  bitBlockFormat  true if the image is stored as 16x16 blocks; false if the image is row sequential or in 8x8 block format.
  */
-std::vector<char> getBitmap(const std::vector<char>& data, int imageWidth, int imageHeight, bool blockFormat) {
+std::vector<char> getBitmap(const std::vector<char>& data, int imageWidth, int imageHeight, bool blockFormat, bool bigBlockFormat) {
     std::vector<char> bitmap;
 
-    if(imageWidth % 8 != 0) {
-        std::cerr << "ERROR: Image width must be a multiple of 8" << std::endl;
+    int requiredWidthMultiple = bigBlockFormat ? 16 : 8;
+
+    if(imageWidth % requiredWidthMultiple != 0) {
+        std::cerr << "ERROR: Image width must be a multiple of " << requiredWidthMultiple << std::endl;
         return bitmap;
     }
 
     auto dataIterator = data.begin();
     int rowsRead = 0;
 
-    if(blockFormat) {
+    if(bigBlockFormat) {
+        if(imageHeight % 16 != 0) {
+            std::cerr << "ERROR: Image height must be a multiple of 8 when reading in block mode" << std::endl;
+            return bitmap;
+        }
+
+        // Set up a buffer where we can rearrange the bytes back into row sequential order
+        int bufferSize = imageWidth * 2;
+
+        std::unique_ptr<char[]> buffer(new char[bufferSize]);
+
+        int bytesPerRow = imageWidth / 8;
+
+        int count = 0;
+        int colPtr = 0;
+        int ptr = 0;
+        int quad = 0;
+
+        while(dataIterator != data.end() && rowsRead < imageHeight) {
+            buffer[ptr] = *dataIterator++;
+
+            count++;
+            if(count % bufferSize == 0) {
+                // Add buffer to the bitmap
+                for(int i = 0; i < bufferSize; i++) {
+                    bitmap.push_back(buffer[i]);
+                }
+                
+                count = 0;
+                colPtr = 0;
+                ptr = colPtr;
+                rowsRead += 16;
+                quad=0;
+            } else if(count % 8 == 0) {
+                switch(quad) {
+                    case 0:
+                        colPtr++;
+                        ptr = colPtr;
+                        ++quad;
+                        break;
+                    case 1:
+                        colPtr--;
+                        ptr = colPtr + 8 * bytesPerRow;
+                        ++quad;
+                        break;
+                    case 2:
+                        colPtr++;
+                        ptr = colPtr + 8 * bytesPerRow;
+                        ++quad;
+                        break;
+                    case 3:
+                        colPtr++;
+                        ptr = colPtr;
+                        quad = 0;
+                        break;
+                }
+            } else {
+                ptr += bytesPerRow;
+            }
+        }
+    } else if(blockFormat) {
         if(imageHeight % 8 != 0) {
             std::cerr << "ERROR: Image height must be a multiple of 8 when reading in block mode" << std::endl;
             return bitmap;
@@ -374,6 +437,7 @@ int main(int argc, char** argv) {
     char* outFilename = NULL;
     bool help = false;
     bool block = false;
+    bool bigBlock = false;
     bool compressed = false;
     int skip = 0;
     int numbytes = -1;
@@ -384,6 +448,7 @@ int main(int argc, char** argv) {
     static struct option options[] = {
         { "help",       no_argument,        0,  '?' },
         { "block",      no_argument,        0,  'b' },
+        { "big-block",  no_argument,        0,  'B' },
         { "compressed", no_argument,        0,  'c' },
         { "input",      required_argument,  0,  'i' },
         { "output",     required_argument,  0,  'o' },
@@ -398,10 +463,14 @@ int main(int argc, char** argv) {
     int option_index = 0;
 
     int c;
-    while((c = getopt_long(argc, argv, "bci:o:w:s:n:qh:C:", options, &option_index)) != -1) {
+    while((c = getopt_long(argc, argv, "bBci:o:w:s:n:qh:C:", options, &option_index)) != -1) {
         switch(c) {
             case 'b':
                 block = true;
+                break;
+            case 'B':
+                block = true;
+                bigBlock = true;
                 break;
             case 'c':
                 compressed = true;
@@ -442,6 +511,7 @@ int main(int argc, char** argv) {
         std::cout << std::endl;
         std::cout << "Options:" <<std::endl;
         std::cout << "  -b, --block         The image is stored as 8x8 blocks of pixels" << std::endl;
+        std::cout << "  -B, --big-block     The image is stored as 16x16 blocks of pixels (implies -b)" << std::endl;
         std::cout << "  -c, --compressed    The image is compressed using RLE" << std::endl;
         std::cout << "  -C, --color         The image is in color (color memory should immediately follow bitmap memory in the data)" << std::endl;
         std::cout << "  -h, --height        The image height" << std::endl;
@@ -471,7 +541,7 @@ int main(int argc, char** argv) {
 
     // Get the actual bitmap image from the data:
 
-    std::vector<char> bitmap = getBitmap(data, width, height, block);
+    std::vector<char> bitmap = getBitmap(data, width, height, block, bigBlock);
     std::vector<char> extra(data.begin() + bitmap.size(), data.end());
 
     if(!quiet) {
