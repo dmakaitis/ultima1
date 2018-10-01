@@ -19,18 +19,18 @@ RANGE   { START $0BFE;  END $0BFF;  TYPE AddrTable; };
 
 RANGE   { START $0C00;  END $1639;  TYPE ByteTable; };
 RANGE   { START $163A;  END $163C;  TYPE Code; };
-RANGE   { START $163D;  END $1648;  TYPE ByteTable; };
-RANGE   { START $1649;  END $164B;  TYPE Code; };
+RANGE   { START $163D;  END $1645;  TYPE ByteTable; };
+RANGE   { START $1646;  END $164B;  TYPE Code; };
 RANGE   { START $164C;  END $164E;  TYPE ByteTable; };
 RANGE   { START $164F;  END $1651;  TYPE Code; };
 RANGE   { START $1652;  END $1654;  TYPE ByteTable; };
-RANGE   { START $1655;  END $165A;  TYPE Code; };
-RANGE   { START $165B;  END $1663;  TYPE ByteTable; };
-RANGE   { START $1664;  END $1669;  TYPE Code; };
-RANGE   { START $166A;  END $1672;  TYPE ByteTable; };
-RANGE   { START $1673;  END $1678;  TYPE Code; };
-RANGE   { START $1679;  END $16FF;  TYPE ByteTable; };
-RANGE   { START $1700;  END $171F;  TYPE Code; };
+RANGE   { START $1655;  END $165D;  TYPE Code; };
+RANGE   { START $165E;  END $1660;  TYPE ByteTable; };
+RANGE   { START $1661;  END $1669;  TYPE Code; };
+RANGE   { START $166A;  END $166F;  TYPE ByteTable; };
+RANGE   { START $1670;  END $1678;  TYPE Code; };
+RANGE   { START $1679;  END $16AC;  TYPE ByteTable; };
+RANGE   { START $16AD;  END $171F;  TYPE Code; };
 RANGE   { START $1720;  END $178E;  TYPE ByteTable; };
 RANGE   { START $178F;  END $17E9;  TYPE Code; };
 RANGE   { START $17EA;  END $190F;  TYPE ByteTable; };
@@ -45,11 +45,12 @@ RANGE   { START $1C8A;  END $1E07;  TYPE ByteTable; };
 RANGE   { START $1E08;  END $1E27;  TYPE Code; };
 RANGE   { START $1E28;  END $1ED4;  TYPE ByteTable; };
 RANGE   { START $1ED5;  END $1F82;  TYPE Code; };
-RANGE   { START $1F83;  END $FFFF;  TYPE ByteTable; };
+RANGE   { START $1F83;  END $1F86;  TYPE ByteTable; };
 
 ########################
 # Subroutines
 
+LABEL   { NAME "do_s1646";                  ADDR $1723; };
 LABEL   { NAME "do_s1649";                  ADDR $1910; };
 LABEL   { NAME "fill_entire_text_row";      ADDR $19A0; };
 LABEL   { NAME "do_set_text_window_small";  ADDR $1A15; };
@@ -64,14 +65,25 @@ LABEL   { NAME "scan_input";                ADDR $1ED5; };
 ########################
 # Jump targets
 
+LABEL   { NAME "do_clear_main_viewport";    ADDR $16AD; };  
 LABEL   { NAME "do_swap_bitmaps";           ADDR $1700; };
 LABEL   { NAME "do_init_snd_gfx";           ADDR $178F; };
 LABEL   { NAME "do_fill_text_row";          ADDR $19A6; };
+LABEL   { NAME "do_s165B";                  ADDR $1A0D; };  
 LABEL   { NAME "do_set_text_window_full";   ADDR $1A2C; };
 LABEL   { NAME "do_print_char";             ADDR $1A78; };
+LABEL   { NAME "do_s1670";                  ADDR $1E9E; };  
 
 ########################
 # Branch targets
+
+LABEL   { NAME "b16B9";             ADDR $16B9; };
+LABEL   { NAME "b16BC";             ADDR $16BC; };
+LABEL   { NAME "b16C5";             ADDR $16C5; };
+LABEL   { NAME "b16D5";             ADDR $16D5; };
+LABEL   { NAME "b16E4";             ADDR $16E4; };
+LABEL   { NAME "b16EC";             ADDR $16EC; };
+LABEL   { NAME "b16FC";             ADDR $16FC; };
 
 LABEL   { NAME "b170A";             ADDR $170A; };
 LABEL   { NAME "b171A";             ADDR $171A; };

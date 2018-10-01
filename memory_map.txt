@@ -32,6 +32,8 @@
 | $1200-$1379   |   Bitmap row lookup table (IN)                                |
 | $15B0-$15FF   |   Bitmap column lookup table (IN)                             |
 |               |                                                               |
+| $0C00-$1F86   |   ST.PRG                                                      |
+|               |                                                               |
 | $1FFE-$1FFF   |   CHROUT Routine                                              |
 |               |                                                               |
 | $2000-$3F3F   |   Bitmap Memory (LO)                                          |
@@ -41,6 +43,9 @@
 | $6000-$63FF   |   Screen Memory (IN)                                          |
 |               |                                                               |
 | $6800-$D701   |   IN.PRG                                                      |
+|               |                                                               |
+| $73F3-$8CCD   |   MI.PRG                                                      |
+| $8C9C-$A2C7   |   MI.PRG                                                      |
 |               |                                                               |
 | $8000-$83FF   |   Initialization Code (U1 main)                               |
 | $8000-$9FFF   |   Bitmap backup memory (IN)                                   |

@@ -70,7 +70,6 @@ RANGE   { START $947F;  END $9493;  TYPE Code; };
 RANGE   { START $9494;  END $94AD;  TYPE TextTable; };
 RANGE   { START $94AE;  END $9529;  TYPE Code; };
 RANGE   { START $952A;  END $9574;  TYPE TextTable; };
-
 RANGE   { START $9575;  END $95F4;  TYPE Code; };
 RANGE   { START $95F5;  END $A2C7;  TYPE ByteTable; };
 
