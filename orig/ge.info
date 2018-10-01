@@ -155,7 +155,6 @@ LABEL   { NAME "b95EA";             ADDR $95EA; };
 ########################
 # Data
 
-LABEL   { NAME "r81E2";             ADDR $81E2; };
 LABEL   { NAME "r81E3";             ADDR $81E3; };
 LABEL   { NAME "r81E7";             ADDR $81E7; };
 

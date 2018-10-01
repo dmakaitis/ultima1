@@ -27,7 +27,10 @@ RANGE   { START $777C;  END $8174;  TYPE ByteTable; };
 RANGE   { START $8175;  END $817C;  TYPE Code; };
 RANGE   { START $817D;  END $818D;  TYPE ByteTable; };
 RANGE   { START $818E;  END $81A6;  TYPE Code; };
-RANGE   { START $81A7;  END $83AB;  TYPE ByteTable; };
+
+RANGE   { START $81A7;  END $81E1;  TYPE ByteTable; };
+RANGE   { START $81E2;  END $83AB;  TYPE ByteTable; };      # Player save data
+
 RANGE   { START $83AC;  END $83C3;  TYPE Code; };
 RANGE   { START $83C4;  END $83D6;  TYPE ByteTable; };
 RANGE   { START $83D7;  END $83FA;  TYPE Code; };

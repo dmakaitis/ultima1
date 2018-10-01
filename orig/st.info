@@ -21,8 +21,10 @@ RANGE   { START $0C00;  END $11FF;  TYPE ByteTable; };          # Tile images
 RANGE   { START $1200;  END $1639;  TYPE ByteTable; };          # Lookup tables
 RANGE   { START $163A;  END $171F;  TYPE Code; };
 RANGE   { START $1720;  END $1721;  TYPE ByteTable; };
-RANGE   { START $1722;  END $1772;  TYPE Code; };
-RANGE   { START $1773;  END $178E;  TYPE ByteTable; };
+
+RANGE   { START $1722;  END $1785;  TYPE Code; };
+RANGE   { START $1786;  END $178E;  TYPE ByteTable; };
+
 RANGE   { START $178F;  END $17E9;  TYPE Code; };
 RANGE   { START $17EA;  END $190F;  TYPE ByteTable; };
 RANGE   { START $1910;  END $1B04;  TYPE Code; };
@@ -110,6 +112,8 @@ LABEL   { NAME "b1732";             ADDR $1732; };
 LABEL   { NAME "b1753";             ADDR $1753; };
 LABEL   { NAME "b175E";             ADDR $175E; };
 LABEL   { NAME "b1764";             ADDR $1764; };
+
+LABEL   { NAME "b1782";             ADDR $1782; };
 
 LABEL   { NAME "b17CD";             ADDR $17CD; };
 
@@ -231,6 +235,9 @@ LABEL   { NAME "r1639";             ADDR $1639; };
 
 LABEL   { NAME "w1734";             ADDR $1734; };
 LABEL   { NAME "w1737";             ADDR $1737; };
+
+LABEL   { NAME "w1786";             ADDR $1786; };
+LABEL   { NAME "w1788";             ADDR $1788; };
 
 LABEL   { NAME "x_cache";           ADDR $1789; };
 LABEL   { NAME "y_cache";           ADDR $178A; };
