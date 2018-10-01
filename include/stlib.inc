@@ -21,6 +21,7 @@ fill_text_row           := $164F;
 set_text_window_full    := $1655;
 set_text_window_small   := $1658;
 s165B                   := $165B;
+s1661                   := $1661;
 swap_bitmaps            := $1664;
 draw_char               := $1667;
 s1670                   := $1670;

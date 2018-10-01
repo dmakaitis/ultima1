@@ -62,16 +62,17 @@ RANGE   { START $9315;  END $936F;  TYPE Code; };
 RANGE   { START $9370;  END $938C;  TYPE TextTable; };
 RANGE   { START $938D;  END $93B7;  TYPE Code; };
 RANGE   { START $93B8;  END $93B9;  TYPE AddrTable; };
-
 RANGE   { START $93BA;  END $93E6;  TYPE Code; };
 RANGE   { START $93E7;  END $93EA;  TYPE ByteTable; };
-
 RANGE   { START $93EB;  END $93F4;  TYPE TextTable; };
 RANGE   { START $93F5;  END $947E;  TYPE ByteTable; };
-RANGE   { START $947F;  END $948C;  TYPE Code; };
-RANGE   { START $948D;  END $94BF;  TYPE ByteTable; };
-RANGE   { START $94C0;  END $951F;  TYPE Code; };
-RANGE   { START $9520;  END $FFFF;  TYPE ByteTable; };
+RANGE   { START $947F;  END $9493;  TYPE Code; };
+RANGE   { START $9494;  END $94AD;  TYPE TextTable; };
+RANGE   { START $94AE;  END $9529;  TYPE Code; };
+RANGE   { START $952A;  END $9574;  TYPE TextTable; };
+
+RANGE   { START $9575;  END $95F4;  TYPE Code; };
+RANGE   { START $95F5;  END $A2C7;  TYPE ByteTable; };
 
 ########################
 # Subroutines
@@ -81,6 +82,7 @@ LABEL   { NAME "s947F";             ADDR $947F; };
 LABEL   { NAME "s948D";             ADDR $948D; };
 LABEL   { NAME "clear_text_area";   ADDR $94C0; };
 LABEL   { NAME "draw_border";       ADDR $94D7; };
+LABEL   { NAME "cursor_to_1_1";     ADDR $9519; };
 LABEL   { NAME "s9520";             ADDR $9520; };
 LABEL   { NAME "s9598";             ADDR $9598; };
 
@@ -144,6 +146,13 @@ LABEL   { NAME "b94C5";             ADDR $94C5; };
 
 LABEL   { NAME "b94E8";             ADDR $94E8; };
 
+LABEL   { NAME "b9575";             ADDR $9575; };
+LABEL   { NAME "b957F";             ADDR $957F; };
+
+LABEL   { NAME "b95A0";             ADDR $95A0; };
+LABEL   { NAME "b95DA";             ADDR $95DA; };
+LABEL   { NAME "b95EA";             ADDR $95EA; };
+
 ########################
 # Data
 
@@ -164,7 +173,10 @@ LABEL   { NAME "w93E9";             ADDR $93E9; };
 LABEL   { NAME "w93EA";             ADDR $93EA; };
 LABEL   { NAME "sex_table";         ADDR $93EB; };
 
-LABEL   { NAME "r95F7";             ADDR $95F7; };
+LABEL   { NAME "w95F5";             ADDR $95F5; };
+LABEL   { NAME "w95F6";             ADDR $95F6; };
+
+LABEL   { NAME "d000_ram_init_data";ADDR $95F7; };
 
 LABEL   { NAME "wB000";             ADDR $B000; };
 LABEL   { NAME "rB010";             ADDR $B010; };
@@ -176,4 +188,4 @@ LABEL   { NAME "wC4F8";             ADDR $C4F8; };
 ########################
 # Zero Page
 
-LABEL   { NAME "zp01";              ADDR $01; };
+LABEL   { NAME "PROCESSOR_PORT";    ADDR $01; };
