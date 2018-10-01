@@ -133,8 +133,12 @@ $(ORIG_SRC_OUT)/st.s: $(ORIG_PRG_OUT)/st.prg include/stlib.inc
 # The following rules extract assets from the original
 # game files.
 
-pngassets =	font osibig osi ultima horse0 horse1 horse2 horse3 horse4 horse5 horse6 \
-			image
+pngassets =	font osibig intro_studio intro_title intro_horse0 intro_horse1 \
+			intro_horse2 intro_horse3 intro_horse4 intro_horse5 intro_horse6 \
+			intro_backdrop intro_car intro_knight0 intro_knight1 intro_sword \
+			intro_sword_mask intro_hand intro_bird_body0 intro_bird_body1 \
+			intro_bird_body2 intro_bird_body3 intro_bird_head0 intro_bird_head1 \
+			intro_bird_head2 intro_bird_head3 tiles
 
 assets: $(addprefix assets/, $(addsuffix .png, $(pngassets)))
 
@@ -218,6 +222,9 @@ assets/intro_bird_body3.png: $(ORIG_PRG_OUT)/in.prg $(DIMAGE)
 
 assets/intro_bird_head3.png: $(ORIG_PRG_OUT)/in.prg $(DIMAGE)
 	$(DIMAGE) -q -i $< -o $@ -w 24 -s 4973 -n 48
+
+assets/tiles.png: $(ORIG_PRG_OUT)/st.prg $(DIMAGE)
+	$(DIMAGE) -q -i $< -o $@ -w 128 -h 96 -s 2 -B
 
 ###########################################################
 # The following rules compile assets for inclusion in

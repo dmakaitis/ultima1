@@ -190,14 +190,14 @@ LABEL   { NAME "SCRN_MEM_0320";     ADDR $0720; };
 LABEL   { NAME "SCRN_MEM_0348";     ADDR $0748; };
 LABEL   { NAME "SCRN_MEM_0370";     ADDR $0770; };
 
-LABEL   { NAME "w0C89";             ADDR $0C89; };
-LABEL   { NAME "w0C8A";             ADDR $0C8A; };
-LABEL   { NAME "w0CC3";             ADDR $0CC3; };
-LABEL   { NAME "w0CC4";             ADDR $0CC4; };
-LABEL   { NAME "w0D82";             ADDR $0D82; };
-LABEL   { NAME "w0D83";             ADDR $0D83; };
-LABEL   { NAME "w0D8A";             ADDR $0D8A; };
-LABEL   { NAME "w0D8B";             ADDR $0D8B; };
+LABEL   { NAME "castle_flag_hi";    ADDR $0C89; };
+LABEL   { NAME "castle_flag_lo";    ADDR $0C8A; };
+LABEL   { NAME "towne_flag_hi";     ADDR $0CC3; };
+LABEL   { NAME "towne_flag_lo";     ADDR $0CC4; };
+LABEL   { NAME "ship_flag_l_hi";    ADDR $0D82; };
+LABEL   { NAME "ship_flag_l_lo";    ADDR $0D83; };
+LABEL   { NAME "ship_flag_r_hi";    ADDR $0D8A; };
+LABEL   { NAME "ship_flag_r_lo";    ADDR $0D8B; };
 
 LABEL   { NAME "bitmap_y_offset_lo";ADDR $1200; };
 LABEL   { NAME "bitmap_y_offset_hi";ADDR $12C0; };
