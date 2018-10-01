@@ -81,7 +81,6 @@ LABEL   { NAME "b83B4";             ADDR $83B4; };
 LABEL   { NAME "b83C3";             ADDR $83C3; };
 
 LABEL   { NAME "b83DC";             ADDR $83DC; };
-LABEL   { NAME "b83F3";             ADDR $83F3; };
 
 LABEL   { NAME "b844C";             ADDR $844C; };
 LABEL   { NAME "b8455";             ADDR $8455; };
