@@ -15,7 +15,7 @@ BM2_ADDR_MASK           := $5D;
 w1638                   := $1638;
 
 init_snd_gfx            := $163A
-s1646                   := $1646;
+copy_screen_2_to_1      := $1646;
 s1649                   := $1649;
 fill_text_row           := $164F;
 set_text_window_full    := $1655;
