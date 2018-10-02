@@ -11,6 +11,7 @@
 .include "global.inc"
 
 .import clear_main_viewport
+.import copy_screen_2_to_1
 .import swap_bitmaps
 
 .import do_nothing2
@@ -19,7 +20,6 @@
 
 init_snd_gfx                := $178F
 do_nothing                  := $0
-copy_screen_2_to_1          := $0
 scroll_text_area_up         := $0
 do_s164C                    := $0
 fill_text_row               := $0

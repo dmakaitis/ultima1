@@ -2,13 +2,12 @@
 ;
 ; swap_bitmaps.s
 ;
-; This method clears the main viewport.
+; This method swaps the visible bitmap area between the locations at $2000
+; and $4000. Screen memory swaps between $0400 and $6000.
 ;
 ;-------------------------------------------------------------------------------
 
 .include "c64.inc"
-.include "kernel.inc"
-.include "global.inc"
 .include "stlib.inc"
 
 .export swap_bitmaps
@@ -27,9 +26,9 @@ wait_for_raster     := $ffff
 ;-----------------------------------------------------------
 ;                        swap_bitmaps
 ;
-; This clears the main viewport, setting all bitmap values
-; to zero and setting color memory to white with a black
-; background.
+; This method swaps the visible bitmap area between the 
+; locations at $2000 and $4000. Screen memory swaps between 
+; $0400 and $6000.
 ;-----------------------------------------------------------
 
 swap_bitmaps:
