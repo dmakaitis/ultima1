@@ -12,14 +12,16 @@
 
 .import clear_main_viewport
 .import copy_screen_2_to_1
+.import init_snd_gfx
 .import swap_bitmaps
 
+.import do_s168B
+
+.import do_nothing
 .import do_nothing2
 .import do_nothing3
 .import do_nothing4
 
-init_snd_gfx                := $178F
-do_nothing                  := $0
 scroll_text_area_up         := $0
 do_s164C                    := $0
 fill_text_row               := $0
@@ -39,8 +41,7 @@ do_s167C                    := $0
 update_cursor               := $0
 do_s1682                    := $0
 do_s1685                    := $0
-do_s1688                    := $0
-do_s168B                    := $0       ; swap_bitmaps
+do_s1688                    := $0       ; swap_bitmaps
 do_s168E                    := $0
 do_s1691                    := $0
 do_s1694                    := $0
