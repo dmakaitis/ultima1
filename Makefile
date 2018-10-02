@@ -4,7 +4,9 @@
 #		u1, tc, ma, fi, hello, tw, st, 
 #		dd, lo, ge, ou, ro, p0, ca, pr, 
 #		in , dn, mi, tm, sp, p1, p2, p3
-U1FILES = u1 hello lo in
+U1FILES = u1 hello st \
+			lo \
+			in
 PRG_OBJ = build/prgobj
 PRG_OUT = build/prg
 ASSETS_OUT = build/assets
@@ -29,6 +31,7 @@ build/u1.d64: u1files
 	c1541 -format "ultima 1,aa" d64 $@ \
 		-write build/prg/u1.prg u1 \
 		-write build/prg/hello.prg hello \
+		-write build/prg/st.prg st \
 		-write build/prg/lo.prg lo \
 		-write build/prg/in.prg in
 
@@ -39,6 +42,10 @@ $(PRG_OUT)/u1.prg: src/u1/u1.cfg $(u1_obj)
 hello_obj = $(addprefix $(PRG_OBJ)/hello/, $(addsuffix .o, $(basename $(notdir $(wildcard src/hello/*.s)))))
 $(PRG_OUT)/hello.prg: src/hello/hello.cfg $(hello_obj)
 	$(LD65) -C $< $(hello_obj) -o $@ -vm -m $(MAPS_OUT)/hello.map
+
+st_obj = $(addprefix $(PRG_OBJ)/st/, $(addsuffix .o, $(basename $(notdir $(wildcard src/st/*.s)))))
+$(PRG_OUT)/st.prg: src/st/st.cfg $(st_obj)
+	$(LD65) -C $< $(st_obj) -o $@ -vm -m $(MAPS_OUT)/st.map
 
 lo_obj = $(addprefix $(PRG_OBJ)/lo/, $(addsuffix .o, $(basename $(notdir $(wildcard src/lo/*.s)))))
 $(PRG_OUT)/lo.prg: src/lo/lo.cfg $(lo_obj)
@@ -65,6 +72,7 @@ build:
 verify: u1files $(addprefix $(ORIG_PRG_OUT)/, $(addsuffix .prg, $(U1FILES)))
 	./chkfile u1.prg
 	./chkfile hello.prg
+	./chkfile st.prg
 	./chkfile lo.prg
 	./chkfile in.prg
 
@@ -79,9 +87,11 @@ in_assets = intro_studio intro_title intro_horse0 intro_horse1 intro_horse2 \
 			intro_sword_hand intro_hand intro_bird_body0 intro_bird_body1 \
 			intro_bird_body2 intro_bird_body3 intro_bird_head0 intro_bird_head1 \
 			intro_bird_head2 intro_bird_head3
+st_assets = tiles
 
 $(PRG_OBJ)/lo/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(lo_assets)))
 $(PRG_OBJ)/in/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(in_assets)))
+$(PRG_OBJ)/st/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(st_assets)))
 
 $(PRG_OBJ)/%.o: src/%.s build
 	$(CA65) $< -o $@ -I include --bin-include-dir $(ASSETS_OUT)
@@ -224,7 +234,7 @@ assets/intro_bird_head3.png: $(ORIG_PRG_OUT)/in.prg $(DIMAGE)
 	$(DIMAGE) -q -i $< -o $@ -w 24 -s 4973 -n 48
 
 assets/tiles.png: $(ORIG_PRG_OUT)/st.prg $(DIMAGE)
-	$(DIMAGE) -q -i $< -o $@ -w 128 -h 96 -s 2 -B
+	$(DIMAGE) -q -i $< -o $@ -w 128 -h 96 -s 2 -n 1536 -B
 
 ###########################################################
 # The following rules compile assets for inclusion in
@@ -273,3 +283,6 @@ $(ASSETS_OUT)/intro_bird_body%.bin: assets/intro_bird_body%.png $(CIMAGE)
 
 $(ASSETS_OUT)/intro_bird_head%.bin: assets/intro_bird_head%.png $(CIMAGE)
 	$(CIMAGE) -q -i $< -o $@
+
+$(ASSETS_OUT)/tiles.bin: assets/tiles.png $(CIMAGE)
+	$(CIMAGE) -qB -i $< -o $@

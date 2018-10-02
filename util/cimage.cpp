@@ -394,6 +394,43 @@ ByteArray convertToBlockFormat(ByteArray bitmap, int width, int height) {
 }
 
 /*
+ * Converts a row-sequential bitmap into C64 big-block format so that the image is
+ * stored as a sequence of 16x16 bitmaps.
+ *
+ * bitmap   the row-sequential bitmap to convert.
+ * width    the bitmap width.
+ * height   the bitmap height.
+ */
+ByteArray convertToBigBlockFormat(ByteArray bitmap, int width, int height) {
+    ByteArray buffer;
+
+    if(width % 16 != 0) {
+        std::cerr << "Image width must be a multiple of 16 to save in big-block format" << std::endl;
+        exit(1);
+    }
+    if(height % 16 != 0) {
+        std::cerr << "Image height must be a multiple of 16 to save in big-block format" << std::endl;
+        exit(1);
+    }
+
+    int bytesPerRow = width / 8;
+
+    for(int y = 0; y < height; y += 16) {
+        for(int x = 0; x < (width / 8); x += 2) {
+            for(int yy = 0; yy < 16; yy += 8) {
+                for(int xx = 0; xx < 2; xx++) {
+                    for(int yyy = 0; yyy < 8; yyy++) {
+                        buffer.push_back(bitmap[(y + yy + yyy) * bytesPerRow + (x + xx)]);
+                    }
+                }
+            }
+        }
+    }
+
+    return buffer;
+}
+
+/*
  * Reads any extra data that might be stored in the PNG image.
  * The method will look for extra data in a 'daTa' chunk in the
  * PNG image.
@@ -520,6 +557,7 @@ int main(int argc, char** argv) {
     char* outFilename = NULL;
     bool help = false;
     bool block = false;
+    bool bigBlock = false;
     bool compressed = false;
     bool quiet = false;
     int colorMemoryOffset = -1;
@@ -527,6 +565,7 @@ int main(int argc, char** argv) {
     static struct option options[] = {
         { "help",       no_argument,        0,  '?' },
         { "block",      no_argument,        0,  'b' },
+        { "big-block",  no_argument,        0,  'B' },
         { "compressed", no_argument,        0,  'c' },
         { "input",      required_argument,  0,  'i' },
         { "output",     required_argument,  0,  'o' },
@@ -537,10 +576,14 @@ int main(int argc, char** argv) {
     int option_index = 0;
 
     int c;
-    while((c = getopt_long(argc, argv, "bci:o:w:s:n:qC:", options, &option_index)) != -1) {
+    while((c = getopt_long(argc, argv, "bBci:o:w:s:n:qC:", options, &option_index)) != -1) {
         switch(c) {
             case 'b':
                 block = true;
+                break;
+            case 'B':
+                block = true;
+                bigBlock = true;
                 break;
             case 'c':
                 compressed = true;
@@ -568,6 +611,7 @@ int main(int argc, char** argv) {
         std::cout << std::endl;
         std::cout << "Options:" <<std::endl;
         std::cout << "  -b, --block         The image is stored as 8x8 blocks of pixels" << std::endl;
+        std::cout << "  -B, --big-block     The image is stored as 16x16 blocks of pixels (implies -b)" << std::endl;
         std::cout << "  -c, --compressed    The image is compressed using RLE" << std::endl;
         std::cout << "  -C, --color         Offset into extra data where expected color memory is located" << std::endl;
         std::cout << "  -i, --input         Set the input filename (required)" << std::endl;
@@ -587,7 +631,8 @@ int main(int argc, char** argv) {
     }
 
     if(outFilename) {
-        ByteArray buffer = block ? convertToBlockFormat(bitmap, width, height) : bitmap;
+        ByteArray buffer = bigBlock ? convertToBigBlockFormat(bitmap, width, height) : 
+                                (block ? convertToBlockFormat(bitmap, width, height) : bitmap);
 
         // Append any extra data...
         buffer.insert(buffer.end(), extraData.begin(), extraData.end());

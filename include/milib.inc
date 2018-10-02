@@ -3,21 +3,28 @@
 
 race_name_table         := $7763;
 r7842_table             := $7842;
-r7911_table             := $7911;
+class_name_table        := $7911;
 
 w81C4                   := $81C4;
 
 player_save_data        := $81E2;
 
-w822C                   := $822C;
-w822D                   := $822D;
-w823B                   := $823B;
-w823D                   := $823D;
-w823F                   := $823F;
-w8245                   := $8245;
-w8247                   := $8247;
-w824B                   := $824B;
-w824D                   := $824D;
+player_sex              := $822C;
+player_name             := $822D;
+player_hits             := $823B;
+player_strength         := $823D;
+player_agility          := $823F;
+player_stamina          := $8241;
+player_charisma         := $8243;
+player_wisdom           := $8245;
+player_intelligence     := $8247;
+player_money            := $8249;
+player_race             := $824B;
+player_class            := $824D;
+
+player_food             := $825A;
+player_experience       := $825C;
+
 w8264                   := $8264;
 w8265                   := $8265;
 

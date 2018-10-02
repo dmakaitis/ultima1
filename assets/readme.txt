@@ -17,3 +17,5 @@ intro/osi.bin		IN.PRG		104x21 Origin systems logo, arranged top row of pixels, t
 intro/ultima.bin	IN.PRG		184x48 Ultima I logo, arranged in C64 bitmap format (first 8x8 block, then second 8x8, etc.)
 
 lo/font.bin			LO.PRG		The game font, stored as a 128x64 bitmap arranged in C64 bitmap format (8x8 blocks)
+
+st/tiles.bin        ST.PRG      The game tile image (16x16 blocks)
