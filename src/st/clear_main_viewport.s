@@ -23,7 +23,9 @@ TMP_PTR_HI      := $61
 ;-----------------------------------------------------------
 ;                        clear_main_viewport
 ;
-; This method does nothing.
+; This clears the main viewport, setting all bitmap values
+; to zero and setting color memory to white with a black
+; background.
 ;-----------------------------------------------------------
 
 clear_main_viewport:

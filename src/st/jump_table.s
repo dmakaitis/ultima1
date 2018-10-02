@@ -10,13 +10,15 @@
 .include "kernel.inc"
 .include "global.inc"
 
-.import do_nothing4
 .import clear_main_viewport
+.import swap_bitmaps
+
+.import do_nothing2
+.import do_nothing3
+.import do_nothing4
 
 init_snd_gfx                := $178F
 do_nothing                  := $0
-do_nothing2                 := $0
-do_nothing3                 := $0
 copy_screen_2_to_1          := $0
 scroll_text_area_up         := $0
 do_s164C                    := $0
@@ -26,7 +28,6 @@ set_text_window_full        := $0
 set_text_window_stats       := $0
 set_text_window_command     := $1A0D
 do_s165E                    := $0
-swap_bitmaps                := $0
 print_char                  := $0
 do_s166A                    := $0
 wait_for_input              := $0
@@ -39,11 +40,17 @@ update_cursor               := $0
 do_s1682                    := $0
 do_s1685                    := $0
 do_s1688                    := $0
-do_s168B                    := $0
+do_s168B                    := $0       ; swap_bitmaps
 do_s168E                    := $0
 do_s1691                    := $0
 do_s1694                    := $0
 wait_for_raster             := $0
+
+; Reminders to update these files when addresses are ready:
+;
+; bitmap_cia_config     - swap_bitmaps
+; bitmap_vic_config     - swap_bitmaps
+;
 
         .setcpu "6502"
 
