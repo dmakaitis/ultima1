@@ -25,14 +25,16 @@ RANGE   { START $1722;  END $1785;  TYPE Code; };
 RANGE   { START $1786;  END $178E;  TYPE ByteTable; };
 RANGE   { START $178F;  END $17E9;  TYPE Code; };
 RANGE   { START $17EA;  END $17EB;  TYPE ByteTable; };
-RANGE   { START $17EC;  END $17EC;  TYPE Code; };
-RANGE   { START $17ED;  END $190F;  TYPE ByteTable; };
-RANGE   { START $1910;  END $1B04;  TYPE Code; };
+RANGE   { START $17EC;  END $1864;  TYPE Code; };
+RANGE   { START $1865;  END $1865;  TYPE ByteTable; };
+RANGE   { START $1866;  END $1B04;  TYPE Code; };
 RANGE   { START $1B05;  END $1B05;  TYPE ByteTable; };
 RANGE   { START $1B06;  END $1B3E;  TYPE Code; };
 RANGE   { START $1B3F;  END $1B50;  TYPE ByteTable; };
-RANGE   { START $1B51;  END $1B88;  TYPE Code; };
-RANGE   { START $1B89;  END $1C80;  TYPE ByteTable; };
+
+RANGE   { START $1B51;  END $1BA1;  TYPE Code; };
+RANGE   { START $1BA2;  END $1C80;  TYPE ByteTable; };
+
 RANGE   { START $1C81;  END $1E27;  TYPE Code; };
 RANGE   { START $1E28;  END $1E2B;  TYPE ByteTable; };
 RANGE   { START $1E2C;  END $1EC4;  TYPE Code; };
@@ -51,9 +53,10 @@ LABEL   { NAME "do_nothing2";               ADDR $171F; };
 LABEL   { NAME "do_nothing3";               ADDR $1722; };
 LABEL   { NAME "copy_screen_2_to_1";        ADDR $1723; };
 LABEL   { NAME "do_s168B";                  ADDR $1773; };
-LABEL   { NAME "do_s168E";                  ADDR $17ED; };
 LABEL   { NAME "init_snd_gfx";              ADDR $178F; };
 LABEL   { NAME "do_nothing";                ADDR $17EC; };
+LABEL   { NAME "do_s168E";                  ADDR $17ED; };
+LABEL   { NAME "s17FF";                     ADDR $17FF; };
 LABEL   { NAME "do_s1691";                  ADDR $1866; };
 LABEL   { NAME "do_s1694";                  ADDR $186A; };
 LABEL   { NAME "scroll_text_area_up";       ADDR $1910; };
@@ -89,6 +92,8 @@ LABEL   { NAME "scan_input";                ADDR $1ED5; };
 ########################
 # Jump targets
 
+LABEL   { NAME "j18F0";                     ADDR $18F0; };
+
 LABEL   { NAME "j1C9C";                     ADDR $1C9C; };
 
 ########################
@@ -116,6 +121,21 @@ LABEL   { NAME "b1764";             ADDR $1764; };
 LABEL   { NAME "b1782";             ADDR $1782; };
 
 LABEL   { NAME "b17CD";             ADDR $17CD; };
+
+LABEL   { NAME "b1815";             ADDR $1815; };
+LABEL   { NAME "b1862";             ADDR $1862; };
+LABEL   { NAME "b1864";             ADDR $1864; };
+
+LABEL   { NAME "b1879";             ADDR $1879; };
+LABEL   { NAME "b188F";             ADDR $188F; };
+LABEL   { NAME "b189F";             ADDR $189F; };
+LABEL   { NAME "b18AA";             ADDR $18AA; };
+LABEL   { NAME "b18BF";             ADDR $18BF; };
+LABEL   { NAME "b18CE";             ADDR $18CE; };
+LABEL   { NAME "b18D5";             ADDR $18D5; };
+LABEL   { NAME "b18EB";             ADDR $18EB; };
+LABEL   { NAME "b1908";             ADDR $1908; };
+LABEL   { NAME "b190B";             ADDR $190B; };
 
 LABEL   { NAME "b1935";             ADDR $1935; };
 LABEL   { NAME "b197B";             ADDR $197B; };
@@ -146,6 +166,9 @@ LABEL   { NAME "b1B6F";             ADDR $1B6F; };
 
 LABEL   { NAME "b1B7A";             ADDR $1B7A; };
 LABEL   { NAME "b1B88";             ADDR $1B88; };
+
+LABEL   { NAME "b1B92";             ADDR $1B92; };
+LABEL   { NAME "b1B9D";             ADDR $1B9D; };
 
 LABEL   { NAME "b1CA4";             ADDR $1CA4; };
 LABEL   { NAME "b1CBF";             ADDR $1CBF; };
@@ -219,19 +242,24 @@ LABEL   { NAME "ship_flag_l_lo";    ADDR $0D83; };
 LABEL   { NAME "ship_flag_r_hi";    ADDR $0D8A; };
 LABEL   { NAME "ship_flag_r_lo";    ADDR $0D8B; };
 
-LABEL   { NAME "bitmap_y_offset_lo";ADDR $1200; };
-LABEL   { NAME "bitmap_y_offset_hi";ADDR $12C0; };
-LABEL   { NAME "r1480";             ADDR $1480; };
-LABEL   { NAME "r14C0";             ADDR $14C0; };
-LABEL   { NAME "r1500";             ADDR $1500; };
-LABEL   { NAME "char_colors";       ADDR $1530; };
-LABEL   { NAME "bitmap_x_offset_lo";ADDR $15B0; };
-LABEL   { NAME "bitmap_x_offset_hi";ADDR $15D8; };
-LABEL   { NAME "scrmem_y_offset_lo";ADDR $1600; };
-LABEL   { NAME "scrmem_y_offset_hi";ADDR $1619; };
-LABEL   { NAME "r1632";             ADDR $1632; };
-LABEL   { NAME "r1637";             ADDR $1637; };
-LABEL   { NAME "r1639";             ADDR $1639; };
+LABEL   { NAME "bitmap_y_offset_lo";    ADDR $1200; };
+LABEL   { NAME "bitmap_y_offset_lo_16"; ADDR $1210; };
+LABEL   { NAME "bitmap_y_offset_hi";    ADDR $12C0; };
+LABEL   { NAME "bitmap_y_offset_hi_16"; ADDR $12D0; };
+LABEL   { NAME "r1380";                 ADDR $1380; };
+LABEL   { NAME "r1480";                 ADDR $1480; };
+LABEL   { NAME "r14C0";                 ADDR $14C0; };
+LABEL   { NAME "r1500";                 ADDR $1500; };
+LABEL   { NAME "char_colors";           ADDR $1530; };
+LABEL   { NAME "bitmap_x_offset_lo";    ADDR $15B0; };
+LABEL   { NAME "bitmap_x_offset_hi";    ADDR $15D8; };
+LABEL   { NAME "scrmem_y_offset_lo";    ADDR $1600; };
+LABEL   { NAME "scrmem_y_offset_lo_02"; ADDR $1602; };
+LABEL   { NAME "scrmem_y_offset_hi";    ADDR $1619; };
+LABEL   { NAME "scrmem_y_offset_hi_02"; ADDR $161B; };
+LABEL   { NAME "r1632";                 ADDR $1632; };
+LABEL   { NAME "r1637";                 ADDR $1637; };
+LABEL   { NAME "r1639";                 ADDR $1639; };
 
 LABEL   { NAME "w1734";             ADDR $1734; };
 LABEL   { NAME "w1737";             ADDR $1737; };
@@ -246,6 +274,8 @@ LABEL   { NAME "water_ctr";         ADDR $178B; };
 LABEL   { NAME "castle_flag_ctr";   ADDR $178C; };
 LABEL   { NAME "towne_flag_ctr";    ADDR $178D; };
 LABEL   { NAME "w178E";             ADDR $178E; };
+
+LABEL   { NAME "y_cache2";          ADDR $1865; };
 
 LABEL   { NAME "bitmap_adr_b_lo";   ADDR $197C; };
 LABEL   { NAME "bitmap_adr_b_hi";   ADDR $197D; };
@@ -303,6 +333,19 @@ LABEL   { NAME "CHAR_REV";          ADDR $1F; };
 
 LABEL   { NAME "zp20";              ADDR $20; };
 LABEL   { NAME "zp21";              ADDR $21; };
+LABEL   { NAME "zp24";              ADDR $24; };
+LABEL   { NAME "zp25";              ADDR $25; };
+LABEL   { NAME "zp26";              ADDR $26; };
+LABEL   { NAME "zp27";              ADDR $27; };
+LABEL   { NAME "zp28";              ADDR $28; };
+LABEL   { NAME "zp29";              ADDR $29; };
+LABEL   { NAME "zp2A";              ADDR $2A; };
+LABEL   { NAME "zp2B";              ADDR $2B; };
+
+LABEL   { NAME "TMP_PTR4_LO";       ADDR $34; };
+LABEL   { NAME "TMP_PTR4_LO";       ADDR $35; };
+LABEL   { NAME "zp3A";              ADDR $3A; };
+LABEL   { NAME "zp3B";              ADDR $3B; };
 
 LABEL   { NAME "zp43";              ADDR $43; };
 LABEL   { NAME "zp45";              ADDR $45; };
