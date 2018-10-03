@@ -16,6 +16,7 @@
 .import swap_bitmaps
 
 .import do_s168B
+.import do_s168E
 
 .import do_nothing
 .import do_nothing2
@@ -42,7 +43,6 @@ update_cursor               := $0
 do_s1682                    := $0
 do_s1685                    := $0
 do_s1688                    := $0       ; swap_bitmaps
-do_s168E                    := $0
 do_s1691                    := $0
 do_s1694                    := $0
 wait_for_raster             := $0

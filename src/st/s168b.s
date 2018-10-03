@@ -14,6 +14,9 @@
 .export castle_flag_ctr
 .export towne_flag_ctr
 
+.export w1786
+.export w1788
+
         .setcpu "6502"
 
 .segment "CODE_S168B"

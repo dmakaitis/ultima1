@@ -343,7 +343,7 @@ LABEL   { NAME "zp2A";              ADDR $2A; };
 LABEL   { NAME "zp2B";              ADDR $2B; };
 
 LABEL   { NAME "TMP_PTR4_LO";       ADDR $34; };
-LABEL   { NAME "TMP_PTR4_LO";       ADDR $35; };
+LABEL   { NAME "TMP_PTR4_HI";       ADDR $35; };
 LABEL   { NAME "zp3A";              ADDR $3A; };
 LABEL   { NAME "zp3B";              ADDR $3B; };
 
