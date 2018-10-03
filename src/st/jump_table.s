@@ -10,9 +10,12 @@
 .include "kernel.inc"
 .include "global.inc"
 
+.import clear_current_text_row
 .import clear_main_viewport
+.import clear_to_end_of_text_row
 .import copy_screen_2_to_1
 .import init_snd_gfx
+.import scroll_text_area_up
 .import swap_bitmaps
 
 .import do_s168B
@@ -25,9 +28,6 @@
 .import do_nothing3
 .import do_nothing4
 
-scroll_text_area_up         := $0
-do_s164C                    := $0
-fill_text_row               := $0
 do_s1652                    := $0
 set_text_window_full        := $0
 set_text_window_stats       := $0
@@ -51,7 +51,7 @@ wait_for_raster             := $0
 ;
 ; bitmap_cia_config     - swap_bitmaps
 ; bitmap_vic_config     - swap_bitmaps
-;
+; scan_and_buffer_input - scroll_text
 
         .setcpu "6502"
 
@@ -79,11 +79,11 @@ st_copy_screen_2_to_1:
 st_scroll_text_area_up:
         jmp     scroll_text_area_up
 
-st_s164C:
-        jmp     do_s164C
+st_clear_current_text_row:
+        jmp     clear_current_text_row
 
-st_fill_text_row:
-        jmp     fill_text_row
+st_clear_to_end_of_text_row:
+        jmp     clear_to_end_of_text_row
 
 st_s1652:
         jmp     do_s1652
