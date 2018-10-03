@@ -62,7 +62,7 @@ LABEL   { NAME "do_s1694";                      ADDR $186A; };
 LABEL   { NAME "scroll_text_area_up";           ADDR $1910; };
 LABEL   { NAME "clear_current_text_row";        ADDR $199E; };
 LABEL   { NAME "clear_entire_text_row_a";       ADDR $19A0; };
-LABEL   { NAME "clear_to_end_of_text_row";      ADDR $19A6; };
+LABEL   { NAME "clear_to_end_of_text_row_a";    ADDR $19A6; };
 LABEL   { NAME "set_text_window_command";       ADDR $1A0D; };  
 LABEL   { NAME "set_text_window_stats";         ADDR $1A15; };
 LABEL   { NAME "set_text_window_full";          ADDR $1A2C; };

@@ -12,7 +12,7 @@
 
 .import clear_current_text_row
 .import clear_main_viewport
-.import clear_to_end_of_text_row
+.import clear_to_end_of_text_row_a
 .import copy_screen_2_to_1
 .import init_snd_gfx
 .import scroll_text_area_up
@@ -82,8 +82,8 @@ st_scroll_text_area_up:
 st_clear_current_text_row:
         jmp     clear_current_text_row
 
-st_clear_to_end_of_text_row:
-        jmp     clear_to_end_of_text_row
+st_clear_to_end_of_text_row_a:
+        jmp     clear_to_end_of_text_row_a
 
 st_s1652:
         jmp     do_s1652

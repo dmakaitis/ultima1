@@ -11,7 +11,7 @@
 
 .export scroll_text_area_up
 .export clear_current_text_row
-.export clear_to_end_of_text_row
+.export clear_to_end_of_text_row_a
 .export clear_entire_text_row_a
 
 .import bitmap_x_offset_hi
@@ -165,12 +165,14 @@ clear_entire_text_row_a:
 
 
 ;-----------------------------------------------------------
-;                 clear_to_end_of_text_row
+;               clear_to_end_of_text_row_a
 ;
-; Moves all the text in the text area up one line.
+; Clears the text row identified by the row number contained
+; in the accumulator from the current cursor X position to
+; the end of the row.
 ;-----------------------------------------------------------
 
-clear_to_end_of_text_row:
+clear_to_end_of_text_row_a:
         ldx     CUR_X                                   ; If the cursor is already at the end of the row, just skip to the end...
         cpx     CUR_X_MAX
         bcs     done_clearing
