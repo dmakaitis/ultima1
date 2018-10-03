@@ -35,18 +35,18 @@ swap_bitmaps:
         jsr     wait_for_raster
         lda     BM_ADDR_MASK
         tax
-        beq     _configure_cia
+        beq     @configure_cia
         ldx     #$01
 
-_configure_cia:
+@configure_cia:
         eor     BM2_ADDR_MASK
         sta     BM_ADDR_MASK
         lda     bitmap_cia_config,x
         sta     CIA2_PRA
         lda     bitmap_vic_config,x
         sta     VIC_VIDEO_ADR
-_wait:  jsr     do_s1688
-        bne     _wait
+@wait:  jsr     do_s1688
+        bne     @wait
 do_nothing2:
         rts
 

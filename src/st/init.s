@@ -61,7 +61,7 @@ init_snd_gfx:
 
         tax
         lda     #$10
-_loop:  sta     SCRN_MEM,x
+@loop:  sta     SCRN_MEM,x
         sta     SCRN_MEM + $0100,x
         sta     SCRN_MEM + $0200,x
         sta     SCRN_MEM + $0300,x
@@ -70,7 +70,7 @@ _loop:  sta     SCRN_MEM,x
         sta     SCRN_MEM2 + $0200,x
         sta     SCRN_MEM2 + $0300,x
         inx
-        bne     _loop
+        bne     @loop
         cli
         rts
 

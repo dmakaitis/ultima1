@@ -23,12 +23,12 @@
 
 delay_a_squared:
         sec
-_loop_outer:
+@loop_outer:
         pha
-_loop_inner:
+@loop_inner:
         sbc     #$01
-        bne     _loop_inner
+        bne     @loop_inner
         pla
         sbc     #$01
-        bne     _loop_outer
+        bne     @loop_outer
         rts

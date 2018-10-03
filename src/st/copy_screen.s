@@ -35,47 +35,47 @@ copy_screen_2_to_1:
         lda     #$20
         tax
         eor     BM_ADDR_MASK
-        sta     _dest_addr
+        sta     @dest_addr
         eor     BM2_ADDR_MASK
-        sta     _src_addr
+        sta     @src_addr
         ldy     #$00
 
-_loop:
-_src_addr       := * + 2
+@loop:
+@src_addr       := * + 2
         lda     BITMAP_MEM2,y
-_dest_addr      := * + 2
+@dest_addr      := * + 2
         sta     BITMAP_MEM,y
         iny
-        bne     _loop
-        inc     _src_addr
-        inc     _dest_addr
+        bne     @loop
+        inc     @src_addr
+        inc     @dest_addr
         dex
-        bne     _loop
+        bne     @loop
 
         lda     #$00
         sta     TMP_PTR_LO
         sta     TMP_PTR2_LO
-        lda     _src_addr
+        lda     @src_addr
         cmp     #$60
-        beq     _set_screen_source
+        beq     @set_screen_source
         lda     #$04
-_set_screen_source:
+@set_screen_source:
         sta     TMP_PTR_HI
-        lda     _dest_addr
+        lda     @dest_addr
         cmp     #$60
-        beq     _set_screen_dest
+        beq     @set_screen_dest
         lda     #$04
-_set_screen_dest:
+@set_screen_dest:
         sta     TMP_PTR2_HI
         ldx     #$04
         ldy     #$00
 
-_loop2: lda     (TMP_PTR_LO),y
+@loop2: lda     (TMP_PTR_LO),y
         sta     (TMP_PTR2_LO),y
         iny
-        bne     _loop2
+        bne     @loop2
         inc     TMP_PTR_HI
         inc     TMP_PTR2_HI
         dex
-        bne     _loop2
+        bne     @loop2
         rts

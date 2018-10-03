@@ -36,54 +36,54 @@ clear_main_viewport:
         sta     TMP_PTR_LO
         ldx     #$11
 
-_outer_bitmap_loop:
+@outer_bitmap_loop:
         ldy     #$00
         tya
-_clear_bitmap_loop:
+@clear_bitmap_loop:
         sta     (TMP_PTR_LO),y
         iny
-        bne     _clear_bitmap_loop
+        bne     @clear_bitmap_loop
 
         inc     TMP_PTR_HI
         ldy     #$2F
-_clear_bitmap_loop2:
+@clear_bitmap_loop2:
         sta     (TMP_PTR_LO),y
         dey
-        bpl     _clear_bitmap_loop2
+        bpl     @clear_bitmap_loop2
         lda     TMP_PTR_LO
         clc
         adc     #$40
         sta     TMP_PTR_LO
-        bcc     _bitmap_address_updated
+        bcc     @bitmap_address_updated
         inc     TMP_PTR_HI
-_bitmap_address_updated:
+@bitmap_address_updated:
         dex
-        bpl     _outer_bitmap_loop
+        bpl     @outer_bitmap_loop
 
         lda     #$29
         sta     TMP_PTR_LO
         lda     #$04
         ldx     BM_ADDR_MASK
-        beq     _set_screen_mem_hi
+        beq     @set_screen_mem_hi
         lda     #$60
-_set_screen_mem_hi:
+@set_screen_mem_hi:
         ldx     #$11
         sta     TMP_PTR_HI
 
-_outer_screen_mem_loop:
+@outer_screen_mem_loop:
         ldy     #$25
         lda     #$10
-_inner_screen_mem_loop:
+@inner_screen_mem_loop:
         sta     (TMP_PTR_LO),y
         dey
-        bpl     _inner_screen_mem_loop
+        bpl     @inner_screen_mem_loop
         lda     TMP_PTR_LO
         clc
         adc     #$28
         sta     TMP_PTR_LO
-        bcc     _screen_mem_address_updated
+        bcc     @screen_mem_address_updated
         inc     TMP_PTR_HI
-_screen_mem_address_updated:
+@screen_mem_address_updated:
         dex
-        bpl     _outer_screen_mem_loop
+        bpl     @outer_screen_mem_loop
         rts

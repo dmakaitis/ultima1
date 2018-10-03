@@ -16,6 +16,9 @@
 .import copy_screen_2_to_1
 .import init_snd_gfx
 .import scroll_text_area_up
+.import set_text_window_command
+.import set_text_window_full
+.import set_text_window_stats
 .import swap_bitmaps
 
 .import do_s168B
@@ -28,24 +31,21 @@
 .import do_nothing3
 .import do_nothing4
 
-do_s1652                    := $0
-set_text_window_full        := $0
-set_text_window_stats       := $0
-set_text_window_command     := $1A0D
-do_s165E                    := $0
-print_char                  := $0
-do_s166A                    := $0
-wait_for_input              := $0
-get_random_number           := $0
-scan_and_buffer_input       := $0
-read_input_from_buffer      := $0
-read_from_buffer            := $0
-do_s167C                    := $0
-update_cursor               := $0
-do_s1682                    := $0
-do_s1685                    := $0
-do_s1688                    := $0       ; swap_bitmaps
-wait_for_raster             := $0
+do_s1652                    := $1111
+do_s165E                    := $2222
+print_char                  := $3333
+do_s166A                    := $4444
+wait_for_input              := $5555
+get_random_number           := $6666
+scan_and_buffer_input       := $7777
+read_input_from_buffer      := $8888
+read_from_buffer            := $9999
+do_s167C                    := $aaaa
+update_cursor               := $bbbb
+do_s1682                    := $cccc
+do_s1685                    := $dddd
+do_s1688                    := $eeee    ; swap_bitmaps
+wait_for_raster             := $ffff
 
 ; Reminders to update these files when addresses are ready:
 ;
