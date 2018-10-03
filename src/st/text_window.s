@@ -10,6 +10,7 @@
 
 .export set_text_window_command
 .export set_text_window_full
+.export set_text_window_main
 .export set_text_window_stats
 
         .setcpu "6502"
@@ -73,3 +74,25 @@ set_text_window_full:
         lda     #$00
         sta     CUR_X_OFF
         beq     set_window_y_pos
+
+
+
+;-----------------------------------------------------------
+;                  set_text_window_main
+;
+; Sets the text window to an area 38 characters wide by 18
+; characters high starting at (1, 1) on the text display.
+;-----------------------------------------------------------
+
+set_text_window_main:
+        lda     #$26
+        sta     CUR_X_MAX
+        lda     #$13
+        sta     CUR_Y_MAX
+        lda     #$01
+        sta     CUR_X_OFF
+        bne     set_window_y_pos
+
+
+
+

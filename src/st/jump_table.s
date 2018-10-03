@@ -18,9 +18,11 @@
 .import scroll_text_area_up
 .import set_text_window_command
 .import set_text_window_full
+.import set_text_window_main
 .import set_text_window_stats
 .import swap_bitmaps
 
+.import do_s1652
 .import do_s168B
 .import do_s168E
 .import do_s1691
@@ -31,8 +33,6 @@
 .import do_nothing3
 .import do_nothing4
 
-do_s1652                    := $1111
-do_s165E                    := $2222
 print_char                  := $3333
 do_s166A                    := $4444
 wait_for_input              := $5555
@@ -97,8 +97,8 @@ st_set_text_window_stats:
 st_set_text_window_command:
         jmp     set_text_window_command
 
-st_s165E:
-        jmp     do_s165E
+st_set_text_window_main:
+        jmp     set_text_window_main
 
 st_clear_main_viewport:
         jmp     clear_main_viewport

@@ -28,8 +28,7 @@ st_clear_to_end_of_text_row_a   := $164F;
 st_set_text_window_full         := $1655;
 st_set_text_window_stats        := $1658;
 st_set_text_window_command      := $165B;
-
-; st_s165E                        := $165E;
+st_set_text_window_main         := $165E;
 
 st_clear_main_viewport          := $1661;
 st_swap_bitmaps                 := $1664;
