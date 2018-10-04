@@ -15,6 +15,7 @@
 .import clear_to_end_of_text_row_a
 .import copy_screen_2_to_1
 .import init_snd_gfx
+.import print_char
 .import scroll_text_area_up
 .import set_text_window_command
 .import set_text_window_full
@@ -33,7 +34,6 @@
 .import do_nothing3
 .import do_nothing4
 
-print_char                  := $3333
 do_s166A                    := $4444
 wait_for_input              := $5555
 get_random_number           := $6666

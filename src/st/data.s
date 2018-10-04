@@ -16,6 +16,8 @@
 .export scrmem_y_offset_hi
 .export scrmem_y_offset_lo
 
+.export char_colors
+
 .export r1380
 
         .setcpu "6502"

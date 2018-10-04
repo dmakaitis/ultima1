@@ -15,8 +15,6 @@
 .export do_nothing3
 
 do_s1688            := $ffff
-bitmap_cia_config   := $ffff
-bitmap_vic_config   := $ffff
 wait_for_raster     := $ffff
 
         .setcpu "6502"
@@ -53,3 +51,10 @@ do_nothing2:
         .byte   $60,$60
 do_nothing3:
         rts
+
+.segment "DATA_CIA_VIC_CONFIG"
+
+bitmap_cia_config:
+        .byte   $97,$96
+bitmap_vic_config:
+        .byte   $18,$80
