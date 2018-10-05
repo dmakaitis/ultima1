@@ -22,9 +22,7 @@ st_copy_screen_2_to_1           := $1646;
 st_scroll_text_area_up          := $1649;
 st_clear_current_text_row       := $164C;
 st_clear_to_end_of_text_row_a   := $164F;
-
-; st_s1652                    := $1652;
-
+st_clear_text_window            := $1652;
 st_set_text_window_full         := $1655;
 st_set_text_window_stats        := $1658;
 st_set_text_window_command      := $165B;

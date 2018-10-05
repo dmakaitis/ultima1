@@ -2,7 +2,7 @@
 ;
 ; s1652.s
 ;
-; 
+; Prints a character to the screen at the current cursor location.
 ;
 ;-------------------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ print_char:
         bcs     @done
 
         and     #$7F                            ; Make sure the character code is in range and store it for future reference
-        sta     CHAR_TO_PRINT
+        sta     CHAR_TO_PRINT                   ; (high bit signifies end of string in some cases, so it must be stripped off)
 
         lda     CUR_Y                           ; Calculate the bitmap addresses to write the character (for both screens)
         asl     a

@@ -12,6 +12,7 @@
 
 .import clear_current_text_row
 .import clear_main_viewport
+.import clear_text_window
 .import clear_to_end_of_text_row_a
 .import copy_screen_2_to_1
 .import init_snd_gfx
@@ -23,7 +24,6 @@
 .import set_text_window_stats
 .import swap_bitmaps
 
-.import do_s1652
 .import do_s168B
 .import do_s168E
 .import do_s1691
@@ -85,8 +85,8 @@ st_clear_current_text_row:
 st_clear_to_end_of_text_row_a:
         jmp     clear_to_end_of_text_row_a
 
-st_s1652:
-        jmp     do_s1652
+st_clear_text_window:
+        jmp     clear_text_window
 
 st_set_text_window_full:
         jmp     set_text_window_full
