@@ -10,11 +10,12 @@
 .include "c64.inc"
 .include "stlib.inc"
 
+.import do_s1688
+
 .export swap_bitmaps
 .export do_nothing2
 .export do_nothing3
 
-do_s1688            := $ffff
 wait_for_raster     := $ffff
 
         .setcpu "6502"

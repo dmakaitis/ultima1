@@ -19,6 +19,7 @@
 .export char_colors
 
 .export r1380
+.export w1638
 
         .setcpu "6502"
 

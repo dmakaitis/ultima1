@@ -16,7 +16,7 @@ water_q3        := water_tile + 16
 
         .setcpu "6502"
 
-.segment "CODE_S168B"
+.segment "CODE_WATER"
 
 ;-----------------------------------------------------------
 ;                      animate_water
@@ -28,9 +28,10 @@ water_q3        := water_tile + 16
 animate_water:
         jsr     swap_water_q2_q3                        ; Reorganize the water tile to make it easier to scroll vertically
 
-        ldx     #$0F                                    ; Do the scrolling
+        ldx     #$0F                                    ; Do the scrolling, first the left column...
         jsr     scroll_water_down
-        ldx     #$1F
+
+        ldx     #$1F                                    ; ...then the right column
         jsr     scroll_water_down
 
         ; continued below                               ; Restore the water tile to its normal layout

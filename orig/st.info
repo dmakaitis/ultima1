@@ -30,11 +30,9 @@ RANGE   { START $1865;  END $1865;  TYPE ByteTable; };
 RANGE   { START $1866;  END $1B04;  TYPE Code; };
 RANGE   { START $1B05;  END $1B05;  TYPE ByteTable; };
 RANGE   { START $1B06;  END $1B3E;  TYPE Code; };
-RANGE   { START $1B3F;  END $1B50;  TYPE ByteTable; };
-
-RANGE   { START $1B51;  END $1BA1;  TYPE Code; };
-RANGE   { START $1BA2;  END $1C80;  TYPE ByteTable; };
-
+RANGE   { START $1B3F;  END $1B50;  TYPE AddrTable; };
+RANGE   { START $1B51;  END $1C7F;  TYPE Code; };
+RANGE   { START $1C80;  END $1C80;  TYPE ByteTable; };
 RANGE   { START $1C81;  END $1E27;  TYPE Code; };
 RANGE   { START $1E28;  END $1E2B;  TYPE ByteTable; };
 RANGE   { START $1E2C;  END $1EC4;  TYPE Code; };
@@ -76,6 +74,7 @@ LABEL   { NAME "do_s1682";                      ADDR $1B51; };
 LABEL   { NAME "s1B67";                         ADDR $1B67; };  
 LABEL   { NAME "do_s1688";                      ADDR $1B72; };  
 LABEL   { NAME "do_s1685";                      ADDR $1B89; };  
+LABEL   { NAME "toggle_voice_3";                ADDR $1C70; };  
 LABEL   { NAME "wait_for_raster";               ADDR $1C81; };  
 LABEL   { NAME "do_s166A";                      ADDR $1C8A; };  
 LABEL   { NAME "scan_and_buffer_input";         ADDR $1E08; };
@@ -95,6 +94,26 @@ LABEL   { NAME "scan_input";                    ADDR $1ED5; };
 LABEL   { NAME "j18F0";                     ADDR $18F0; };
 
 LABEL   { NAME "j1C9C";                     ADDR $1C9C; };
+
+LABEL   { NAME "x1BA1";                         ADDR $1BA1; };  
+LABEL   { NAME "x1BB1";                         ADDR $1BB1; };  
+LABEL   { NAME "x1BB7";                         ADDR $1BB7; };  
+LABEL   { NAME "x1BBD";                         ADDR $1BBD; };  
+LABEL   { NAME "x1C0C";                         ADDR $1C0C; };  
+LABEL   { NAME "x1C1D";                         ADDR $1C1D; };  
+LABEL   { NAME "x1C2B";                         ADDR $1C2B; };  
+LABEL   { NAME "x1C48";                         ADDR $1C48; };  
+LABEL   { NAME "x1C4E";                         ADDR $1C4E; };  
+
+LABEL   { NAME "v1BA2";                         ADDR $1BA2; };  
+LABEL   { NAME "v1BB2";                         ADDR $1BB2; };  
+LABEL   { NAME "v1BB8";                         ADDR $1BB8; };  
+LABEL   { NAME "v1BBE";                         ADDR $1BBE; };  
+LABEL   { NAME "v1C0D";                         ADDR $1C0D; };  
+LABEL   { NAME "v1C1E";                         ADDR $1C1E; };  
+LABEL   { NAME "v1C2C";                         ADDR $1C2C; };  
+LABEL   { NAME "v1C49";                         ADDR $1C49; };  
+LABEL   { NAME "v1C4F";                         ADDR $1C4F; };  
 
 ########################
 # Branch targets
@@ -169,6 +188,25 @@ LABEL   { NAME "b1B88";             ADDR $1B88; };
 
 LABEL   { NAME "b1B92";             ADDR $1B92; };
 LABEL   { NAME "b1B9D";             ADDR $1B9D; };
+
+LABEL   { NAME "b1BA6";             ADDR $1BA6; };
+LABEL   { NAME "b1BC2";             ADDR $1BC2; };
+LABEL   { NAME "b1BCC";             ADDR $1BCC; };
+LABEL   { NAME "b1BD0";             ADDR $1BD0; };
+LABEL   { NAME "b1BD2";             ADDR $1BD2; };
+LABEL   { NAME "b1BDA";             ADDR $1BDA; };
+LABEL   { NAME "b1BEE";             ADDR $1BEE; };
+LABEL   { NAME "b1BF2";             ADDR $1BF2; };
+LABEL   { NAME "b1BF4";             ADDR $1BF4; };
+LABEL   { NAME "b1BFC";             ADDR $1BFC; };
+LABEL   { NAME "b1C11";             ADDR $1C11; };
+LABEL   { NAME "b1C20";             ADDR $1C20; };
+LABEL   { NAME "b1C22";             ADDR $1C22; };
+LABEL   { NAME "b1C34";             ADDR $1C34; };
+LABEL   { NAME "b1C3A";             ADDR $1C3A; };
+LABEL   { NAME "b1C53";             ADDR $1C53; };
+LABEL   { NAME "b1C5C";             ADDR $1C5C; };
+LABEL   { NAME "b1C62";             ADDR $1C62; };
 
 LABEL   { NAME "b1CA4";             ADDR $1CA4; };
 LABEL   { NAME "b1CBF";             ADDR $1CBF; };
@@ -296,8 +334,9 @@ LABEL   { NAME "bitmap2_addr_hi";   ADDR $1AD0; };
 LABEL   { NAME "temp_x";            ADDR $1B05; };
 LABEL   { NAME "r1B3F";             ADDR $1B3F; };
 LABEL   { NAME "r1B40";             ADDR $1B40; };
+LABEL   { NAME "w1C69";             ADDR $1C69; };
 LABEL   { NAME "w1C7E";             ADDR $1C7E; };
-LABEL   { NAME "w1C80";             ADDR $1C80; };
+LABEL   { NAME "sid_amp_cfg";       ADDR $1C80; };
 LABEL   { NAME "w1D62";             ADDR $1D62; };
 LABEL   { NAME "w1D63";             ADDR $1D63; };
 LABEL   { NAME "w1D67";             ADDR $1D67; };
@@ -325,6 +364,8 @@ LABEL   { NAME "SCRN_MEM2_0348";    ADDR $6348; };
 LABEL   { NAME "SCRN_MEM2_0370";    ADDR $6370; };
 
 LABEL   { NAME "rB700";             ADDR $B700; };
+
+LABEL   { NAME "rC0E8";             ADDR $C0E8; };
 
 ########################
 # Zero Page

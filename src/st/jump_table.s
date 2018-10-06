@@ -24,6 +24,9 @@
 .import set_text_window_stats
 .import swap_bitmaps
 
+.import do_s1682
+.import do_s1685
+.import do_s1688
 .import do_s168B
 .import do_s168E
 .import do_s1691
@@ -36,15 +39,12 @@
 
 do_s166A                    := $4444
 wait_for_input              := $5555
-get_random_number           := $6666
+get_random_number           := $6666    ; s1682
 scan_and_buffer_input       := $7777
 read_input_from_buffer      := $8888
 read_from_buffer            := $9999
 do_s167C                    := $aaaa
 update_cursor               := $bbbb
-do_s1682                    := $cccc
-do_s1685                    := $dddd
-do_s1688                    := $eeee    ; swap_bitmaps
 wait_for_raster             := $ffff
 
 ; Reminders to update these files when addresses are ready:
