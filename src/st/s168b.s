@@ -16,6 +16,7 @@
 
 .export w1786
 .export w1788
+.export w178E
 
         .setcpu "6502"
 

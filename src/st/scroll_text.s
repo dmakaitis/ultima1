@@ -14,6 +14,8 @@
 .export clear_to_end_of_text_row_a
 .export clear_entire_text_row_a
 
+.import scan_and_buffer_input
+
 .import bitmap_x_offset_hi
 .import bitmap_x_offset_lo
 .import bitmap_y_offset_hi
@@ -31,8 +33,6 @@ BITMAP_MEM2             := $4000
 
 SCRN_MEM                := $0400
 SCRN_MEM2               := $6000
-
-scan_and_buffer_input   := $ffff
 
         .setcpu "6502"
 

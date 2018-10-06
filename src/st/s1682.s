@@ -8,7 +8,7 @@
 
 .include "c64.inc"
 
-; .import get_random_number
+.import get_random_number
 .import delay_a_squared
 .import w1638
 
@@ -16,21 +16,20 @@
 .export do_s1685
 .export do_s1688
 
+.export w1C7E
 .export sid_amp_cfg
 
 zp2A                    := $2A
 zp2B                    := $2B
 zp3A                    := $3A
 zp3B                    := $3B
-zp43                    := $43
+TMP_43                  := $43
 INPUT_BUFFER_SIZE       := $56
 zp57                    := $57
 zp5B                    := $5B
 TMP_5E                  := $5E
 
 rC0E8                   := $C0E8
-
-get_random_number       := $ffff
 
         .setcpu "6502"
 
@@ -54,18 +53,24 @@ switch_vectors:
 ;-----------------------------------------------------------
 ;                         do_s1682
 ;
-; 
+; a - a en even value from $00 to $10 that will decide what
+;     this method does.
 ;-----------------------------------------------------------
 
 do_s1682:
-        stx     zp43                                    ; Cache the current value in the x register
-        tax
-        lsr     a
+        stx     TMP_43                                  ; Cache the current value in the x register
+
+        tax                                             ; Store the accumulator into the x register
+
+        lsr     a                                       ; If the value in the accumulator is odd, then return
         bcs     return
-        cpx     #$12
+
+        cpx     #$12                                    ; If the argument is >= $12, then return
         bcs     return
-        lda     w1638
+
+        lda     w1638                                   ; Check some flag to see if this method should be disabled
         beq     return
+
         php
         sei
         jsr     switch_on_x
@@ -89,7 +94,7 @@ switch_on_x:
         lda     switch_vectors,x                        ; actually returning to the caller. Essentially, this is a switch statement.
         pha
 
-return: ldx     zp43                                    ; Restore the x register before "returning" from this routine.
+return: ldx     TMP_43                                  ; Restore the x register before "returning" from this routine.
         rts
 
 
@@ -101,18 +106,22 @@ return: ldx     zp43                                    ; Restore the x register
 ;-----------------------------------------------------------
 
 do_s1688:
-        lda     zp5B
-        beq     b1B88
+        lda     zp5B                                    ; If the value at $5B is zero then return
+        beq     @done
+
         lda     zp57
+
         ldx     #$01
-b1B7A:  ldy     zp57,x
+@loop:  ldy     zp57,x
         sty     INPUT_BUFFER_SIZE,x
         inx
         cpx     #$04
-        bcc     b1B7A
+        bcc     @loop
+
         jsr     do_s1682
-        dec     zp5B
-b1B88:  rts
+
+        dec     zp5B                                    ; Decrement the value at $5B
+@done:  rts
 
 
 
@@ -123,19 +132,24 @@ b1B88:  rts
 ;-----------------------------------------------------------
 
 do_s1685:
-        ldx     zp5B
-        beq     b1B9D
+        ldx     zp5B                                    ; If the value at $5B is zero then return
+        beq     @done
+
         ldy     INPUT_BUFFER_SIZE,x
-        bne     b1B92
+        bne     @skip
         dex
-b1B92:  cpx     #$04
-        bcc     b1B9D
+
+@skip:  cpx     #$04
+        bcc     @done
+
         pha
         jsr     do_s1688
         pla
         ldx     zp5B
-b1B9D:  sta     zp57,x
-        inc     zp5B
+
+@done:  sta     zp57,x
+
+        inc     zp5B                                    ; Increment the value at $5B
         rts
 
 
@@ -166,7 +180,7 @@ b1BC2:  stx     zp3A
         lda     #$01
         sta     zp2B
 b1BCC:  lda     zp3B
-        sta     zp43
+        sta     TMP_43 
 b1BD0:  ldx     zp2A
 b1BD2:  dex
         bne     b1BD2
@@ -175,7 +189,7 @@ b1BD2:  dex
 b1BDA:  dex
         bne     b1BDA
         jsr     toggle_voice_3
-        dec     zp43
+        dec     TMP_43 
         bne     b1BD0
         dec     zp2A
         inc     zp2B
@@ -183,7 +197,7 @@ b1BDA:  dex
         cmp     #$1B
         bne     b1BCC
 b1BEE:  lda     zp3B
-        sta     zp43
+        sta     TMP_43 
 b1BF2:  ldx     zp2A
 b1BF4:  dex
         bne     b1BF4
@@ -192,7 +206,7 @@ b1BF4:  dex
 b1BFC:  dex
         bne     b1BFC
         jsr     toggle_voice_3
-        dec     zp43
+        dec     TMP_43 
         bne     b1BF2
         inc     zp2A
         dec     zp2B
@@ -241,6 +255,8 @@ b1C3A:  dex
         bcs     b1C34
         rts
 
+
+
 v1C49:  lda     #$E8
         ldx     #$FF
         bne     b1C53
@@ -262,6 +278,8 @@ w1C69           := * + 1
         bne     b1C5C
         rts
 
+
+
 toggle_voice_3:
         sta     TMP_5E
         lda     sid_amp_cfg
@@ -271,6 +289,8 @@ toggle_voice_3:
 w1C7E           := * + 1
         lda     TMP_5E
         rts
+
+
 
 sid_amp_cfg:
         .byte   $8F

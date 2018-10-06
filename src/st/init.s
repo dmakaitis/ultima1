@@ -9,6 +9,9 @@
 
 .include "c64.inc"
 
+.import w1C7E
+.import sid_amp_cfg
+
 .export init_snd_gfx
 .export do_nothing
 
@@ -18,9 +21,6 @@ INPUT_BUFFER_SIZE       := $56
 
 SCRN_MEM                := $0400
 SCRN_MEM2               := $6000
-
-w1C7E                   := $ffff
-w1C80                   := $ffff
 
         .setcpu "6502"
 
@@ -41,7 +41,7 @@ init_snd_gfx:
         lda     #$41
         sta     SID_Ctl3
         lda     #$8F
-        sta     w1C80
+        sta     sid_amp_cfg
         sta     w1C7E
         lda     #$FF
         sta     SID_SUR3

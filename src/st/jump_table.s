@@ -15,15 +15,24 @@
 .import clear_text_window
 .import clear_to_end_of_text_row_a
 .import copy_screen_2_to_1
+.import get_random_number
 .import init_snd_gfx
 .import print_char
+.import read_from_buffer
+.import read_input_from_buffer
+.import scan_and_buffer_input
 .import scroll_text_area_up
 .import set_text_window_command
 .import set_text_window_full
 .import set_text_window_main
 .import set_text_window_stats
 .import swap_bitmaps
+.import update_cursor
+.import wait_for_input
+.import wait_for_raster
 
+.import do_s166A
+.import do_s167C
 .import do_s1682
 .import do_s1685
 .import do_s1688
@@ -37,20 +46,8 @@
 .import do_nothing3
 .import do_nothing4
 
-do_s166A                    := $4444
-wait_for_input              := $5555
-get_random_number           := $6666    ; s1682
-scan_and_buffer_input       := $7777
-read_input_from_buffer      := $8888
-read_from_buffer            := $9999
-do_s167C                    := $aaaa
-update_cursor               := $bbbb
-wait_for_raster             := $ffff
-
 ; Reminders to update these files when addresses are ready:
 ;
-; bitmap_cia_config     - swap_bitmaps
-; bitmap_vic_config     - swap_bitmaps
 ; scan_and_buffer_input - scroll_text
 
         .setcpu "6502"
