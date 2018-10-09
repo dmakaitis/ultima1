@@ -38,15 +38,15 @@ rC0E8                   := $C0E8
 
 
 switch_vectors:
-        .addr   v1C4F - 1                               ; Need to store the routine address minus one since the CPU will add
-        .addr   v1C49 - 1                               ; one to the program counter after 'returning' from the 'switch_on_x'
-        .addr   v1C2C - 1                               ; routine...
-        .addr   v1BBE - 1
-        .addr   v1C1E - 1
-        .addr   v1BB8 - 1
-        .addr   v1C0D - 1
-        .addr   v1BA2 - 1
-        .addr   v1BB2 - 1
+        .addr   case_00 - 1                             ; Need to store the routine address minus one since the CPU will add
+        .addr   case_02 - 1                             ; one to the program counter after 'returning' from the 'switch_on_x'
+        .addr   case_04 - 1                             ; routine...
+        .addr   case_06 - 1
+        .addr   case_08 - 1
+        .addr   case_0A - 1
+        .addr   case_0C - 1
+        .addr   case_0E - 1
+        .addr   case_10 - 1
 
 
 
@@ -154,8 +154,10 @@ do_s1685:
 
 
 
-v1BA2:  ldy     #$10
+case_0E:
+        ldy     #$10
         lda     #$30
+
 b1BA6:  pha
         jsr     delay_a_squared
         jsr     toggle_voice_3
@@ -164,15 +166,19 @@ b1BA6:  pha
         bne     b1BA6
         rts
 
-
-
-v1BB2:  ldy     #$32
+case_10:
+        ldy     #$32
         lda     #$17
-        bne     b1BA6
-v1BB8:  ldx     #$40
+        bne     b1BA6                                   ; Always branches
+
+
+
+case_0A:
+        ldx     #$40
         ldy     #$40
         bne     b1BC2
-v1BBE:  ldx     #$E0
+case_06:
+        ldx     #$E0
         ldy     #$06
 b1BC2:  stx     zp3A
         stx     zp2A
@@ -215,7 +221,8 @@ b1BFC:  dex
 
 
 
-v1C0D:  lda     #$FB
+case_0C:
+        lda     #$FB
         sta     zp3A
 b1C11:  inx
         bne     b1C11
@@ -227,7 +234,8 @@ b1C11:  inx
 
 
 
-v1C1E:  ldy     #$A0
+case_08:
+        ldy     #$A0
 b1C20:  tya
         tax
 b1C22:  dex
@@ -239,7 +247,8 @@ b1C22:  dex
 
 
 
-v1C2C:  lda     #$40
+case_04:
+        lda     #$40
         sta     zp3A
         lda     #$E0
         sta     zp3B
@@ -257,11 +266,15 @@ b1C3A:  dex
 
 
 
-v1C49:  lda     #$E8
+case_02:
+        lda     #$E8
         ldx     #$FF
         bne     b1C53
-v1C4F:  lda     #$00
+
+case_00:
+        lda     #$00
         ldx     #$08
+
 b1C53:  stx     zp3A
         sta     w1C69
         lda     #$00
@@ -287,8 +300,8 @@ toggle_voice_3:
         sta     sid_amp_cfg
         sta     SID_Amp
 w1C7E           := * + 1
-        lda     TMP_5E
-        rts
+        lda     TMP_5E                                  ; Pretty sure this is a bug - this code gets overwritten by the init code, but
+        rts                                             ; what's already here makes much more sense than what it gets overwritten with...
 
 
 
