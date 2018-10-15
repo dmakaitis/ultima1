@@ -1,8 +1,9 @@
 ;-------------------------------------------------------------------------------
 ;
-; s1682.s
+; sound.s
 ;
 ; 
+; Sound playing routines.
 ;
 ;-------------------------------------------------------------------------------
 
@@ -13,8 +14,8 @@
 .import w1638
 
 .export play_sound_a
-.export do_s1685
-.export do_s1688
+.export queue_sound
+.export play_next_sound
 
 .export w1C7E
 .export sid_amp_cfg
@@ -25,8 +26,8 @@ zp3A                    := $3A
 zp3B                    := $3B
 TMP_43                  := $43
 INPUT_BUFFER_SIZE       := $56
-zp57                    := $57
-zp5B                    := $5B
+SOUND_BUFFER            := $57
+SOUND_BUFFER_SIZE       := $5B
 TMP_5E                  := $5E
 
 rC0E8                   := $C0E8
@@ -55,7 +56,9 @@ sound_vectors:
 ;
 ; Plays one of several sounds depending on the value in the
 ; accumulator. The accumulator must contain an even value 
-; from $00 to $10 that will decide what sound to play.
+; from $00 to $10 that will decide what sound to play. If
+; the value is outside of this range, then this method does
+; nothing.
 ;-----------------------------------------------------------
 
 play_sound_a:
@@ -74,14 +77,14 @@ play_sound_a:
 
         php
         sei
-        jsr     switch_on_x
+        jsr     play_sound_x
         plp
         rts
 
 
 
 ;-----------------------------------------------------------
-;                       switch_on_x
+;                       play_sound_x
 ;
 ; Executes one of the routines pointed to in the
 ; sound_vectors tables based on the value contained in the
@@ -89,7 +92,7 @@ play_sound_a:
 ; $10.
 ;-----------------------------------------------------------
 
-switch_on_x:
+play_sound_x:
         lda     sound_vectors + 1,x                     ; Pick an address from the switch vectors and push it onto the stack.
         pha                                             ; The routine will be 'called' when we return from this routine before
         lda     sound_vectors,x                         ; actually returning to the caller. Essentially, this is a switch statement.
@@ -101,56 +104,64 @@ return: ldx     TMP_43                                  ; Restore the x register
 
 
 ;-----------------------------------------------------------
-;                         do_s1688
+;                     play_next_sound
 ;
-; 
+; Plays the next sound in the sound buffer. If the sound
+; buffer is empty, this method does nothing.
 ;-----------------------------------------------------------
 
-do_s1688:
-        lda     zp5B                                    ; If the value at $5B is zero then return
+play_next_sound:
+        lda     SOUND_BUFFER_SIZE                       ; If the sound buffer is empty then return
         beq     @done
 
-        lda     zp57
+        lda     SOUND_BUFFER                            ; Load the next sound in the buffer
 
-        ldx     #$01
-@loop:  ldy     zp57,x
-        sty     INPUT_BUFFER_SIZE,x
+        ldx     #$01                                    ; Advance each entry in the sound buffer
+@loop:  ldy     SOUND_BUFFER,x
+        sty     SOUND_BUFFER - 1,x
         inx
         cpx     #$04
         bcc     @loop
 
-        jsr     play_sound_a
+        jsr     play_sound_a                            ; Play the sound
 
-        dec     zp5B                                    ; Decrement the value at $5B
+        dec     SOUND_BUFFER_SIZE                       ; Decrement the sound buffer size
+
 @done:  rts
 
 
 
 ;-----------------------------------------------------------
-;                         do_s1685
+;                       queue_sound
 ;
-; 
+; Queues a sound for playback. Up to four sounds can be
+; queued. If the last sound in the buffer is a "step"
+; sound (sound zero), it will be overwritten by the new
+; sound. If the sound buffer is full, the first sound in
+; the buffer will be played in order to free up space prior
+; to adding the new sound to the end of the queue.
 ;-----------------------------------------------------------
 
-do_s1685:
-        ldx     zp5B                                    ; If the value at $5B is zero then return
+queue_sound:
+        ldx     SOUND_BUFFER_SIZE                       ; If the sound buffer is empty then skip ahead and add it
         beq     @done
 
-        ldy     INPUT_BUFFER_SIZE,x
+        ldy     SOUND_BUFFER - 1,x                      ; If the last sound in the buffer is sound 0 (step), then pretend there's one fewer sounds in the buffer and overwrite it
         bne     @skip
         dex
 
-@skip:  cpx     #$04
+@skip:  cpx     #$04                                    ; If there are currently less than four sounds in the buffer, go ahead and buffer the next one
         bcc     @done
 
-        pha
-        jsr     do_s1688
+        pha                                             ; Since the buffer is full, play the next sound in the buffer to free up space
+        jsr     play_next_sound
         pla
-        ldx     zp5B
 
-@done:  sta     zp57,x
+        ldx     SOUND_BUFFER_SIZE                       ; Get the new size of the buffer
 
-        inc     zp5B                                    ; Increment the value at $5B
+@done:  sta     SOUND_BUFFER,x                          ; Add the sound to the end of the buffer
+        inc     SOUND_BUFFER_SIZE
+
         rts
 
 
@@ -268,12 +279,12 @@ b1C3A:  dex
 
 
 case_02:
-        lda     #$E8
+        lda     #$E8                                    ; Sound played when landing an attack
         ldx     #$FF
         bne     b1C53
 
 case_00:
-        lda     #$00
+        lda     #$00                                    ; Sound played when taking a step
         ldx     #$08
 
 b1C53:  stx     zp3A

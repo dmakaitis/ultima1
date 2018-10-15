@@ -11,8 +11,7 @@
 .include "stlib.inc"
 
 .import wait_for_raster
-
-.import do_s1688
+.import play_next_sound
 
 .import bitmap_cia_config
 .import bitmap_vic_config
@@ -47,7 +46,7 @@ swap_bitmaps:
         sta     CIA2_PRA
         lda     bitmap_vic_config,x
         sta     VIC_VIDEO_ADR
-@wait:  jsr     do_s1688
+@wait:  jsr     play_next_sound
         bne     @wait
 do_nothing2:
         rts

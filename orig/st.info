@@ -72,8 +72,8 @@ LABEL   { NAME "swap_water_q2_q3";              ADDR $1B13; };
 LABEL   { NAME "scroll_water_down";             ADDR $1B26; };  
 LABEL   { NAME "play_sound_a";                  ADDR $1B51; };  
 LABEL   { NAME "s1B67";                         ADDR $1B67; };  
-LABEL   { NAME "do_s1688";                      ADDR $1B72; };  
-LABEL   { NAME "do_s1685";                      ADDR $1B89; };  
+LABEL   { NAME "do_play_next_sound";            ADDR $1B72; };  
+LABEL   { NAME "do_queue_sound";                ADDR $1B89; };  
 LABEL   { NAME "toggle_voice_3";                ADDR $1C70; };  
 LABEL   { NAME "wait_for_raster";               ADDR $1C81; };  
 LABEL   { NAME "do_s166A";                      ADDR $1C8A; };  
@@ -399,8 +399,8 @@ LABEL   { NAME "zp4D";              ADDR $4D; };
 LABEL   { NAME "INPUT_BUFFER";      ADDR $4E; };        # 8 bytes
 
 LABEL   { NAME "INPUT_BUFFER_SIZE"; ADDR $56; };
-LABEL   { NAME "zp57";              ADDR $57; };
-LABEL   { NAME "zp5B";              ADDR $5B; };
+LABEL   { NAME "SOUND_BUFFER";      ADDR $57; };
+LABEL   { NAME "SOUND_BUFFER_SIZE"; ADDR $5B; };
 LABEL   { NAME "TMP_5E";            ADDR $5E; };
 LABEL   { NAME "TMP_5F";            ADDR $5F; };
 

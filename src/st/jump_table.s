@@ -17,6 +17,7 @@
 .import copy_screen_2_to_1
 .import get_random_number
 .import init_snd_gfx
+.import play_next_sound
 .import play_sound_a
 .import print_char
 .import read_from_buffer
@@ -34,8 +35,7 @@
 
 .import do_s166A
 .import do_s167C
-.import do_s1685
-.import do_s1688
+.import queue_sound
 .import do_s168B
 .import do_s168E
 .import do_s1691
@@ -133,11 +133,11 @@ st_update_cursor:
 st_play_sound_a:
         jmp     play_sound_a
 
-st_s1685:
-        jmp     do_s1685
+st_queue_sound:
+        jmp     queue_sound
 
-st_s1688:
-        jmp     do_s1688
+st_play_next_sound:
+        jmp     play_next_sound
 
 st_s168B:
         jmp     do_s168B
