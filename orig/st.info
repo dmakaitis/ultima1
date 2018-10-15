@@ -70,7 +70,7 @@ LABEL   { NAME "print_char";                    ADDR $1A78; };
 LABEL   { NAME "animate_water";                 ADDR $1B06; };  
 LABEL   { NAME "swap_water_q2_q3";              ADDR $1B13; };  
 LABEL   { NAME "scroll_water_down";             ADDR $1B26; };  
-LABEL   { NAME "do_s1682";                      ADDR $1B51; };  
+LABEL   { NAME "play_sound_a";                  ADDR $1B51; };  
 LABEL   { NAME "s1B67";                         ADDR $1B67; };  
 LABEL   { NAME "do_s1688";                      ADDR $1B72; };  
 LABEL   { NAME "do_s1685";                      ADDR $1B89; };  

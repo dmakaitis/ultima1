@@ -17,6 +17,7 @@
 .import copy_screen_2_to_1
 .import get_random_number
 .import init_snd_gfx
+.import play_sound_a
 .import print_char
 .import read_from_buffer
 .import read_input_from_buffer
@@ -33,7 +34,6 @@
 
 .import do_s166A
 .import do_s167C
-.import do_s1682
 .import do_s1685
 .import do_s1688
 .import do_s168B
@@ -130,8 +130,8 @@ st_s167C:
 st_update_cursor:
         jmp     update_cursor
 
-st_s1682:
-        jmp     do_s1682
+st_play_sound_a:
+        jmp     play_sound_a
 
 st_s1685:
         jmp     do_s1685

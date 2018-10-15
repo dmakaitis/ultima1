@@ -43,7 +43,7 @@ st_read_from_buffer             := $1679;
 ; st_s167C                        := $167C;
 
 st_update_cursor                := $167F;
-st_s1682                        := $1682;
+st_play_sound_a                 := $1682;
 st_s1685                        := $1685;
 st_s1688                        := $1688;
 

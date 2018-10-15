@@ -12,7 +12,7 @@
 .import delay_a_squared
 .import w1638
 
-.export do_s1682
+.export play_sound_a
 .export do_s1685
 .export do_s1688
 
@@ -37,7 +37,7 @@ rC0E8                   := $C0E8
 
 
 
-switch_vectors:
+sound_vectors:
         .addr   case_00 - 1                             ; Need to store the routine address minus one since the CPU will add
         .addr   case_02 - 1                             ; one to the program counter after 'returning' from the 'switch_on_x'
         .addr   case_04 - 1                             ; routine...
@@ -51,13 +51,14 @@ switch_vectors:
 
 
 ;-----------------------------------------------------------
-;                         do_s1682
+;                        play_sound_a
 ;
-; a - a en even value from $00 to $10 that will decide what
-;     this method does.
+; Plays one of several sounds depending on the value in the
+; accumulator. The accumulator must contain an even value 
+; from $00 to $10 that will decide what sound to play.
 ;-----------------------------------------------------------
 
-do_s1682:
+play_sound_a:
         stx     TMP_43                                  ; Cache the current value in the x register
 
         tax                                             ; Store the accumulator into the x register
@@ -83,15 +84,15 @@ do_s1682:
 ;                       switch_on_x
 ;
 ; Executes one of the routines pointed to in the
-; switch_vectors tables based on the value contained in the
+; sound_vectors tables based on the value contained in the
 ; x register. X must be an even number in the range $00 to
 ; $10.
 ;-----------------------------------------------------------
 
 switch_on_x:
-        lda     switch_vectors + 1,x                    ; Pick an address from the switch vectors and push it onto the stack.
+        lda     sound_vectors + 1,x                     ; Pick an address from the switch vectors and push it onto the stack.
         pha                                             ; The routine will be 'called' when we return from this routine before
-        lda     switch_vectors,x                        ; actually returning to the caller. Essentially, this is a switch statement.
+        lda     sound_vectors,x                         ; actually returning to the caller. Essentially, this is a switch statement.
         pha
 
 return: ldx     TMP_43                                  ; Restore the x register before "returning" from this routine.
@@ -118,7 +119,7 @@ do_s1688:
         cpx     #$04
         bcc     @loop
 
-        jsr     do_s1682
+        jsr     play_sound_a
 
         dec     zp5B                                    ; Decrement the value at $5B
 @done:  rts
