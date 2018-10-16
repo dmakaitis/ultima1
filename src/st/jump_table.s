@@ -16,11 +16,13 @@
 .import clear_to_end_of_text_row_a
 .import copy_screen_2_to_1
 .import draw_world
+.import draw_world_and_read_from_buffer
 .import get_random_number
 .import init_snd_gfx
 .import play_next_sound
 .import play_sound_a
 .import print_char
+.import queue_sound
 .import read_from_buffer
 .import read_input_from_buffer
 .import scan_and_buffer_input
@@ -34,8 +36,6 @@
 .import wait_for_input
 .import wait_for_raster
 
-.import do_s167C
-.import queue_sound
 .import do_s168B
 .import do_s168E
 .import do_s1691
@@ -124,8 +124,8 @@ st_read_input_from_buffer:
 st_read_from_buffer:
         jmp     read_from_buffer
 
-st_s167C:
-        jmp     do_s167C
+st_draw_world_and_read_from_buffer:
+        jmp     draw_world_and_read_from_buffer
 
 st_update_cursor:
         jmp     update_cursor

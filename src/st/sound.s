@@ -11,7 +11,6 @@
 
 .import get_random_number
 .import delay_a_squared
-.import w1638
 
 .export play_sound_a
 .export queue_sound
@@ -319,3 +318,9 @@ w1C7E           := * + 1
 
 sid_amp_cfg:
         .byte   $8F
+
+
+
+.segment "DATA_1638"
+
+w1638:  .byte   $FF

@@ -10,6 +10,8 @@
 
 .export draw_world
 
+.export tile_images
+
 .import animate_water
 .import buffer_input
 .import scan_input
@@ -20,13 +22,6 @@
 
 .import scrmem_y_offset_hi
 .import scrmem_y_offset_lo
-
-.import tile_images
-.import tile_colors
-.import tile_addr_lo
-.import tile_addr_hi
-
-.import avatar_tile
 
 
 castle_flag_hi          := tile_images + $89
@@ -94,7 +89,7 @@ draw_world:
         jsr     buffer_input
 
 @buffer_world_view_row:
-        lda     VIEW_Y                                  ; If VIEW_Y >= 64 then fill the world buffer with water
+        lda     VIEW_Y                                  ; If VIEW_Y >= 64 (or < 0) then fill the world buffer with water
         cmp     #$40
         bcs     @fill_buffer_with_water
 
@@ -113,7 +108,7 @@ draw_world:
         ldy     VIEW_X                                  ; y := VIEW_X
 
 @loop_x:                                                ; Loop through every tile in the world view row (19 tiles)
-        cpy     #$40                                    ; if y (x world coordinate) < 64 then ........
+        cpy     #$40                                    ; if y (x world coordinate) < 64 and >= 0 then buffer the tile
         bcc     @b1CD2
         lda     #$00                                    ; Otherwise advance to the next tile
         beq     @advance_to_next_world_column
@@ -330,3 +325,46 @@ draw_world:
 
 
 
+.segment "DATA_TILES"
+
+tile_images:
+        .incbin "tiles.bin"
+
+
+
+.segment "DATA_TILE_DATA"
+
+tile_addr_lo:
+        .byte   $00,$20,$40,$60,$80,$A0,$C0,$E0
+        .byte   $00,$20,$40,$60,$80,$A0,$C0,$E0
+        .byte   $00,$20,$40,$60,$80,$A0,$C0,$E0
+        .byte   $00,$20,$40,$60,$80,$A0,$C0,$E0
+        .byte   $00,$20,$40,$60,$80,$A0,$C0,$E0
+        .byte   $00,$20,$40,$60,$80,$A0,$C0,$E0
+        .byte   $00,$20,$40,$60,$80,$A0,$C0,$E0
+        .byte   $00,$20,$40,$60,$80,$A0,$C0,$E0
+
+tile_addr_hi:
+        .byte   $0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C
+        .byte   $0D,$0D,$0D,$0D,$0D,$0D,$0D,$0D
+        .byte   $0E,$0E,$0E,$0E,$0E,$0E,$0E,$0E
+        .byte   $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
+        .byte   $10,$10,$10,$10,$10,$10,$10,$10
+        .byte   $11,$11,$11,$11,$11,$11,$11,$11
+        .byte   $12,$12,$12,$12,$12,$12,$12,$12
+        .byte   $13,$13,$13,$13,$13,$13,$13,$13
+
+tile_colors:
+        .byte   $60,$50,$50,$F0,$10,$10,$10,$F0
+        .byte   $10,$10,$10,$10,$10,$10,$10,$10
+        .byte   $10,$10,$50,$50,$10,$10,$10,$10
+        .byte   $10,$10,$10,$10,$50,$50,$10,$10
+        .byte   $50,$50,$10,$10,$10,$10,$10,$10
+        .byte   $10,$10,$10,$10,$10,$10,$30,$A0
+
+
+
+.segment "DATA_AVATAR_TILE"
+
+avatar_tile:
+        .byte   $10
