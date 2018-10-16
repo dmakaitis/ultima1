@@ -31,9 +31,7 @@ st_set_text_window_main         := $165E;
 st_clear_main_viewport          := $1661;
 st_swap_bitmaps                 := $1664;
 st_print_char                   := $1667;
-
-; st_s166A                        := $166A;
-
+st_draw_world                   := $166A;
 st_wait_for_input               := $166D;
 st_get_random_number_           := $1670;
 st_scan_and_buffer_input        := $1673;

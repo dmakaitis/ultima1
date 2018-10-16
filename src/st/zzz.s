@@ -33,9 +33,8 @@
 .export scan_and_buffer_input
 .export update_cursor
 .export wait_for_input
-.export wait_for_raster
 
-.export do_s166A
+.export draw_world
 .export do_s167C
 .export do_s168E
 .export do_s1691
@@ -49,8 +48,8 @@
 .export w1786
 .export w1788
 
-zp20                    := $20
-zp21                    := $21
+PLAYER_X                := $20
+PLAYER_Y                := $21
 zp24                    := $24
 zp25                    := $25
 zp26                    := $26
@@ -64,11 +63,11 @@ TMP_PTR4_HI             := $35
 zp3A                    := $3A
 zp3B                    := $3B
 zp45                    := $45
-zp46                    := $46
-zp47                    := $47
+VIEW_X                  := $46
+VIEW_Y                  := $47
 zp48                    := $48
 zp49                    := $49
-zp4C                    := $4C
+WORLD_PTR               := $4C
 zp4D                    := $4D
 INPUT_BUFFER            := $4E
 INPUT_BUFFER_SIZE       := $56
@@ -216,6 +215,8 @@ b1864:  rts
 y_cache2:
         .byte   $00
 
+
+
 ;-----------------------------------------------------------
 ;                         do_s1691
 ;
@@ -225,6 +226,16 @@ y_cache2:
 do_s1691:
         stx     zp28
         sty     zp29
+
+
+
+
+;-----------------------------------------------------------
+;                         do_s1694
+;
+; 
+;-----------------------------------------------------------
+
 do_s1694:
         jsr     do_s168E
         lda     zp28
@@ -325,59 +336,81 @@ b190B:  dec     zp3A
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .segment "CODE_ZZZ"
 
-wait_for_raster:
-        jsr     scan_and_buffer_input
-        lda     VIC_CTRL1
-        bpl     wait_for_raster
-        rts
+;-----------------------------------------------------------
+;                        draw_world
+;
+; 
+;-----------------------------------------------------------
 
-do_s166A:
-        lda     #$08
+draw_world:
+        lda     #$08                                    ; zp45 := 8
         sta     zp45
-        sec
-        lda     zp20
+
+        sec                                             ; VIEW_X := PLAYER_X - 9
+        lda     PLAYER_X
         sbc     #$09
-        sta     zp46
-        sec
-        lda     zp21
+        sta     VIEW_X
+
+        sec                                             ; VIEW_Y := PLAYER_Y - 4
+        lda     PLAYER_Y
         sbc     #$04
-        sta     zp47
-j1C9C:  jsr     scan_input
-        bpl     b1CA4
+        sta     VIEW_Y
+
+@loop:  jsr     scan_input                              ; Scan and buffer any input where the high bit is set
+        bpl     @b1CA4
         jsr     buffer_input
-b1CA4:  lda     zp47
+
+@b1CA4: lda     VIEW_Y                                  
         cmp     #$40
-        bcs     b1CC7
-        lsr     a
-        sta     zp4D
+        bcs     @b1CC7
+
+        lsr     a                                       ; WORLD_PTR := $6400 + (accumulator * 64)
+        sta     WORLD_PTR + 1
         lda     #$00
         ror     a
-        lsr     zp4D
+        lsr     WORLD_PTR + 1
         ror     a
-        sta     zp4C
-        lda     zp4D
+        sta     WORLD_PTR
+        lda     WORLD_PTR + 1
         adc     #$64
-        sta     zp4D
-        ldx     #$00
-        ldy     zp46
-b1CBF:  cpy     #$40
-        bcc     b1CD2
+        sta     WORLD_PTR + 1
+
+        ldx     #$00                                    ; x := 0
+        ldy     VIEW_X                                  ; y := VIEW_X
+
+@b1CBF: cpy     #$40
+        bcc     @b1CD2
         lda     #$00
-        beq     b1CF1
-b1CC7:  ldx     #$12
+        beq     @b1CF1
+
+@b1CC7: ldx     #$12
         lda     #$00
-b1CCB:  sta     zp66,x
+@b1CCB: sta     zp66,x
         dex
-        bpl     b1CCB
-        bmi     b1CFA
-b1CD2:  lda     (zp4C),y
+        bpl     @b1CCB
+        bmi     @b1CFA
+@b1CD2: lda     (WORLD_PTR),y
         and     #$7E
         cmp     #$20
-        bcc     b1CF1
+        bcc     @b1CF1
         cmp     #$59
-        bcs     b1CF1
+        bcs     @b1CF1
         stx     zp48
         sta     zp49
         inc     w178E
@@ -386,20 +419,20 @@ b1CD2:  lda     (zp4C),y
         and     #$02
         adc     zp49
         ldx     zp48
-b1CF1:  lsr     a
+@b1CF1: lsr     a
         sta     zp66,x
         inx
         iny
         cpx     #$13
-        bcc     b1CBF
-b1CFA:  lda     zp47
-        inc     zp47
-        cmp     zp21
-        bne     b1D08
+        bcc     @b1CBF
+@b1CFA: lda     VIEW_Y
+        inc     VIEW_Y
+        cmp     PLAYER_Y
+        bne     @b1D08
         lda     r1639
         lsr     a
         sta     zp6F
-b1D08:  ldx     zp45
+@b1D08: ldx     zp45
         lda     bitmap_y_offset_lo,x
         clc
         adc     #$28
@@ -423,36 +456,34 @@ b1D08:  ldx     zp45
         sta     TMP_PTR3_LO
         lda     scrmem_y_offset_hi,y
         ldx     BM_ADDR_MASK
-        beq     b1D3C
+        beq     @b1D3C
         clc
         adc     #$5C
-b1D3C:  sta     TMP_PTR3_HI
+@b1D3C: sta     TMP_PTR3_HI
         ldx     #$12
-b1D40:  lda     zp66,x
+@b1D40: lda     zp66,x
         tay
         lda     r1500,y
         sta     TMP_5E
         lda     r1480,y
-        sta     w1D62
+        sta     @w1D62
         clc
         adc     #$10
-        sta     w1D67
+        sta     @w1D67
         lda     r14C0,y
-        sta     w1D63
+        sta     @w1D62 + 1
         adc     #$00
-        sta     w1D68
+        sta     @w1D67 + 1
         ldy     #$0F
-b1D61:
-w1D62           := * + 1
-w1D63           := * + 2
+@b1D61:
+@w1D62          := * + 1
         lda     tile_images,y
         sta     (TMP_PTR_LO),y
-w1D67           := * + 1
-w1D68           := * + 2
+@w1D67          := * + 1
         lda     tile_images,y
         sta     (TMP_PTR2_LO),y
         dey
-        bpl     b1D61
+        bpl     @b1D61
         txa
         asl     a
         tay
@@ -484,40 +515,49 @@ w1D68           := * + 2
         sbc     #$00
         sta     TMP_PTR2_HI
         dex
-        bpl     b1D40
+        bpl     @b1D40
         lda     zp45
         clc
         adc     #$10
         sta     zp45
         lda     zp45
         cmp     #$98
-        bcs     b1DB2
-        jmp     j1C9C
+        bcs     @update_screen
+        jmp     @loop
 
-b1DB2:  jsr     swap_bitmaps
-        dec     water_ctr
-        bne     b1DC4
+
+@update_screen:
+        jsr     swap_bitmaps
+
+        dec     water_ctr                               ; Update the water every two frames
+        bne     @update_castle
         lda     #$02
         sta     water_ctr
         ldy     #$00
         jsr     animate_water
-b1DC4:  dec     castle_flag_ctr
-        bne     b1DDA
+
+@update_castle:
+        dec     castle_flag_ctr                         ; Update the castle flag every three frames
+        bne     @update_towne
         lda     #$03
         sta     castle_flag_ctr
         ldx     castle_flag_hi
         ldy     castle_flag_lo
         sty     castle_flag_hi
         stx     castle_flag_lo
-b1DDA:  dec     towne_flag_ctr
-        bne     b1DF0
+
+@update_towne:
+        dec     towne_flag_ctr                          ; Update the towne flag every two frames
+        bne     @update_ship
         lda     #$02
         sta     towne_flag_ctr
         ldx     towne_flag_hi
         ldy     towne_flag_lo
         sty     towne_flag_hi
         stx     towne_flag_lo
-b1DF0:  ldx     ship_flag_r_hi
+
+@update_ship:
+        ldx     ship_flag_r_hi                          ; Update the ship flag every frame
         ldy     ship_flag_r_lo
         sty     ship_flag_r_hi
         stx     ship_flag_r_lo
@@ -525,6 +565,17 @@ b1DF0:  ldx     ship_flag_r_hi
         ldy     ship_flag_l_lo
         sty     ship_flag_l_hi
         stx     ship_flag_l_lo
+
+        ; continued below...
+
+
+
+;-----------------------------------------------------------
+;                   scan_and_buffer_input
+;
+; 
+;-----------------------------------------------------------
+
 scan_and_buffer_input:
         jsr     scan_input
         bpl     b1E27
@@ -544,10 +595,21 @@ b1E1D:  ldx     INPUT_BUFFER_SIZE
         inc     INPUT_BUFFER_SIZE
 b1E27:  rts
 
+
+
 bitmap_cia_config:
         .byte   $97,$96
 bitmap_vic_config:
         .byte   $18,$80
+
+
+
+;-----------------------------------------------------------
+;                     wait_for_input
+;
+; 
+;-----------------------------------------------------------
+
 wait_for_input:
         ldy     #$07
 b1E2E:  jsr     scan_and_buffer_input
@@ -559,10 +621,26 @@ b1E2E:  jsr     scan_and_buffer_input
         bne     b1E2E
         rts
 
+
+
+;-----------------------------------------------------------
+;                  read_input_from_buffer
+;
+; 
+;-----------------------------------------------------------
+
 read_input_from_buffer:
         jsr     read_from_buffer
         beq     read_input_from_buffer
         rts
+
+
+
+;-----------------------------------------------------------
+;                    read_from_buffer
+;
+; 
+;-----------------------------------------------------------
 
 read_from_buffer:
         jsr     cache_x_y_and_update_cursor
@@ -570,9 +648,18 @@ read_from_buffer:
         lda     INPUT_BUFFER_SIZE
         bne     b1E5A
         beq     b1E7A
+
+
+
+;-----------------------------------------------------------
+;                        do_s167C
+;
+; 
+;-----------------------------------------------------------
+
 do_s167C:
         jsr     cache_x_y_and_update_cursor
-        jsr     do_s166A
+        jsr     draw_world
         lda     INPUT_BUFFER_SIZE
         beq     b1E7A
 b1E5A:  lda     #$20
@@ -596,10 +683,29 @@ b1E7A:  ldx     x_cache
         and     #$7F
         rts
 
+
+
+;-----------------------------------------------------------
+;                cache_x_y_and_update_cursor
+;
+; 
+;-----------------------------------------------------------
+
 cache_x_y_and_update_cursor:
         stx     x_cache
         sty     y_cache
         jsr     do_nothing4
+
+        ; continued below
+
+
+
+;-----------------------------------------------------------
+;                     update_cursor
+;
+; 
+;-----------------------------------------------------------
+
 update_cursor:
         ldx     cursor_char
         dex
@@ -610,6 +716,17 @@ b1E96:  stx     cursor_char
 cursor_char     := * + 1
         lda     #$7C
         jsr     print_char
+
+        ; continued below
+
+
+
+;-----------------------------------------------------------
+;                    get_random_number
+;
+; 
+;-----------------------------------------------------------
+
 get_random_number:
         clc
         lda     w1ED4
@@ -630,9 +747,20 @@ b1EB9:  inc     w1EC5,x
 b1EC1:  lda     w1EC5
         rts
 
+
+
 w1EC5:  .byte   $64,$76,$85,$54,$F6,$5C,$76,$1F
         .byte   $E7,$12,$A7,$6B,$93,$C4,$6E
 w1ED4:  .byte   $1B
+
+
+
+;-----------------------------------------------------------
+;                       scan_input
+;
+; 
+;-----------------------------------------------------------
+
 scan_input:
         sty     TMP_5E
         lda     #$FF
@@ -715,6 +843,8 @@ b1F7A:  ldy     #$FF
         pha
         pla
         rts
+
+
 
 w1F83:  .byte   $00
 w1F84:  .byte   $00,$A0,$FF

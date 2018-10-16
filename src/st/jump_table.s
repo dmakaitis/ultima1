@@ -15,6 +15,7 @@
 .import clear_text_window
 .import clear_to_end_of_text_row_a
 .import copy_screen_2_to_1
+.import draw_world
 .import get_random_number
 .import init_snd_gfx
 .import play_next_sound
@@ -33,7 +34,6 @@
 .import wait_for_input
 .import wait_for_raster
 
-.import do_s166A
 .import do_s167C
 .import queue_sound
 .import do_s168B
@@ -106,8 +106,8 @@ st_swap_bitmaps:
 st_print_char:
         jmp     print_char
 
-st_s166A:
-        jmp     do_s166A
+st_draw_world:
+        jmp     draw_world
 
 st_wait_for_input:
         jmp     wait_for_input

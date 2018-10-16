@@ -34,7 +34,7 @@ rC0E8                   := $C0E8
 
         .setcpu "6502"
 
-.segment "CODE_S1682"
+.segment "CODE_SOUND"
 
 
 

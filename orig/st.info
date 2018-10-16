@@ -372,8 +372,8 @@ LABEL   { NAME "rC0E8";             ADDR $C0E8; };
 
 LABEL   { NAME "CHAR_REV";          ADDR $1F; };
 
-LABEL   { NAME "zp20";              ADDR $20; };
-LABEL   { NAME "zp21";              ADDR $21; };
+LABEL   { NAME "PLAYER_X";          ADDR $20; };
+LABEL   { NAME "PLAYER_Y";          ADDR $21; };
 LABEL   { NAME "zp24";              ADDR $24; };
 LABEL   { NAME "zp25";              ADDR $25; };
 LABEL   { NAME "zp26";              ADDR $26; };
@@ -390,12 +390,12 @@ LABEL   { NAME "zp3B";              ADDR $3B; };
 
 LABEL   { NAME "zp43";              ADDR $43; };
 LABEL   { NAME "zp45";              ADDR $45; };
-LABEL   { NAME "zp46";              ADDR $46; };
-LABEL   { NAME "zp47";              ADDR $47; };
+LABEL   { NAME "VIEW_X";            ADDR $46; };
+LABEL   { NAME "VIEW_Y";            ADDR $47; };
 LABEL   { NAME "zp48";              ADDR $48; };
 LABEL   { NAME "zp49";              ADDR $49; };
-LABEL   { NAME "zp4C";              ADDR $4C; };
-LABEL   { NAME "zp4D";              ADDR $4D; };
+LABEL   { NAME "WORLD_PTR_LO";      ADDR $4C; };
+LABEL   { NAME "WORLD_PTR_HI";      ADDR $4D; };
 LABEL   { NAME "INPUT_BUFFER";      ADDR $4E; };        # 8 bytes
 
 LABEL   { NAME "INPUT_BUFFER_SIZE"; ADDR $56; };
