@@ -9,14 +9,11 @@
 .include "stlib.inc"
 
 .export draw_world
-.export scan_and_buffer_input
-.export wait_for_input
 
 .import animate_water
-.import delay_a_squared
-.import swap_bitmaps
-
+.import buffer_input
 .import scan_input
+.import swap_bitmaps
 
 .import bitmap_y_offset_hi
 .import bitmap_y_offset_lo
@@ -30,9 +27,6 @@
 .import r14C0
 .import r1500
 .import r1639
-
-.export bitmap_cia_config
-.export bitmap_vic_config
 
 castle_flag_hi          := tile_images + $89
 castle_flag_lo          := tile_images + $8A
@@ -51,8 +45,6 @@ VIEW_Y                  := $47
 zp48                    := $48
 zp49                    := $49
 WORLD_PTR               := $4C
-INPUT_BUFFER            := $4E
-INPUT_BUFFER_SIZE       := $56
 TMP_5E                  := $5E
 TMP_PTR_LO              := $60
 TMP_PTR_HI              := $61
@@ -294,57 +286,7 @@ draw_world:
         sty     ship_flag_l_hi
         stx     ship_flag_l_lo
 
-        ; continued below...
+        ; continued in scan_and_buffer_input
 
 
 
-;-----------------------------------------------------------
-;                   scan_and_buffer_input
-;
-; 
-;-----------------------------------------------------------
-
-scan_and_buffer_input:
-        jsr     scan_input
-        bpl     b1E27
-buffer_input:
-        cmp     #$90
-        beq     b1E27
-        cmp     #$93
-        beq     b1E27
-        cmp     #$A0
-        bne     b1E1D
-        ldx     #$00
-        stx     INPUT_BUFFER_SIZE
-b1E1D:  ldx     INPUT_BUFFER_SIZE
-        cpx     #$08
-        bcs     b1E27
-        sta     INPUT_BUFFER,x
-        inc     INPUT_BUFFER_SIZE
-b1E27:  rts
-
-
-
-bitmap_cia_config:
-        .byte   $97,$96
-bitmap_vic_config:
-        .byte   $18,$80
-
-
-
-;-----------------------------------------------------------
-;                     wait_for_input
-;
-; 
-;-----------------------------------------------------------
-
-wait_for_input:
-        ldy     #$07
-b1E2E:  jsr     scan_and_buffer_input
-        lda     INPUT_BUFFER_SIZE
-        bne     b1E27
-        lda     #$4F
-        jsr     delay_a_squared
-        dey
-        bne     b1E2E
-        rts
