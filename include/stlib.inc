@@ -27,7 +27,6 @@ st_set_text_window_full         := $1655;
 st_set_text_window_stats        := $1658;
 st_set_text_window_command      := $165B;
 st_set_text_window_main         := $165E;
-
 st_clear_main_viewport          := $1661;
 st_swap_bitmaps                 := $1664;
 st_print_char                   := $1667;
@@ -42,6 +41,7 @@ st_read_from_buffer             := $1679;
 
 st_update_cursor                := $167F;
 st_play_sound_a                 := $1682;
+
 st_s1685                        := $1685;
 st_s1688                        := $1688;
 

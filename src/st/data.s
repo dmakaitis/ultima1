@@ -16,16 +16,18 @@
 .export scrmem_y_offset_hi
 .export scrmem_y_offset_lo
 
+.export tile_addr_lo
+.export tile_addr_hi
+
+.export tile_colors
 .export char_colors
 
+.export avatar_tile
+
 .export r1380
-.export r1480
-.export r14C0
-.export r1500
 .export r1632
 .export r1637
 .export w1638
-.export r1639
 
         .setcpu "6502"
 
@@ -124,7 +126,8 @@ r1380:  .byte   $C0,$60,$30,$18,$0C,$06,$03,$01
         .byte   $C0,$60,$30,$18,$0C,$06,$03,$01
         .byte   $C0,$60,$30,$18,$0C,$06,$03,$01
 
-r1480:  .byte   $00,$20,$40,$60,$80,$A0,$C0,$E0
+tile_addr_lo:
+        .byte   $00,$20,$40,$60,$80,$A0,$C0,$E0
         .byte   $00,$20,$40,$60,$80,$A0,$C0,$E0
         .byte   $00,$20,$40,$60,$80,$A0,$C0,$E0
         .byte   $00,$20,$40,$60,$80,$A0,$C0,$E0
@@ -133,7 +136,8 @@ r1480:  .byte   $00,$20,$40,$60,$80,$A0,$C0,$E0
         .byte   $00,$20,$40,$60,$80,$A0,$C0,$E0
         .byte   $00,$20,$40,$60,$80,$A0,$C0,$E0
 
-r14C0:  .byte   $0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C
+tile_addr_hi:
+        .byte   $0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C
         .byte   $0D,$0D,$0D,$0D,$0D,$0D,$0D,$0D
         .byte   $0E,$0E,$0E,$0E,$0E,$0E,$0E,$0E
         .byte   $0F,$0F,$0F,$0F,$0F,$0F,$0F,$0F
@@ -142,7 +146,8 @@ r14C0:  .byte   $0C,$0C,$0C,$0C,$0C,$0C,$0C,$0C
         .byte   $12,$12,$12,$12,$12,$12,$12,$12
         .byte   $13,$13,$13,$13,$13,$13,$13,$13
 
-r1500:  .byte   $60,$50,$50,$F0,$10,$10,$10,$F0
+tile_colors:
+        .byte   $60,$50,$50,$F0,$10,$10,$10,$F0
         .byte   $10,$10,$10,$10,$10,$10,$10,$10
         .byte   $10,$10,$50,$50,$10,$10,$10,$10
         .byte   $10,$10,$10,$10,$50,$50,$10,$10
@@ -199,4 +204,5 @@ r1637:  .byte   $02
 
 w1638:  .byte   $FF
 
-r1639:  .byte   $10
+avatar_tile:
+        .byte   $10

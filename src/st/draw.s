@@ -22,11 +22,12 @@
 .import scrmem_y_offset_lo
 
 .import tile_images
+.import tile_colors
+.import tile_addr_lo
+.import tile_addr_hi
 
-.import r1480
-.import r14C0
-.import r1500
-.import r1639
+.import avatar_tile
+
 
 castle_flag_hi          := tile_images + $89
 castle_flag_lo          := tile_images + $8A
@@ -39,21 +40,17 @@ ship_flag_r_lo          := tile_images + $18B
 
 PLAYER_X                := $20
 PLAYER_Y                := $21
-zp45                    := $45
+SCREEN_Y                := $45
 VIEW_X                  := $46
 VIEW_Y                  := $47
-zp48                    := $48
-zp49                    := $49
+TMP_X                   := $48
+TMP_ACC                 := $49
 WORLD_PTR               := $4C
-TMP_5E                  := $5E
-TMP_PTR_LO              := $60
-TMP_PTR_HI              := $61
-TMP_PTR2_LO             := $62
-TMP_PTR2_HI             := $63
-TMP_PTR3_LO             := $64
-TMP_PTR3_HI             := $65
-zp66                    := $66
-zp6F                    := $6F
+TILE_COLOR              := $5E
+BITMAP_PTR_HI           := $60
+BITMAP_PTR_LO           := $62
+SCREEN_MEM_PTR          := $64
+WORLD_BUFFER            := $66      ; 19 bytes
 
 rB700                   := $B700
 
@@ -75,12 +72,12 @@ w178E:  .byte   $01
 ;-----------------------------------------------------------
 ;                        draw_world
 ;
-; 
+; Draws the world into the main viewport.
 ;-----------------------------------------------------------
 
 draw_world:
-        lda     #$08                                    ; zp45 := 8
-        sta     zp45
+        lda     #$08                                    ; SCREEN_Y := 8
+        sta     SCREEN_Y
 
         sec                                             ; VIEW_X := PLAYER_X - 9
         lda     PLAYER_X
@@ -93,14 +90,15 @@ draw_world:
         sta     VIEW_Y
 
 @loop:  jsr     scan_input                              ; Scan and buffer any input where the high bit is set
-        bpl     @b1CA4
+        bpl     @buffer_world_view_row
         jsr     buffer_input
 
-@b1CA4: lda     VIEW_Y                                  
+@buffer_world_view_row:
+        lda     VIEW_Y                                  ; If VIEW_Y >= 64 then fill the world buffer with water
         cmp     #$40
-        bcs     @b1CC7
+        bcs     @fill_buffer_with_water
 
-        lsr     a                                       ; WORLD_PTR := $6400 + (accumulator * 64)
+        lsr     a                                       ; WORLD_PTR := $6400 + (VIEW_Y * 64)
         sta     WORLD_PTR + 1
         lda     #$00
         ror     a
@@ -114,136 +112,178 @@ draw_world:
         ldx     #$00                                    ; x := 0
         ldy     VIEW_X                                  ; y := VIEW_X
 
-@b1CBF: cpy     #$40
+@loop_x:                                                ; Loop through every tile in the world view row (19 tiles)
+        cpy     #$40                                    ; if y (x world coordinate) < 64 then ........
         bcc     @b1CD2
-        lda     #$00
-        beq     @b1CF1
+        lda     #$00                                    ; Otherwise advance to the next tile
+        beq     @advance_to_next_world_column
 
-@b1CC7: ldx     #$12
+
+
+@fill_buffer_with_water:
+        ldx     #$12                                    ; Fill the world buffer with water (tile 0)
         lda     #$00
-@b1CCB: sta     zp66,x
+@loop_fill_water:
+        sta     WORLD_BUFFER,x
         dex
-        bpl     @b1CCB
-        bmi     @b1CFA
-@b1CD2: lda     (WORLD_PTR),y
-        and     #$7E
-        cmp     #$20
-        bcc     @b1CF1
-        cmp     #$59
-        bcs     @b1CF1
-        stx     zp48
-        sta     zp49
+        bpl     @loop_fill_water
+        bmi     @fix_avatar_tile
+
+
+
+@b1CD2: lda     (WORLD_PTR),y                           ; Get the current tile from the world map
+
+        and     #$7E                                    ; Filter out the top and bottom bits
+
+        cmp     #$20                                    ; If the value is less than 0x20, then store it and continue
+        bcc     @advance_to_next_world_column       
+
+        cmp     #$59                                    ; If the value is greater than or equal to 0x59, store it and continue
+        bcs     @advance_to_next_world_column
+
+        stx     TMP_X
+        sta     TMP_ACC
         inc     w178E
         ldx     w178E
         lda     rB700,x
         and     #$02
-        adc     zp49
-        ldx     zp48
-@b1CF1: lsr     a
-        sta     zp66,x
-        inx
+        adc     TMP_ACC
+        ldx     TMP_X
+
+
+
+@advance_to_next_world_column:
+        lsr     a                                       ; Store the current tile in to the world buffer
+        sta     WORLD_BUFFER,x
+
+        inx                                             ; Advance to the next tile
         iny
-        cpx     #$13
-        bcc     @b1CBF
-@b1CFA: lda     VIEW_Y
+
+        cpx     #$13                                    ; Keep going until we've buffered 19 tiles
+        bcc     @loop_x
+
+
+
+@fix_avatar_tile:
+        lda     VIEW_Y                                  ; If the current row is the row the player is on, replace the center tile with the avatar tile image
         inc     VIEW_Y
         cmp     PLAYER_Y
-        bne     @b1D08
-        lda     r1639
+        bne     @draw_world_row
+        lda     avatar_tile
         lsr     a
-        sta     zp6F
-@b1D08: ldx     zp45
+        sta     WORLD_BUFFER + 9
+
+
+
+@draw_world_row:
+        ldx     SCREEN_Y                                ; BITMAP_PTR_HI := memory location of top left corner of last tile in the current row
         lda     bitmap_y_offset_lo,x
         clc
         adc     #$28
-        sta     TMP_PTR_LO
+        sta     BITMAP_PTR_HI
         lda     bitmap_y_offset_hi,x
         adc     #$01
         eor     BM_ADDR_MASK
-        sta     TMP_PTR_HI
-        lda     TMP_PTR_LO
+        sta     BITMAP_PTR_HI + 1
+
+        lda     BITMAP_PTR_HI                           ; BITMAP_PTR_LO := memory location eight pixels below BITMAP_PTR_HI
         adc     #$40
-        sta     TMP_PTR2_LO
-        lda     TMP_PTR_HI
+        sta     BITMAP_PTR_LO
+        lda     BITMAP_PTR_HI + 1
         adc     #$01
-        sta     TMP_PTR2_HI
-        lda     zp45
+        sta     BITMAP_PTR_LO + 1
+
+        lda     SCREEN_Y                                ; SCREEN_MEM_PTR := screen memory location of top left corner of the current row
         lsr     a
         lsr     a
         lsr     a
         tay
         lda     scrmem_y_offset_lo,y
-        sta     TMP_PTR3_LO
+        sta     SCREEN_MEM_PTR
         lda     scrmem_y_offset_hi,y
         ldx     BM_ADDR_MASK
-        beq     @b1D3C
+        beq     @set_srn_ptr_hi
         clc
         adc     #$5C
-@b1D3C: sta     TMP_PTR3_HI
-        ldx     #$12
-@b1D40: lda     zp66,x
-        tay
-        lda     r1500,y
-        sta     TMP_5E
-        lda     r1480,y
-        sta     @w1D62
+@set_srn_ptr_hi:
+        sta     SCREEN_MEM_PTR + 1
+
+        ldx     #$12                                    ; Loop through all 19 tiles, from right to left
+@loop_row:
+        lda     WORLD_BUFFER,x                          ; Get the next tile
+
+        tay                                             ; Get the color for the tile
+        lda     tile_colors,y
+        sta     TILE_COLOR
+
+        lda     tile_addr_lo,y                          ; Get the address for the top and bottom halves of the tile
+        sta     @tile_addr_top
         clc
         adc     #$10
-        sta     @w1D67
-        lda     r14C0,y
-        sta     @w1D62 + 1
+        sta     @tile_addr_bottom
+        lda     tile_addr_hi,y
+        sta     @tile_addr_top + 1
         adc     #$00
-        sta     @w1D67 + 1
-        ldy     #$0F
-@b1D61:
-@w1D62          := * + 1
+        sta     @tile_addr_bottom + 1
+
+        ldy     #$0F                                    ; Copy the 32 bytes for the tile (2 pairs of 16 bytes)
+@loop_tile:
+@tile_addr_top  := * + 1
         lda     tile_images,y
-        sta     (TMP_PTR_LO),y
-@w1D67          := * + 1
+        sta     (BITMAP_PTR_HI),y
+@tile_addr_bottom   := * + 1
         lda     tile_images,y
-        sta     (TMP_PTR2_LO),y
+        sta     (BITMAP_PTR_LO),y
         dey
-        bpl     @b1D61
-        txa
+        bpl     @loop_tile
+
+        txa                                             ; y := 2x + 1
         asl     a
         tay
         iny
-        lda     TMP_5E
-        sta     (TMP_PTR3_LO),y
+
+        lda     TILE_COLOR                              ; Put the color of the tile into the four bytes of screen memory
+        sta     (SCREEN_MEM_PTR),y
         iny
-        sta     (TMP_PTR3_LO),y
+        sta     (SCREEN_MEM_PTR),y
         tya
         clc
         adc     #$28
         tay
-        lda     TMP_5E
-        sta     (TMP_PTR3_LO),y
+        lda     TILE_COLOR
+        sta     (SCREEN_MEM_PTR),y
         dey
-        sta     (TMP_PTR3_LO),y
-        lda     TMP_PTR_LO
+        sta     (SCREEN_MEM_PTR),y
+
+        lda     BITMAP_PTR_HI                           ; Move the bitmap pointers 16 pixels to the left
         sec
         sbc     #$10
-        sta     TMP_PTR_LO
-        lda     TMP_PTR_HI
+        sta     BITMAP_PTR_HI
+        lda     BITMAP_PTR_HI + 1
         sbc     #$00
-        sta     TMP_PTR_HI
-        lda     TMP_PTR2_LO
+        sta     BITMAP_PTR_HI + 1
+
+        lda     BITMAP_PTR_LO
         sec
         sbc     #$10
-        sta     TMP_PTR2_LO
-        lda     TMP_PTR2_HI
+        sta     BITMAP_PTR_LO
+        lda     BITMAP_PTR_LO + 1
         sbc     #$00
-        sta     TMP_PTR2_HI
-        dex
-        bpl     @b1D40
-        lda     zp45
+        sta     BITMAP_PTR_LO + 1
+
+        dex                                             ; Keep going until we've completed the row
+        bpl     @loop_row
+
+        lda     SCREEN_Y                                ; Move the screen draw pointer 16 pixels down
         clc
         adc     #$10
-        sta     zp45
-        lda     zp45
+        sta     SCREEN_Y
+
+        lda     SCREEN_Y                                ; Keep going until we've reached the bottom of the viewport
         cmp     #$98
         bcs     @update_screen
         jmp     @loop
+
 
 
 @update_screen:

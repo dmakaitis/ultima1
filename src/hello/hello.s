@@ -1167,7 +1167,7 @@ load_file_cached_a:
         and     #$FD
         sta     PROCESSOR_PORT
 
-        lda     #$00                    ; Copy 30 * 256 bytes from $E000-F800 to $8C9E
+        lda     #$00                    ; Copy 30 * 256 bytes from $E000-F7FF to $8C9E-$A49D
         tay
         sta     $60
         lda     #$E0
