@@ -21,7 +21,9 @@ zpC5                    := $C5
 ;-----------------------------------------------------------
 ;                       scan_input
 ;
-; 
+; Scans the keyboard and joystick for input. If a key or the
+; joystick is currently being pressed, the input value is
+; returned in the accumulator.
 ;-----------------------------------------------------------
 
 scan_input:
