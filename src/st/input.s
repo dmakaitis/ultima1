@@ -8,7 +8,6 @@
 
 .export buffer_input
 .export draw_world_and_read_from_buffer
-.export get_random_number
 .export read_from_buffer
 .export read_input_from_buffer
 .export scan_and_buffer_input
@@ -190,40 +189,6 @@ cursor_char     := * + 1
         jsr     print_char
 
         ; continued below
-
-
-
-;-----------------------------------------------------------
-;                    get_random_number
-;
-; 
-;-----------------------------------------------------------
-
-get_random_number:
-        clc
-        lda     w1ED4
-        ldx     #$0E
-b1EA4:  adc     w1EC5,x
-        sta     w1EC5,x
-        dex
-        bpl     b1EA4
-        lda     w1ED4
-        clc
-        adc     w1EC5
-        sta     w1EC5
-        ldx     #$0F
-b1EB9:  inc     w1EC5,x
-        bne     b1EC1
-        dex
-        bpl     b1EB9
-b1EC1:  lda     w1EC5
-        rts
-
-
-
-w1EC5:  .byte   $64,$76,$85,$54,$F6,$5C,$76,$1F
-        .byte   $E7,$12,$A7,$6B,$93,$C4,$6E
-w1ED4:  .byte   $1B
 
 
 
