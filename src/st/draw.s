@@ -47,7 +47,7 @@ BITMAP_PTR_LO           := $62
 SCREEN_MEM_PTR          := $64
 WORLD_BUFFER            := $66      ; 19 bytes
 
-rB700                   := $B700
+random_data                   := $B700
 
         .setcpu "6502"
 
@@ -60,7 +60,7 @@ castle_flag_ctr:
 towne_flag_ctr:
         .byte   $02
 
-w178E:  .byte   $01
+monster_anim_ctr:  .byte   $01
 
 .segment "CODE_DRAW"
 
@@ -130,25 +130,25 @@ draw_world:
 
         and     #$7E                                    ; Filter out the top and bottom bits
 
-        cmp     #$20                                    ; If the value is less than 0x20, then store it and continue
+        cmp     #$20                                    ; If the value is less than 0x20 (tile 16), then store it and continue
         bcc     @advance_to_next_world_column       
 
         cmp     #$59                                    ; If the value is greater than or equal to 0x59, store it and continue
         bcs     @advance_to_next_world_column
 
-        stx     TMP_X
+        stx     TMP_X                                   ; Randomly add two to the tile number to animate the monster tiles
         sta     TMP_ACC
-        inc     w178E
-        ldx     w178E
-        lda     rB700,x
-        and     #$02
+        inc     monster_anim_ctr
+        ldx     monster_anim_ctr
+        lda     random_data,x
+        and     #$02                            
         adc     TMP_ACC
         ldx     TMP_X
 
 
 
 @advance_to_next_world_column:
-        lsr     a                                       ; Store the current tile in to the world buffer
+        lsr     a                                       ; Store the current tile into the world buffer (after dividing by two)
         sta     WORLD_BUFFER,x
 
         inx                                             ; Advance to the next tile

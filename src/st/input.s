@@ -6,16 +6,12 @@
 ;
 ;-------------------------------------------------------------------------------
 
-.include "c64.inc"
-.include "kernel.inc"
-
 .export buffer_input
 .export draw_world_and_read_from_buffer
 .export get_random_number
 .export read_from_buffer
 .export read_input_from_buffer
 .export scan_and_buffer_input
-.export scan_input
 .export update_cursor
 .export wait_for_input
 
@@ -24,15 +20,14 @@
 
 .import delay_a_squared
 .import do_nothing4
-.import print_char
 .import draw_world
+.import print_char
+.import scan_input
 
         .setcpu "6502"
 
 INPUT_BUFFER            := $4E
 INPUT_BUFFER_SIZE       := $56
-TMP_5E                  := $5E
-zpC5                    := $C5
 
 .segment "CODE_INPUT"
 
@@ -45,6 +40,17 @@ zpC5                    := $C5
 scan_and_buffer_input:
         jsr     scan_input
         bpl     b1E27
+
+        ; continued below
+
+
+
+;-----------------------------------------------------------
+;                       buffer_input
+;
+; 
+;-----------------------------------------------------------
+
 buffer_input:
         cmp     #$90
         beq     b1E27
@@ -218,110 +224,6 @@ b1EC1:  lda     w1EC5
 w1EC5:  .byte   $64,$76,$85,$54,$F6,$5C,$76,$1F
         .byte   $E7,$12,$A7,$6B,$93,$C4,$6E
 w1ED4:  .byte   $1B
-
-
-
-;-----------------------------------------------------------
-;                       scan_input
-;
-; 
-;-----------------------------------------------------------
-
-scan_input:
-        sty     TMP_5E
-        lda     #$FF
-        sta     CIA1_PRB
-        lda     CIA1_PRA
-        sty     TMP_5E
-        ldy     #$04
-b1EE3:  lsr     a
-        bcs     b1EEC
-        lda     r1632,y
-        bne     b1F27
-        rts
-
-b1EEC:  dey
-        bpl     b1EE3
-        jsr     KERNEL_SCNKEY
-        jsr     KERNEL_GETIN
-        cmp     #$00
-        bne     b1F01
-        sta     w1F83
-        sta     w1F84
-        beq     b1F7A
-b1F01:  cmp     #$BA
-        bne     b1F07
-        lda     #$40
-b1F07:  cmp     #$91
-        bne     b1F0D
-        lda     #$40
-b1F0D:  cmp     #$11
-        bne     b1F13
-        lda     #$2F
-b1F13:  cmp     #$3F
-        bne     b1F19
-        lda     #$2F
-b1F19:  cmp     #$9D
-        bne     b1F1F
-        lda     #$3A
-b1F1F:  cmp     #$1D
-        bne     b1F25
-        lda     #$3B
-b1F25:  ora     #$80
-b1F27:  cmp     w1F83
-        sta     w1F83
-        bne     b1F6F
-        cmp     #$C0
-        beq     b1F46
-        cmp     #$AF
-        beq     b1F46
-        cmp     #$BB
-        beq     b1F46
-        cmp     #$BA
-        beq     b1F46
-        lda     #$00
-        sta     w1F84
-        beq     b1F7A
-b1F46:  ldy     r1637
-        cpy     #$04
-        bcs     b1F5E
-        ldy     w1F84
-        bne     b1F67
-        ldy     CIA1_TODSEC
-        bne     b1F62
-        ldy     CIA1_TOD10
-        cpy     #$05
-        bcs     b1F62
-b1F5E:  lda     #$00
-        beq     b1F7A
-b1F62:  inc     w1F84
-        bne     b1F6F
-b1F67:  ldy     CIA1_TOD10
-        cpy     r1637
-        bcc     b1F5E
-b1F6F:  ldy     #$00
-        sty     CIA1_TODHR
-        sty     CIA1_TODSEC
-        sty     CIA1_TOD10
-b1F7A:  ldy     #$FF
-        sty     zpC5
-        ldy     TMP_5E
-        pha
-        pla
-        rts
-
-
-
-w1F83:  .byte   $00
-w1F84:  .byte   $00,$A0,$FF
-
-
-
-.segment "DATA_1632"
-
-r1632:  .byte   $A0,$BB,$BA,$AF,$C0
-
-r1637:  .byte   $02
 
 
 

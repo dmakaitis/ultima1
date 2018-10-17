@@ -26,6 +26,8 @@
 
     .addr   $2000
 
+
+
 .segment "DATA_BITMAP_Y_OFFSETS"
 
 bitmap_y_offset_lo:
@@ -97,6 +99,10 @@ bitmap_x_offset_hi:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $01,$01,$01,$01,$01,$01,$01,$01
+
+
+
+.segment "DATA_SCREEN_Y_OFFSETS"
 
 scrmem_y_offset_lo:
         .byte   $00,$28,$50,$78,$A0,$C8,$F0,$18
