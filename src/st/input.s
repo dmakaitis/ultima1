@@ -11,7 +11,6 @@
 .export read_from_buffer
 .export read_input_from_buffer
 .export scan_and_buffer_input
-.export update_cursor
 .export wait_for_input
 
 .export bitmap_cia_config
@@ -167,28 +166,7 @@ cache_x_y_and_update_cursor:
         sty     y_cache
         jsr     do_nothing4
 
-        ; continued below
-
-
-
-;-----------------------------------------------------------
-;                     update_cursor
-;
-; 
-;-----------------------------------------------------------
-
-update_cursor:
-        ldx     cursor_char
-        dex
-        cpx     #$7C
-        bcs     b1E96
-        ldx     #$7F
-b1E96:  stx     cursor_char
-cursor_char     := * + 1
-        lda     #$7C
-        jsr     print_char
-
-        ; continued below
+        ; continued in update_cursor
 
 
 
