@@ -16,15 +16,15 @@
 .import clear_to_end_of_text_row_a
 .import copy_screen_2_to_1
 .import draw_world
-.import draw_world_and_read_from_buffer
+.import draw_world_and_get_input
+.import get_input
 .import get_random_number
 .import init_snd_gfx
 .import play_next_sound
 .import play_sound_a
 .import print_char
 .import queue_sound
-.import read_from_buffer
-.import read_input_from_buffer
+.import read_input
 .import scan_and_buffer_input
 .import scroll_text_area_up
 .import set_text_window_command
@@ -118,14 +118,14 @@ st_get_random_number_:
 st_scan_and_buffer_input:
         jmp     scan_and_buffer_input
 
-st_read_input_from_buffer:
-        jmp     read_input_from_buffer
+st_read_input:
+        jmp     read_input
 
-st_read_from_buffer:
-        jmp     read_from_buffer
+st_get_input:
+        jmp     get_input
 
-st_draw_world_and_read_from_buffer:
-        jmp     draw_world_and_read_from_buffer
+st_draw_world_and_get_input:
+        jmp     draw_world_and_get_input
 
 st_update_cursor:
         jmp     update_cursor

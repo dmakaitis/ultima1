@@ -7,9 +7,9 @@
 ;-------------------------------------------------------------------------------
 
 .export buffer_input
-.export draw_world_and_read_from_buffer
-.export read_from_buffer
-.export read_input_from_buffer
+.export draw_world_and_get_input
+.export get_input
+.export read_input
 .export scan_and_buffer_input
 .export wait_for_input
 
@@ -36,8 +36,8 @@ INPUT_BUFFER_SIZE       := $56
 ;-----------------------------------------------------------
 
 scan_and_buffer_input:
-        jsr     scan_input
-        bpl     b1E27
+        jsr     scan_input                              ; Scan for input
+        bpl     buffer_input_done                       ; If the high bit isn't set, then we're done
 
         ; continued below
 
@@ -46,24 +46,31 @@ scan_and_buffer_input:
 ;-----------------------------------------------------------
 ;                       buffer_input
 ;
-; 
+; Scan for input and, if a command is being issued, store it
+; in the buffer.
 ;-----------------------------------------------------------
 
 buffer_input:
-        cmp     #$90
-        beq     b1E27
+        cmp     #$90                                    ; Don't buffer certain keypresses...
+        beq     buffer_input_done
         cmp     #$93
-        beq     b1E27
-        cmp     #$A0
-        bne     b1E1D
+        beq     buffer_input_done
+
+        cmp     #$A0                                    ; If the command is 'space', then clear out the input buffer
+        bne     @store_input
         ldx     #$00
         stx     INPUT_BUFFER_SIZE
-b1E1D:  ldx     INPUT_BUFFER_SIZE
+
+@store_input:
+        ldx     INPUT_BUFFER_SIZE                       ; If the input buffer is full, discard the input
         cpx     #$08
-        bcs     b1E27
-        sta     INPUT_BUFFER,x
+        bcs     buffer_input_done
+
+        sta     INPUT_BUFFER,x                          ; Store the command into the buffer
         inc     INPUT_BUFFER_SIZE
-b1E27:  rts
+
+buffer_input_done:
+        rts
 
 
 
@@ -77,61 +84,78 @@ bitmap_vic_config:
 ;-----------------------------------------------------------
 ;                     wait_for_input
 ;
-; 
+; Scan for input until either a certain period of time has
+; elapsed or until there is a command waiting in the input
+; buffer.
 ;-----------------------------------------------------------
 
 wait_for_input:
-        ldy     #$07
-b1E2E:  jsr     scan_and_buffer_input
-        lda     INPUT_BUFFER_SIZE
-        bne     b1E27
-        lda     #$4F
+        ldy     #$07                                    ; Check for input seven times
+@done:  jsr     scan_and_buffer_input
+
+        lda     INPUT_BUFFER_SIZE                       ; If the input buffer is not empty, then we're done
+        bne     buffer_input_done
+
+        lda     #$4F                                    ; Delay for a bit
         jsr     delay_a_squared
-        dey
-        bne     b1E2E
+
+        dey                                             ; Keep going until we've checked seven times
+        bne     @done
+
         rts
 
 
 
 ;-----------------------------------------------------------
-;                  read_input_from_buffer
+;                       read_input
 ;
-; 
+; Gets the next player command to process. This method works
+; exactly like get_input, but will block until the player
+; has issued a command.
 ;-----------------------------------------------------------
 
-read_input_from_buffer:
-        jsr     read_from_buffer
-        beq     read_input_from_buffer
+read_input:
+        jsr     get_input                               ; Get the next command from the player.
+
+        beq     read_input                              ; Keep trying until we have some input to process.
         rts
 
 
 
 ;-----------------------------------------------------------
-;                    read_from_buffer
+;                        get_input
 ;
-; 
+; Get the next player command to process. The accumulator
+; will contain the next command to process, or zero if there
+; is no command to process.
 ;-----------------------------------------------------------
 
-read_from_buffer:
-        jsr     cache_x_y_and_update_cursor
-        jsr     wait_for_input
-        lda     INPUT_BUFFER_SIZE
+get_input:
+        jsr     cache_x_y_and_update_cursor             ; Update the cursor on the screen
+
+        jsr     wait_for_input                          ; Wait for some input
+
+        lda     INPUT_BUFFER_SIZE                       ; If there is some input to proces ........
         bne     b1E5A
-        beq     b1E7A
+
+        beq     restore_registers_and_return            ; Otherwise we're done
 
 
 
 ;-----------------------------------------------------------
-;              draw_world_and_read_from_buffer
+;                 draw_world_and_get_input
 ;
-; 
+; Draw the world, then get the next player command to
+; process. The accumulator will contain the next command to
+; process, or zero if there is no command to process.
 ;-----------------------------------------------------------
 
-draw_world_and_read_from_buffer:
+draw_world_and_get_input:
         jsr     cache_x_y_and_update_cursor
         jsr     draw_world
         lda     INPUT_BUFFER_SIZE
-        beq     b1E7A
+        beq     restore_registers_and_return
+
 b1E5A:  lda     #$20
         jsr     print_char
         lda     INPUT_BUFFER
@@ -148,7 +172,9 @@ b1E71:  ldy     INPUT_BUFFER,x
         inx
         cpx     #$08
         bcc     b1E71
-b1E7A:  ldx     x_cache
+
+restore_registers_and_return:
+        ldx     x_cache
         ldy     y_cache
         and     #$7F
         rts

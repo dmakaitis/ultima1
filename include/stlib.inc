@@ -34,19 +34,18 @@ st_draw_world                       := $166A;
 st_wait_for_input                   := $166D;
 st_get_random_number_               := $1670;
 st_scan_and_buffer_input            := $1673;
-st_read_input_from_buffer           := $1676;
-st_read_from_buffer                 := $1679;
-st_draw_world_and_read_from_buffer  := $167C;
+st_read_input                       := $1676;
+st_get_input                        := $1679;
+st_draw_world_and_get_input         := $167C;
 st_update_cursor                    := $167F;
 st_play_sound_a                     := $1682;
+st_queue_sound                      := $1685;
+st_play_next_sound                  := $1688;
 
-st_s1685                            := $1685;
-st_s1688                            := $1688;
-
-; st_s168B                        := $168B;
-; st_s168E                        := $168E;
-; st_s1691                        := $1691;
-; st_s1694                        := $1694;
+st_s168B                            := $168B;
+st_s168E                            := $168E;
+st_s1691                            := $1691;
+st_s1694                            := $1694;
 
 st_do_nothing4                      := $1697;
 st_do_nothing5                      := $169A;

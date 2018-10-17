@@ -80,7 +80,7 @@ LABEL   { NAME "do_s166A";                      ADDR $1C8A; };
 LABEL   { NAME "scan_and_buffer_input";         ADDR $1E08; };
 LABEL   { NAME "buffer_input";                  ADDR $1E0D; };
 LABEL   { NAME "wait_for_input";                ADDR $1E2C; };
-LABEL   { NAME "read_input_from_buffer";        ADDR $1E3E; };
+LABEL   { NAME "read_input";                    ADDR $1E3E; };
 LABEL   { NAME "read_from_buffer";              ADDR $1E44; };
 LABEL   { NAME "do_s167C";                      ADDR $1E50; };
 LABEL   { NAME "cache_x_y_and_update_cursor";   ADDR $1E83; };
