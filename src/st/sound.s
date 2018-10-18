@@ -71,7 +71,7 @@ play_sound_a:
         cpx     #$12                                    ; If the argument is >= $12, then return
         bcs     return
 
-        lda     w1638                                   ; Check some flag to see if this method should be disabled
+        lda     sound_enabled_flag                      ; Check some flag to see if this method should be disabled
         beq     return
 
         php
@@ -323,4 +323,5 @@ sid_amp_cfg:
 
 .segment "DATA_1638"
 
-w1638:  .byte   $FF
+sound_enabled_flag:
+        .byte   $FF

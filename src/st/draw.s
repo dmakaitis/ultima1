@@ -47,7 +47,7 @@ BITMAP_PTR_LO           := $62
 SCREEN_MEM_PTR          := $64
 WORLD_BUFFER            := $66      ; 19 bytes
 
-random_data                   := $B700
+random_data             := $B700
 
         .setcpu "6502"
 
@@ -60,7 +60,8 @@ castle_flag_ctr:
 towne_flag_ctr:
         .byte   $02
 
-monster_anim_ctr:  .byte   $01
+monster_anim_ctr:
+        .byte   $01
 
 .segment "CODE_DRAW"
 
