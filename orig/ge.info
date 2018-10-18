@@ -73,6 +73,8 @@ RANGE   { START $952A;  END $9574;  TYPE TextTable; };
 RANGE   { START $9575;  END $95F4;  TYPE Code; };
 RANGE   { START $95F5;  END $A2C7;  TYPE ByteTable; };
 
+# LABEL     { NAME "LAST_BYTE";         ADDR $A2C7; };
+
 ########################
 # Subroutines
 

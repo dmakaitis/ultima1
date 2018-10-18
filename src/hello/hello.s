@@ -1220,7 +1220,7 @@ load_file_cached_a:
 ;   0e : LO @ $0800 - Display studio logo
 ;   0f : PR @ $12C0 - copy protection test file
 ;   10 : DD @ $B000 - disk driver selection
-;   11 : RO @ $B000 - ???
+;   11 : RO @ $B000 - Character roster
 ;   12 : P0 @ $81E2 - Player save slot 1
 ;   13 : P1 @ $81E2 - Player save slot 2
 ;   14 : P2 @ $81E2 - Player save slot 3

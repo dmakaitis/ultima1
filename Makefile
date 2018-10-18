@@ -5,7 +5,7 @@
 #		dd, lo, ge, ou, ro, p0, ca, pr, 
 #		in , dn, mi, tm, sp, p1, p2, p3
 U1FILES = u1 hello st \
-			lo \
+			lo ge \
 			in
 PRG_OBJ = build/prgobj
 PRG_OUT = build/prg
@@ -33,6 +33,7 @@ build/u1.d64: u1files
 		-write build/prg/hello.prg hello \
 		-write build/prg/st.prg st \
 		-write build/prg/lo.prg lo \
+		-write build/prg/ge.prg ge \
 		-write build/prg/in.prg in
 
 u1_obj = $(addprefix $(PRG_OBJ)/u1/, $(addsuffix .o, $(basename $(notdir $(wildcard src/u1/*.s)))))
@@ -50,6 +51,10 @@ $(PRG_OUT)/st.prg: src/st/st.cfg $(st_obj)
 lo_obj = $(addprefix $(PRG_OBJ)/lo/, $(addsuffix .o, $(basename $(notdir $(wildcard src/lo/*.s)))))
 $(PRG_OUT)/lo.prg: src/lo/lo.cfg $(lo_obj)
 	$(LD65) -C $< $(lo_obj) -o $@ -vm -m $(MAPS_OUT)/lo.map
+
+ge_obj = $(addprefix $(PRG_OBJ)/ge/, $(addsuffix .o, $(basename $(notdir $(wildcard src/ge/*.s)))))
+$(PRG_OUT)/ge.prg: src/ge/ge.cfg $(ge_obj)
+	$(LD65) -C $< $(ge_obj) -o $@ -vm -m $(MAPS_OUT)/ge.map
 
 in_obj = $(addprefix $(PRG_OBJ)/in/, $(addsuffix .o, $(basename $(notdir $(wildcard src/in/*.s)))))
 $(PRG_OUT)/in.prg: src/in/in.cfg $(in_obj)
@@ -74,6 +79,7 @@ verify: u1files $(addprefix $(ORIG_PRG_OUT)/, $(addsuffix .prg, $(U1FILES)))
 	./chkfile hello.prg
 	./chkfile st.prg
 	./chkfile lo.prg
+	./chkfile ge.prg
 	./chkfile in.prg
 
 clean:

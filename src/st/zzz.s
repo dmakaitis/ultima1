@@ -138,7 +138,7 @@ s17FF:  sty     TMP_5E                                  ; TMP_5E := y
 
         ldy     #$00                                    ; y := 0
 
-        lda     w1786                                   : a := w1786
+        lda     w1786                                   ; a := w1786
         eor     (BITMAP_PTR),y
         and     r1380,x
         eor     (BITMAP_PTR),y
