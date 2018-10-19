@@ -9,9 +9,12 @@
 .export s948D
 .export select_character
 
+.import print_character_roster
+
 .import main_menu
 
 wB000           := $B000
+
 selected_character           := $C4F8
 
         .setcpu "6502"
@@ -663,52 +666,7 @@ b957F:  cmp     #$31
         beq     b9575
         rts
 
-print_character_roster:
-        jsr     st_clear_main_viewport
-        lda     #$00
-        sta     w95F5
-b95A0:  lda     #$0D
-        sta     CUR_X
-        lda     w95F5
-        clc
-        adc     #$08
-        sta     CUR_Y
-        lda     w95F5
-        clc
-        adc     #$31
-        jsr     st_print_char
-        inc     CUR_X
-        lda     #$2E
-        jsr     st_print_char
-        inc     CUR_X
-        lda     #$20
-        jsr     st_print_char
-        inc     CUR_X
-        lda     #$0C
-        sta     w95F6
-        lda     w95F5
-        asl     a
-        asl     a
-        asl     a
-        asl     a
-        tax
-        lda     wB000,x
-        beq     b95EA
-        inx
-        inx
-        inx
-b95DA:  lda     wB000,x
-        beq     b95EA
-        jsr     st_print_char
-        inc     CUR_X
-        inx
-        dec     w95F6
-        bpl     b95DA
-b95EA:  inc     w95F5
-        lda     w95F5
-        cmp     #$04
-        bcc     b95A0
-        rts
 
-w95F5:  .byte   $00
-w95F6:  .byte   $00
+
+.segment "CODE_ROSTER"
+

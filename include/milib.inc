@@ -9,6 +9,8 @@ w81C4                       := $81C4;
 
 player_save_data            := $81E2;
 
+player_sound_flag           := $81E7;
+
 player_sex                  := $822C;
 player_name                 := $822D;
 player_hits                 := $823B;

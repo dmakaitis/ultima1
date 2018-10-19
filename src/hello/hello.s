@@ -1214,7 +1214,7 @@ load_file_cached_a:
 ;   08 : CA @ $8C9E - ???
 ;   09 : SP @ $8C9E - ???
 ;   0a : TM @ $8C9E - ???
-;   0b : ST @ $0C00 - ???
+;   0b : ST @ $0C00 - Screen and Text routines
 ;   0c : IN @ $6800 - ???
 ;   0d : MI @ $7400 - ???
 ;   0e : LO @ $0800 - Display studio logo

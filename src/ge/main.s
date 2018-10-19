@@ -21,19 +21,23 @@
 
 .import s948D
 
-PROCESSOR_PORT  	:= $0001
+PROCESSOR_PORT      := $0001
 
-r81E3           	:= $81E3
-r81E7           	:= $81E7
-wB000           	:= $B000
-rB010           	:= $B010
-rB020           	:= $B020
-rB030           	:= $B030
-selected_character	:= $C4F8
+character_roster    := $B000
+selected_character  := $C4F8
 
         .setcpu "6502"
 
 .segment "CODE_MAIN"
+
+;-----------------------------------------------------------
+;                       main_menu
+;
+; Displays the Ultima 1 main menu and handles the user's
+; input. From the main menu, the user can either choose to
+; create a new character, or play with an existing
+; character.
+;-----------------------------------------------------------
 
         ldx     #$11                                    ; Load the RO file (character roster) at $B000
         jsr     load_file_cached
@@ -67,7 +71,7 @@ main_menu:
         jsr     st_swap_bitmaps
 
 @read_input:
-		jsr     st_read_input
+        jsr     st_read_input
 
         pha
         jsr     clear_text_area
@@ -77,36 +81,36 @@ main_menu:
         bne     @not_a
         jmp     create_character
 
-@not_a: cmp     #$42									; If the input isn't 'B', then wait for more input.
+@not_a: cmp     #$42                                    ; If the input isn't 'B', then wait for more input.
         bne     @read_input
 
-        lda     #$62									; Print a 'b' out to the screen.
+        lda     #$62                                    ; Print a 'b' out to the screen.
         jsr     st_print_char
 
-        lda     wB000									; Check the first byte of all the character names.
-        ora     rB010									; If they're all zero, then we have no characters yet.
-        ora     rB020
-        ora     rB030
+        lda     character_roster                        ; Check the first byte of all the character names.
+        ora     character_roster + $10                  ; If they're all zero, then we have no characters yet.
+        ora     character_roster + $20
+        ora     character_roster + $30
         beq     @no_characters
 
-        jsr     select_character						; Prompt the user for with which character to play.
+        jsr     select_character                        ; Prompt the user for with which character to play.
 
-        lda     selected_character        				; Load the requested character file.
+        lda     selected_character                      ; Load the requested character file.
         clc
         adc     #$12
         tax
         jsr     load_file_cached
 
-        bcs     @on_error								; If there's an I/O error, or the loaded data doesn't
-        lda     player_save_data						; start with the bytes $CA,$01, then tell the user we've
-        cmp     #$CA									; failed.
+        bcs     @on_error                               ; If there's an I/O error, or the loaded data doesn't
+        lda     player_save_data                        ; start with the bytes $CA,$01, then tell the user we've
+        cmp     #$CA                                    ; failed.
         bne     @on_error
         lda     player_save_data + 1
         cmp     #$01
         beq     @start_game
 
 @on_error:
-		jsr     mi_store_text_area
+        jsr     mi_store_text_area
 
         ldx     #$02
         ldy     #$14
@@ -114,13 +118,13 @@ main_menu:
 
         .byte   "Disk error.",$00
 
-        jsr     mi_restore_text_area					; Wait for the user to aknowledge the error, then return to main menu
+        jsr     mi_restore_text_area                    ; Wait for the user to aknowledge the error, then return to main menu
         jsr     s948D
         jmp     main_menu
 
 
 @no_characters:
-		jsr     mi_store_text_area						; Tell the user they need to create a character, then wait for input
+        jsr     mi_store_text_area                      ; Tell the user they need to create a character, then wait for input
         ldx     #$02
         ldy     #$15
         jsr     mi_print_text_at_x_y
@@ -132,36 +136,45 @@ main_menu:
 
 
 @start_game:
-		ldy     #$00
-        lda     #$30
+        ldy     #$00
+        lda     #$30                                    ; Expose all RAM
         sta     PROCESSOR_PORT
         ldx     #$0D
+
 @loop:
-@w8DE7          := * + 2
-        lda     d000_ram_init_data,y
-@w8DEA          := * + 2
-        sta     VIC_SPR0_X,y
+@source_page    := * + 2
+        lda     d000_ram_init_data,y                    ; Copy 13 * 256 bytes up to $D000
+@dest_page      := * + 2
+        sta     $D000,y
         iny
         bne     @loop
-        inc     @w8DE7
-        inc     @w8DEA
+        inc     @source_page
+        inc     @dest_page
         dex
         bne     @loop
+
         stx     CIA2_PRA
-        lda     #$36
+
+        lda     #$36                                    ; Turn I/O and KERNAL back on
         sta     PROCESSOR_PORT
-        lda     r81E7
+
+        lda     player_sound_flag                       ; Load player's saved sound preference
         sta     sound_enabled_flag
-        lda     #$60
+
+        lda     #$60                                    ; Reconfigure the bitmap address mask
         sta     BM_ADDR_MASK
+
         jsr     mi_s84C0
         jsr     st_set_text_window_command
         jsr     st_scroll_text_area_up
         jsr     mi_s8689
-        lda     #$60
+
+        lda     #$60                                    ; Reconfigure the second bitmap address mask
         sta     BM2_ADDR_MASK
+
         jsr     st_swap_bitmaps
         jsr     st_copy_screen_2_to_1
+
         jmp     j8C5E
 
 

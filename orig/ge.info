@@ -157,8 +157,7 @@ LABEL   { NAME "b95EA";             ADDR $95EA; };
 ########################
 # Data
 
-LABEL   { NAME "r81E3";                 ADDR $81E3; };
-LABEL   { NAME "r81E7";                 ADDR $81E7; };
+LABEL   { NAME "player_save_data_1";    ADDR $81E3; };
 
 LABEL   { NAME "w8DE7";                 ADDR $8DE7; };
 LABEL   { NAME "w8DEA";                 ADDR $8DEA; };
@@ -178,10 +177,10 @@ LABEL   { NAME "w95F6";                 ADDR $95F6; };
 
 LABEL   { NAME "d000_ram_init_data";    ADDR $95F7; };
 
-LABEL   { NAME "wB000";                 ADDR $B000; };
-LABEL   { NAME "rB010";                 ADDR $B010; };
-LABEL   { NAME "rB020";                 ADDR $B020; };
-LABEL   { NAME "rB030";                 ADDR $B030; };
+LABEL   { NAME "character_roster";      ADDR $B000; };
+LABEL   { NAME "character_roster_2";    ADDR $B010; };
+LABEL   { NAME "character_roster_3";    ADDR $B020; };
+LABEL   { NAME "character_roster_4";    ADDR $B030; };
 
 LABEL   { NAME "selected_character";    ADDR $C4F8; };
 
