@@ -7,15 +7,13 @@
 .export draw_border
 
 .export s948D
-.export select_character
 
 .import print_character_roster
 
 .import main_menu
 
-wB000           := $B000
-
-selected_character           := $C4F8
+character_roster    := $B000
+selected_character  := $C4F8
 
         .setcpu "6502"
 
@@ -29,7 +27,7 @@ b8E23:  txa
         asl     a
         asl     a
         tay
-        lda     wB000,y
+        lda     character_roster,y
         bne     b8E31
         jmp     j8EE6
 
@@ -77,7 +75,7 @@ b8EC5:  cmp     #$31
         asl     a
         tax
         lda     #$00
-        sta     wB000,x
+        sta     character_roster,x
         ldx     #$01
         jsr     save_file
         ldx     selected_character
@@ -466,13 +464,13 @@ b9329:  lda     selected_character
         asl     a
         tax
         lda     #$FF
-        sta     wB000,x
+        sta     character_roster,x
         ldy     #$00
         inx
         inx
         inx
 b933B:  lda     player_name,y
-        sta     wB000,x
+        sta     character_roster,x
         inx
         iny
         cpy     #$0D
@@ -634,39 +632,3 @@ cursor_to_1_1:
         stx     CUR_X
         stx     CUR_Y
         rts
-
-select_character:
-        jsr     print_character_roster
-        ldx     #$05
-        ldy     #$0E
-        jsr     mi_print_text_at_x_y
-
-        .byte   "Select a character (1-4) or~",$7F
-        .byte   $04,"space bar to return to menu.||",$7F
-        .byte   $0D,"Thy choice: ",$00
-
-b9575:  jsr     st_read_input
-        cmp     #$20
-        bne     b957F
-        jmp     main_menu
-
-b957F:  cmp     #$31
-        bcc     b9575
-        cmp     #$35
-        bcs     b9575
-        sec
-        sbc     #$31
-        sta     selected_character
-        asl     a
-        asl     a
-        asl     a
-        asl     a
-        tax
-        lda     wB000,x
-        beq     b9575
-        rts
-
-
-
-.segment "CODE_ROSTER"
-
