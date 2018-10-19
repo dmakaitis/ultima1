@@ -2,17 +2,15 @@
 .include "stlib.inc"
 .include "diskio.inc"
 
+.import create_character
 .import cursor_to_1_1
 .import draw_border
+.import main_menu
 
 .export clear_text_area
-.export create_character
 
+.export character_generation
 .export s948D
-
-.import print_character_roster
-
-.import main_menu
 
 character_roster    := $B000
 selected_character  := $C4F8
@@ -21,67 +19,8 @@ selected_character  := $C4F8
 
 .segment "CODE_ZZZ"
 
-create_character:
-        ldx     #$00
-b8E23:  txa
-        asl     a
-        asl     a
-        asl     a
-        asl     a
-        tay
-        lda     character_roster,y
-        bne     b8E31
-        jmp     j8EE6
-
-b8E31:  inx
-        cpx     #$04
-        bcc     b8E23
-        jsr     print_character_roster
-        ldx     #$01
-        ldy     #$0E
-        jsr     mi_print_text_at_x_y
-        .byte   " Thou must first remove a chara"
-
-
-
-        .byte   "cter.~ Enter a character number"
-
-
-
-        .byte   " (1-4) or~ space bar to return "
-
-
-
-        .byte   "to main menu.||"
-
-        .byte   $7F,$0D
-        .byte   "Thy choice: "
-
-        .byte   $00
-b8EBB:  jsr     st_read_input
-        cmp     #$20
-        bne     b8EC5
-        jmp     main_menu
-
-b8EC5:  cmp     #$31
-        bcc     b8EBB
-        cmp     #$35
-        bcs     b8EBB
-        sec
-        sbc     #$31
-        tax
+character_generation:
         stx     selected_character
-        asl     a
-        asl     a
-        asl     a
-        asl     a
-        tax
-        lda     #$00
-        sta     character_roster,x
-        ldx     #$01
-        jsr     save_file
-        ldx     selected_character
-j8EE6:  stx     selected_character
         jsr     st_set_text_window_full
         jsr     draw_border
         ldy     #$00
