@@ -78,14 +78,14 @@ RANGE   { START $95F5;  END $A2C7;  TYPE ByteTable; };
 ########################
 # Subroutines
 
-LABEL   { NAME "s9359";             ADDR $9359; };
-LABEL   { NAME "s947F";             ADDR $947F; };
-LABEL   { NAME "s948D";             ADDR $948D; };
-LABEL   { NAME "clear_text_area";   ADDR $94C0; };
-LABEL   { NAME "draw_border";       ADDR $94D7; };
-LABEL   { NAME "cursor_to_1_1";     ADDR $9519; };
-LABEL   { NAME "s9520";             ADDR $9520; };
-LABEL   { NAME "s9598";             ADDR $9598; };
+LABEL   { NAME "s9359";                     ADDR $9359; };
+LABEL   { NAME "s947F";                     ADDR $947F; };
+LABEL   { NAME "s948D";                     ADDR $948D; };
+LABEL   { NAME "clear_text_area";           ADDR $94C0; };
+LABEL   { NAME "draw_border";               ADDR $94D7; };
+LABEL   { NAME "cursor_to_1_1";             ADDR $9519; };
+LABEL   { NAME "select_character";          ADDR $9520; };
+LABEL   { NAME "print_character_roster";    ADDR $9598; };
 
 ########################
 # Jump targets
@@ -157,33 +157,33 @@ LABEL   { NAME "b95EA";             ADDR $95EA; };
 ########################
 # Data
 
-LABEL   { NAME "r81E3";             ADDR $81E3; };
-LABEL   { NAME "r81E7";             ADDR $81E7; };
+LABEL   { NAME "r81E3";                 ADDR $81E3; };
+LABEL   { NAME "r81E7";                 ADDR $81E7; };
 
-LABEL   { NAME "w8DE7";             ADDR $8DE7; };
-LABEL   { NAME "w8DEA";             ADDR $8DEA; };
+LABEL   { NAME "w8DE7";                 ADDR $8DE7; };
+LABEL   { NAME "w8DEA";                 ADDR $8DEA; };
 
-LABEL   { NAME "w8F28";             ADDR $8F28; };
-LABEL   { NAME "w8F29";             ADDR $8F29; };
-LABEL   { NAME "w8F2B";             ADDR $8F2B; };
-LABEL   { NAME "w8F2C";             ADDR $8F2C; };
+LABEL   { NAME "w8F28";                 ADDR $8F28; };
+LABEL   { NAME "w8F29";                 ADDR $8F29; };
+LABEL   { NAME "w8F2B";                 ADDR $8F2B; };
+LABEL   { NAME "w8F2C";                 ADDR $8F2C; };
 
-LABEL   { NAME "w93E7";             ADDR $93E7; };
-LABEL   { NAME "w93E9";             ADDR $93E9; };
-LABEL   { NAME "w93EA";             ADDR $93EA; };
-LABEL   { NAME "sex_table";         ADDR $93EB; };
+LABEL   { NAME "w93E7";                 ADDR $93E7; };
+LABEL   { NAME "w93E9";                 ADDR $93E9; };
+LABEL   { NAME "w93EA";                 ADDR $93EA; };
+LABEL   { NAME "sex_table";             ADDR $93EB; };
 
-LABEL   { NAME "w95F5";             ADDR $95F5; };
-LABEL   { NAME "w95F6";             ADDR $95F6; };
+LABEL   { NAME "w95F5";                 ADDR $95F5; };
+LABEL   { NAME "w95F6";                 ADDR $95F6; };
 
-LABEL   { NAME "d000_ram_init_data";ADDR $95F7; };
+LABEL   { NAME "d000_ram_init_data";    ADDR $95F7; };
 
-LABEL   { NAME "wB000";             ADDR $B000; };
-LABEL   { NAME "rB010";             ADDR $B010; };
-LABEL   { NAME "rB020";             ADDR $B020; };
-LABEL   { NAME "rB030";             ADDR $B030; };
+LABEL   { NAME "wB000";                 ADDR $B000; };
+LABEL   { NAME "rB010";                 ADDR $B010; };
+LABEL   { NAME "rB020";                 ADDR $B020; };
+LABEL   { NAME "rB030";                 ADDR $B030; };
 
-LABEL   { NAME "wC4F8";             ADDR $C4F8; };
+LABEL   { NAME "selected_character";    ADDR $C4F8; };
 
 ########################
 # Zero Page
