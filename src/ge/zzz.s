@@ -2,9 +2,11 @@
 .include "stlib.inc"
 .include "diskio.inc"
 
+.import cursor_to_1_1
+.import draw_border
+
 .export clear_text_area
 .export create_character
-.export draw_border
 
 .export s948D
 
@@ -597,38 +599,3 @@ b94C5:  jsr     st_clear_to_end_of_text_row_a
         cpy     CUR_Y_MAX
         bcc     b94C5
         jmp     mi_restore_text_area
-
-draw_border:
-        lda     #$10
-        jsr     mi_print_char
-        ldx     #$26
-        lda     #$04
-        jsr     mi_print_x_chars
-        lda     #$12
-        jsr     st_print_char
-b94E8:  inc     CUR_Y
-        jsr     mi_cursor_to_col_0
-        lda     #$0A
-        jsr     st_print_char
-        lda     #$27
-        sta     CUR_X
-        lda     #$08
-        jsr     st_print_char
-        jsr     st_scan_and_buffer_input
-        lda     CUR_Y
-        eor     #$16
-        bne     b94E8
-        sta     CUR_X
-        inc     CUR_Y
-        lda     #$14
-        jsr     mi_print_char
-        ldx     #$26
-        lda     #$02
-        jsr     mi_print_x_chars
-        lda     #$16
-        jsr     st_print_char
-cursor_to_1_1:
-        ldx     #$01
-        stx     CUR_X
-        stx     CUR_Y
-        rts
