@@ -171,6 +171,7 @@ LABEL   { NAME "w93E7";                 ADDR $93E7; };
 LABEL   { NAME "w93E9";                 ADDR $93E9; };
 LABEL   { NAME "w93EA";                 ADDR $93EA; };
 LABEL   { NAME "sex_table";             ADDR $93EB; };
+LABEL   { NAME "new_char_template";     ADDR $93F7; };
 
 LABEL   { NAME "w95F5";                 ADDR $95F5; };
 LABEL   { NAME "w95F6";                 ADDR $95F6; };

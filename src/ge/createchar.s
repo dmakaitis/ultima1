@@ -54,6 +54,7 @@ b8E31:  inx                                             ; If the slot is not emp
         bcc     b8E23
 
         jsr     print_character_roster                  ; Since no slots are empty, prompt the user to delete a character
+
         ldx     #$01
         ldy     #$0E
         jsr     mi_print_text_at_x_y
@@ -95,3 +96,4 @@ b8EBB:  jsr     st_read_input
         ldx     selected_character                      ; Load the deleted character slot into x
 
         ; continued in character_generation
+        
