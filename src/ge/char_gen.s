@@ -42,9 +42,9 @@ character_generation:
 
 
 
-        lda     #<(player_save_data + 2)                ; Copy the new character template into the player save location in memory
+        lda     #<(mi_player_save_data + 2)             ; Copy the new character template into the player save location in memory
         sta     @dest
-        lda     #>(player_save_data + 2)
+        lda     #>(mi_player_save_data + 2)
         sta     @dest + 1
         
         lda     #<(new_char_template + 2)
@@ -105,20 +105,20 @@ b9006:  jsr     s9359
 
 b901D:  cpy     #$3A
         bne     b9030
-        lda     player_hits,x
+        lda     mi_player_hits,x
         cmp     #$0A
         beq     b9006
-        dec     player_hits,x
+        dec     mi_player_hits,x
         inc     points_to_distribute
         bne     b9006
 b9030:  cpy     #$3B
         bne     L9048
         lda     points_to_distribute
         beq     b9006
-        lda     player_hits,x
+        lda     mi_player_hits,x
         cmp     #$19
         bcs     b9006
-        inc     player_hits,x
+        inc     mi_player_hits,x
         dec     points_to_distribute
         bpl     b9006
 L9048:  cpy     #$2F
@@ -169,47 +169,47 @@ b90CE:  jsr     st_read_input
         bcs     b90CE
         sec
         sbc     #$40
-        sta     player_race
+        sta     mi_player_race
         ldy     #$0C
         ldx     #$0D
         jsr     mi_print_text_at_x_y
         
         .byte   "Race  ",$00
 
-        ldx     player_race
+        ldx     mi_player_race
         jsr     mi_print_string_entry_x
-        .addr   race_name_table
+        .addr   mi_race_name_table
         jsr     clear_text_area
-        lda     player_race
+        lda     mi_player_race
         cmp     #$01
         bne     b910A
-        lda     player_intelligence
+        lda     mi_player_intelligence
         clc
         adc     #$05
-        sta     player_intelligence
+        sta     mi_player_intelligence
         bne     b913A
 b910A:  cmp     #$02
         bne     b9119
-        lda     player_agility
+        lda     mi_player_agility
         clc
         adc     #$05
-        sta     player_agility
+        sta     mi_player_agility
         bne     b913A
 b9119:  cmp     #$03
         bne     b9128
-        lda     player_strength
+        lda     mi_player_strength
         clc
         adc     #$05
-        sta     player_strength
+        sta     mi_player_strength
         bne     b913A
-b9128:  lda     player_wisdom
+b9128:  lda     mi_player_wisdom
         clc
         adc     #$0A
-        sta     player_wisdom
-        lda     player_strength
+        sta     mi_player_wisdom
+        lda     mi_player_strength
         sec
         sbc     #$05
-        sta     player_strength
+        sta     mi_player_strength
 b913A:  jsr     s9359
         ldy     #$12
         ldx     #$0B
@@ -231,14 +231,14 @@ b9170:  jsr     st_read_input
         bcs     b9170
         sec
         sbc     #$41
-        sta     player_sex
+        sta     mi_player_sex
         ldy     #$0D
         ldx     #$0E
         jsr     mi_print_text_at_x_y
         
         .byte   "Sex  ",$00
 
-        ldx     player_sex
+        ldx     mi_player_sex
         jsr     mi_print_string_entry_x
         .addr   sex_table
         jsr     clear_text_area
@@ -264,51 +264,51 @@ b91E8:  jsr     st_read_input
         bcs     b91E8
         sec
         sbc     #$40
-        sta     player_class
+        sta     mi_player_class
         ldy     #$0E
         ldx     #$0C
         jsr     mi_print_text_at_x_y
 
         .byte   "Class  ",$00
 
-        ldx     player_class
+        ldx     mi_player_class
         jsr     mi_print_string_entry_x
-        .addr   class_name_table
-        lda     player_class
+        .addr   mi_class_name_table
+        lda     mi_player_class
         cmp     #$01
         bne     b922B
-        lda     player_strength
+        lda     mi_player_strength
         clc
         adc     #$0A
-        sta     player_strength
-        lda     player_agility
+        sta     mi_player_strength
+        lda     mi_player_agility
         clc
         adc     #$0A
-        sta     player_agility
+        sta     mi_player_agility
         bne     b9252
 b922B:  cmp     #$02
         bne     b923A
-        lda     player_wisdom
+        lda     mi_player_wisdom
         clc
         adc     #$0A
-        sta     player_wisdom
+        sta     mi_player_wisdom
         bne     b9252
 b923A:  cmp     #$03
         bne     b9249
-        lda     player_intelligence
+        lda     mi_player_intelligence
         clc
         adc     #$0A
-        sta     player_intelligence
+        sta     mi_player_intelligence
         bne     b9252
-b9249:  lda     player_agility
+b9249:  lda     mi_player_agility
         clc
         adc     #$0A
-        sta     player_agility
+        sta     mi_player_agility
 b9252:  jsr     s9359
         jsr     st_get_random_number_
-        sta     w8264
+        sta     mi_w8264
         jsr     st_get_random_number_
-        sta     w8265
+        sta     mi_w8265
         ldy     #$10
         ldx     #$02
         jsr     mi_print_text_at_x_y
@@ -341,7 +341,7 @@ b92A9:  dex
         bmi     b9281
         stx     w93EA
         lda     #$00
-        sta     player_name,x
+        sta     mi_player_name,x
         dec     CUR_X
         jmp     b9281
 
@@ -351,7 +351,7 @@ b92B9:  cpx     #$00
         bcc     b9281
         cmp     #$5B
         bcs     b9281
-b92C5:  sta     player_name,x
+b92C5:  sta     mi_player_name,x
         inc     w93EA
         jsr     mi_print_char
         jmp     b9281
@@ -368,7 +368,7 @@ b92D1:  cpx     #$0D
         bcc     b92C5
         cmp     #$5B
         bcs     b92C5
-        ldy     player_sex,x
+        ldy     mi_player_sex,x
         cpy     #$20
         beq     b92C5
         ora     #$20
@@ -384,8 +384,8 @@ b92D1:  cpx     #$0D
 ;-----------------------------------------------------------
 
 s9359:  lda     #$00
-        sta     w85BE
-        sta     w81C4
+        sta     mi_w85BE
+        sta     mi_w81C4
 
         ldx     #$05                                    ; Move the cursor to (5, 3)
         stx     CUR_X
@@ -406,31 +406,31 @@ b9393:  dec     CUR_X_MAX
         jsr     st_clear_to_end_of_text_row_a
         inc     CUR_X_MAX
         jsr     mi_print_crlf_col_1
-b939D:  inc     w81C4
+b939D:  inc     mi_w81C4
         inc     CUR_Y
         ldx     #$0A
         stx     CUR_X
         lda     #$20
-        ldx     w81C4
+        ldx     mi_w81C4
         cpx     w93E9
         bne     b93B2
         lda     #$0E
 b93B2:  jsr     mi_print_char
         jsr     mi_print_string_entry_x
-        .addr   r7842_table
+        .addr   mi_r7842_table
         lda     #$2E
-        sta     w85BE
+        sta     mi_w85BE
 b93BF:  jsr     mi_print_char
         ldx     CUR_X
         cpx     #$1A
         bcc     b93BF
-        lda     w81C4
+        lda     mi_w81C4
         asl     a
         tax
-        lda     player_hits,x
+        lda     mi_player_hits,x
         jsr     mi_print_short_int
         lda     #$20
-        ldx     w81C4
+        ldx     mi_w81C4
         cpx     w93E9
         bne     b93DF
         lda     #$18

@@ -1,36 +1,36 @@
 ; ---------------------------------------------------------------------------
 ; MI library routines
 
-race_name_table                     := $7763;
-r7842_table                         := $7842;
-class_name_table                    := $7911;
+mi_race_name_table                  := $7763;
+mi_r7842_table                      := $7842;
+mi_class_name_table                 := $7911;
 
-w81C4                               := $81C4;
+mi_w81C4                            := $81C4;
 
-player_save_data                    := $81E2;
+mi_player_save_data                 := $81E2;
 
-player_sound_flag                   := $81E7;
+mi_player_sound_flag                := $81E7;
 
-player_sex                          := $822C;
-player_name                         := $822D;
-player_hits                         := $823B;
-player_strength                     := $823D;
-player_agility                      := $823F;
-player_stamina                      := $8241;
-player_charisma                     := $8243;
-player_wisdom                       := $8245;
-player_intelligence                 := $8247;
-player_money                        := $8249;
-player_race                         := $824B;
-player_class                        := $824D;
+mi_player_sex                       := $822C;
+mi_player_name                      := $822D;
+mi_player_hits                      := $823B;
+mi_player_strength                  := $823D;
+mi_player_agility                   := $823F;
+mi_player_stamina                   := $8241;
+mi_player_charisma                  := $8243;
+mi_player_wisdom                    := $8245;
+mi_player_intelligence              := $8247;
+mi_player_money                     := $8249;
+mi_player_race                      := $824B;
+mi_player_class                     := $824D;
 
-player_food                         := $825A;
-player_experience                   := $825C;
+mi_player_food                      := $825A;
+mi_player_experience                := $825C;
 
-w8264                               := $8264;
-w8265                               := $8265;
+mi_w8264                            := $8264;
+mi_w8265                            := $8265;
 
-w85BE                               := $85BE;
+mi_w85BE                            := $85BE;
 
 mi_print_char                       := $83D7;
 mi_print_crlf_col_1                 := $83F3;
@@ -48,4 +48,4 @@ mi_store_text_area                  := $870C;
 mi_play_sound_spell_and_read_input  := $8772;
 mi_print_player_name                := $8BA1;
 
-j8C5E                               := $8C5E;
+mi_j8C5E                            := $8C5E;

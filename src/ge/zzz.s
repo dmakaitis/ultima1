@@ -51,7 +51,7 @@ b9329:  lda     selected_character
         inx
         inx
         inx
-b933B:  lda     player_name,y
+b933B:  lda     mi_player_name,y
         sta     character_roster,x
         inx
         iny

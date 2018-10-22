@@ -12,7 +12,7 @@ CUR_Y                               := $33;
 BM_ADDR_MASK                        := $5C;
 BM2_ADDR_MASK                       := $5D;
 
-sound_enabled_flag                  := $1638;
+st_sound_enabled_flag               := $1638;
 
 st_init_snd_gfx                     := $163A;
 st_do_nothing                       := $163D;

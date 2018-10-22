@@ -102,10 +102,10 @@ main_menu:
         jsr     load_file_cached
 
         bcs     @on_error                               ; If there's an I/O error, or the loaded data doesn't
-        lda     player_save_data                        ; start with the bytes $CA,$01, then tell the user we've
+        lda     mi_player_save_data                     ; start with the bytes $CA,$01, then tell the user we've
         cmp     #$CA                                    ; failed.
         bne     @on_error
-        lda     player_save_data + 1
+        lda     mi_player_save_data + 1
         cmp     #$01
         beq     @start_game
 
@@ -158,8 +158,8 @@ main_menu:
         lda     #$36                                    ; Turn I/O and KERNAL back on
         sta     PROCESSOR_PORT
 
-        lda     player_sound_flag                       ; Load player's saved sound preference
-        sta     sound_enabled_flag
+        lda     mi_player_sound_flag                    ; Load player's saved sound preference
+        sta     st_sound_enabled_flag
 
         lda     #$60                                    ; Reconfigure the bitmap address mask
         sta     BM_ADDR_MASK
@@ -175,7 +175,7 @@ main_menu:
         jsr     st_swap_bitmaps
         jsr     st_copy_screen_2_to_1
 
-        jmp     j8C5E
+        jmp     mi_j8C5E
 
 
 
