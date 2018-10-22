@@ -79,7 +79,7 @@ character_generation:
 
         jsr     s9359
         lda     #$1E
-        sta     w93E7
+        sta     points_to_distribute
         ldx     #$01
         stx     w93E9
         ldy     #$0F
@@ -109,17 +109,17 @@ b901D:  cpy     #$3A
         cmp     #$0A
         beq     b9006
         dec     player_hits,x
-        inc     w93E7
+        inc     points_to_distribute
         bne     b9006
 b9030:  cpy     #$3B
         bne     L9048
-        lda     w93E7
+        lda     points_to_distribute
         beq     b9006
         lda     player_hits,x
         cmp     #$19
         bcs     b9006
         inc     player_hits,x
-        dec     w93E7
+        dec     points_to_distribute
         bpl     b9006
 L9048:  cpy     #$2F
         bne     b905D
@@ -139,7 +139,7 @@ b905D:  cpy     #$40
         bne     b9006
 b906D:  cpy     #$0D
         bne     b9006
-        ldy     w93E7
+        ldy     points_to_distribute
         beq     b907C
         jsr     mi_s8772
         jmp     b9006
@@ -399,9 +399,9 @@ s9359:  lda     #$00
         
         .byte   "Points left to distribute: ",$00
 
-        lda     w93E7
-        jsr     mi_s8582
-        
+        lda     points_to_distribute
+        jsr     mi_print_short_int
+
 b9393:  dec     CUR_X_MAX
         jsr     st_clear_to_end_of_text_row_a
         inc     CUR_X_MAX
@@ -428,7 +428,7 @@ b93BF:  jsr     mi_print_char
         asl     a
         tax
         lda     player_hits,x
-        jsr     mi_s8582
+        jsr     mi_print_short_int
         lda     #$20
         ldx     w81C4
         cpx     w93E9
@@ -449,7 +449,8 @@ b93DF:  jsr     mi_print_char
 
 .segment "DATA_CHAR_GEN"
 
-w93E7:  .byte   $00,$00
+points_to_distribute:
+        .byte   $00,$00
 w93E9:  .byte   $00
 w93EA:  .byte   $00
 
