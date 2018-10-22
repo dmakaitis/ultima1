@@ -17,37 +17,39 @@ SEGMENT { START $73FE;  END $73FF;  NAME "LOADADDR"; };
 SEGMENT { START $7400;  END $8CCD;  NAME "code"; };
 
 RANGE   { START $73FE;  END $73FF;  TYPE AddrTable; };
-
 RANGE   { START $7400;  END $7402;  TYPE Code; };
 RANGE   { START $7403;  END $7762;  TYPE ByteTable; };
-
 RANGE   { START $7763;  END $777B;  TYPE TextTable; };
 RANGE   { START $777C;  END $8174;  TYPE ByteTable; };
-
-RANGE   { START $8175;  END $817C;  TYPE Code; };
-RANGE   { START $817D;  END $818D;  TYPE ByteTable; };
-RANGE   { START $818E;  END $81A6;  TYPE Code; };
-
+RANGE   { START $8175;  END $8179;  TYPE Code; };
+RANGE   { START $817A;  END $8186;  TYPE TextTable; };
+RANGE   { START $8187;  END $81A6;  TYPE Code; };
 RANGE   { START $81A7;  END $81E1;  TYPE ByteTable; };
 RANGE   { START $81E2;  END $83AB;  TYPE ByteTable; };      # Player save data
-
 RANGE   { START $83AC;  END $83C3;  TYPE Code; };
-RANGE   { START $83C4;  END $83D6;  TYPE ByteTable; };
-RANGE   { START $83D7;  END $83FA;  TYPE Code; };
-RANGE   { START $83FB;  END $83FD;  TYPE ByteTable; };
-RANGE   { START $83FE;  END $8415;  TYPE Code; };
+RANGE   { START $83C4;  END $83CC;  TYPE ByteTable; };
+RANGE   { START $83CD;  END $8415;  TYPE Code; };
 RANGE   { START $8416;  END $8425;  TYPE ByteTable; };
-RANGE   { START $8426;  END $84BF;  TYPE Code; };
-RANGE   { START $84C0;  END $84C5;  TYPE ByteTable; };
-RANGE   { START $84C6;  END $8521;  TYPE Code; };
-RANGE   { START $8522;  END $8688;  TYPE ByteTable; };
-RANGE   { START $8689;  END $8694;  TYPE Code; };
-RANGE   { START $8695;  END $8700;  TYPE ByteTable; };
-RANGE   { START $8701;  END $8716;  TYPE Code; };
-RANGE   { START $8717;  END $8776;  TYPE ByteTable; };
-RANGE   { START $8777;  END $8787;  TYPE Code; };
-RANGE   { START $8788;  END $8C5F;  TYPE ByteTable; };
-RANGE   { START $8C60;  END $8C73;  TYPE Code; };
+RANGE   { START $8426;  END $8578;  TYPE Code; };
+RANGE   { START $8579;  END $857B;  TYPE ByteTable; };
+RANGE   { START $857C;  END $85BC;  TYPE Code; };
+RANGE   { START $85BD;  END $8688;  TYPE ByteTable; };
+RANGE   { START $8689;  END $8691;  TYPE Code; };
+RANGE   { START $8692;  END $86A9;  TYPE TextTable; };
+RANGE   { START $86AA;  END $86AC;  TYPE Code; };
+
+RANGE   { START $86AD;  END $86C5;  TYPE Code; };
+RANGE   { START $86C6;  END $86C8;  TYPE ByteTable; };
+
+RANGE   { START $86C9;  END $8716;  TYPE Code; };
+RANGE   { START $8717;  END $8771;  TYPE ByteTable; };
+RANGE   { START $8772;  END $8787;  TYPE Code; };
+RANGE   { START $8788;  END $8B63;  TYPE ByteTable; };
+RANGE   { START $8B64;  END $8B66;  TYPE Code; };
+RANGE   { START $8B67;  END $8B81;  TYPE TextTable; };
+RANGE   { START $8B82;  END $8BAE;  TYPE Code; };
+RANGE   { START $8BAF;  END $8C5D;  TYPE ByteTable; };
+RANGE   { START $8C5E;  END $8C73;  TYPE Code; };
 RANGE   { START $8C97;  END $8C9D;  TYPE ByteTable; };
 RANGE   { START $8C9E;  END $8CCC;  TYPE Code; };
 RANGE   { START $8CCD;  END $8CCD;  TYPE ByteTable; };
@@ -56,19 +58,28 @@ RANGE   { START $8CCD;  END $8CCD;  TYPE ByteTable; };
 ########################
 # Subroutines
 
-LABEL   { NAME "s8175";             ADDR $8175; };
-LABEL   { NAME "s818F";             ADDR $818F; };
-LABEL   { NAME "inc_then_read_ptr"; ADDR $83AC; };
-LABEL   { NAME "read_then_inc_ptr"; ADDR $83B8; };
-LABEL   { NAME "print_char_or_esc"; ADDR $83DD; };
-LABEL   { NAME "print_lfcr";        ADDR $83FE; };
-LABEL   { NAME "s84C6";             ADDR $84C6; };
-LABEL   { NAME "s8777";             ADDR $8777; };
+LABEL   { NAME "s8175";             			ADDR $8175; };
+LABEL   { NAME "s818F";             			ADDR $818F; };
+LABEL   { NAME "inc_then_read_ptr"; 			ADDR $83AC; };
+LABEL   { NAME "read_then_inc_ptr"; 			ADDR $83B8; };
+LABEL   { NAME "print_char_or_esc"; 			ADDR $83DD; };
+LABEL   { NAME "clear_to_end_then_print_lfcr";	ADDR $83FB; };
+LABEL   { NAME "print_lfcr";        			ADDR $83FE; };
+LABEL   { NAME "s84C6";             			ADDR $84C6; };
+LABEL   { NAME "s8522";             			ADDR $8522; };
+LABEL   { NAME "s85A6";             			ADDR $85A6; };
+LABEL   { NAME "s857C";             			ADDR $857C; };
+LABEL   { NAME "s86AD";             			ADDR $86AD; };
+LABEL   { NAME "s8777";             			ADDR $8777; };
+LABEL   { NAME "s8B64";             			ADDR $8B64; };
 
 ########################
 # Jump targets
 
+LABEL   { NAME "j83CD";             ADDR $83CD; };
 LABEL   { NAME "j8496";             ADDR $8496; };
+LABEL   { NAME "j8597";             ADDR $8597; };
+LABEL   { NAME "j86C9";             ADDR $86C9; };
 LABEL   { NAME "j8C60";             ADDR $8C60; };
 LABEL   { NAME "do_mi_main";        ADDR $8C9E; };
 
@@ -97,9 +108,29 @@ LABEL   { NAME "b84B0";             ADDR $84B0; };
 LABEL   { NAME "b84DA";             ADDR $84DA; };
 LABEL   { NAME "b8516";             ADDR $8516; };
 
+LABEL   { NAME "b8539";             ADDR $8539; };
+LABEL   { NAME "b8555";             ADDR $8555; };
+
+LABEL   { NAME "b8588";             ADDR $8588; };
+
+LABEL   { NAME "b858E";             ADDR $858E; };
+LABEL   { NAME "b859D";             ADDR $859D; };
+LABEL   { NAME "b85A5";             ADDR $85A5; };
+
+LABEL   { NAME "b85B7";             ADDR $85B7; };
+LABEL   { NAME "b85BA";             ADDR $85BA; };
+
+LABEL   { NAME "b86BB";             ADDR $86BB; };
+
 LABEL   { NAME "b8703";             ADDR $8703; };
 
 LABEL   { NAME "b870E";             ADDR $870E; };
+
+LABEL   { NAME "b8B85";             ADDR $8B85; };
+LABEL   { NAME "b8B94";             ADDR $8B94; };
+
+LABEL   { NAME "b8BA3";             ADDR $8BA3; };
+LABEL   { NAME "b8BAE";             ADDR $8BAE; };
 
 LABEL   { NAME "b8C6A";             ADDR $8C6A; };
 LABEL   { NAME "b8C74";             ADDR $8C74; };
@@ -111,14 +142,31 @@ LABEL   { NAME "b8C7A";             ADDR $8C7A; };
 LABEL   { NAME "text_area_cache";       ADDR $81A7; };
 LABEL   { NAME "w81AD";                 ADDR $81AD; };
 
+LABEL   { NAME "player_hits_hi";        ADDR $823C; };
+LABEL   { NAME "player_money_hi";       ADDR $824A; };
+LABEL   { NAME "player_food_hi";        ADDR $825B; };
+LABEL   { NAME "player_experience_hi";  ADDR $825D; };
+
 LABEL   { NAME "rts_ptr_lo";            ADDR $83B5; };
 LABEL   { NAME "rts_ptr_hi";            ADDR $83B6; };
 LABEL   { NAME "read_ptr_lo";           ADDR $83B9; };
 LABEL   { NAME "read_ptr_hi";           ADDR $83BA; };
+LABEL   { NAME "w8579";                 ADDR $8579; };
+LABEL   { NAME "w857A";                 ADDR $857A; };
+LABEL   { NAME "w857B";                 ADDR $857B; };
+LABEL   { NAME "w85BD";                 ADDR $85BD; };
 LABEL   { NAME "w8C97";                 ADDR $8C97; };
 
 ########################
 # Zero Page
+
+LABEL   { NAME "zp1F";          ADDR $1F; };
+
+LABEL   { NAME "zp3C";          ADDR $3C; };
+LABEL   { NAME "zp3D";          ADDR $3D; };
+LABEL   { NAME "zp3E";          ADDR $3E; };
+LABEL   { NAME "zp3F";          ADDR $3F; };
+LABEL   { NAME "zp40";          ADDR $40; };
 
 LABEL   { NAME "zp56";          ADDR $56; };
 LABEL   { NAME "zp5B";          ADDR $5B; };

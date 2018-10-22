@@ -15,10 +15,6 @@
 .import main_menu
 
 .import j92F4
-.import s9359
-
-.export w93E7
-.export w93E9
 
 selected_character  := $C4F8
 
@@ -44,35 +40,43 @@ character_generation:
         
         jsr     clear_text_area
 
-        lda     #<(player_save_data + 2)
-        sta     w8F2B
+
+
+        lda     #<(player_save_data + 2)                ; Copy the new character template into the player save location in memory
+        sta     @dest
         lda     #>(player_save_data + 2)
-        sta     w8F2C
+        sta     @dest + 1
         
         lda     #<(new_char_template + 2)
-        sta     w8F28
+        sta     @source
         lda     #>(new_char_template + 2)
-        sta     w8F29
+        sta     @source + 1
 
-b8F27:
-w8F28           := * + 1
-w8F29           := * + 2
+@loop:
+@source         := * + 1
         lda     $FFFF
-w8F2B           := * + 1
-w8F2C           := * + 2
+@dest           := * + 1
         sta     $FFFF
-        inc     w8F28
-        bne     b8F35
-        inc     w8F29
-b8F35:  inc     w8F2B
-        bne     b8F3D
-        inc     w8F2C
-b8F3D:  lda     w8F28
+
+        inc     @source                                 ; Increment the source address
+        bne     @inc_dest
+        inc     @source + 1
+
+@inc_dest:
+        inc     @dest                                   ; Increment the destination address
+        bne     @check_done
+        inc     @dest + 1
+
+@check_done:
+        lda     @source                                 ; Keep going until we've copied $8a bytes
         cmp     #<(new_char_template + $8a)
-        bne     b8F27
-        lda     w8F29
+        bne     @loop
+        lda     @source + 1
         cmp     #>(new_char_template + $8a)
-        bne     b8F27
+        bne     @loop
+
+
+
         jsr     s9359
         lda     #$1E
         sta     w93E7
@@ -369,6 +373,73 @@ b92D1:  cpx     #$0D
         beq     b92C5
         ora     #$20
         bne     b92C5
+
+
+
+.segment "CODE_S9359"
+
+;-----------------------------------------------------------
+;                         s9359
+;
+;-----------------------------------------------------------
+
+s9359:  lda     #$00
+        sta     w85BE
+        sta     w81C4
+
+        ldx     #$05                                    ; Move the cursor to (5, 3)
+        stx     CUR_X
+        ldy     #$03
+        sty     CUR_Y
+
+        lda     w93E9
+        beq     b9393
+
+        jsr     mi_print_text
+        
+        .byte   "Points left to distribute: ",$00
+
+        lda     w93E7
+        jsr     mi_s8582
+        
+b9393:  dec     CUR_X_MAX
+        jsr     st_clear_to_end_of_text_row_a
+        inc     CUR_X_MAX
+        jsr     mi_s83F3
+b939D:  inc     w81C4
+        inc     CUR_Y
+        ldx     #$0A
+        stx     CUR_X
+        lda     #$20
+        ldx     w81C4
+        cpx     w93E9
+        bne     b93B2
+        lda     #$0E
+b93B2:  jsr     mi_print_char
+        jsr     mi_print_string_entry_x
+        .addr   r7842_table
+        lda     #$2E
+        sta     w85BE
+b93BF:  jsr     mi_print_char
+        ldx     CUR_X
+        cpx     #$1A
+        bcc     b93BF
+        lda     w81C4
+        asl     a
+        tax
+        lda     player_hits,x
+        jsr     mi_s8582
+        lda     #$20
+        ldx     w81C4
+        cpx     w93E9
+        bne     b93DF
+        lda     #$18
+b93DF:  jsr     mi_print_char
+        cpx     #$06
+        bcc     b939D
+        rts
+
+
 
 
 
