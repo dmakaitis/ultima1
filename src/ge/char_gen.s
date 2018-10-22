@@ -141,7 +141,7 @@ b906D:  cpy     #$0D
         bne     b9006
         ldy     points_to_distribute
         beq     b907C
-        jsr     mi_s8772
+        jsr     mi_play_sound_spell_and_read_input
         jmp     b9006
 
 b907C:  sty     w93E9
@@ -330,7 +330,7 @@ b9281:  jsr     st_read_input
         sta     CUR_X
         lda     #$03
         sta     CUR_Y
-        jsr     mi_s8BA1
+        jsr     mi_print_player_name
         jmp     j92F4
 
 b92A1:  cmp     #$3A
@@ -405,7 +405,7 @@ s9359:  lda     #$00
 b9393:  dec     CUR_X_MAX
         jsr     st_clear_to_end_of_text_row_a
         inc     CUR_X_MAX
-        jsr     mi_s83F3
+        jsr     mi_print_crlf_col_1
 b939D:  inc     w81C4
         inc     CUR_Y
         ldx     #$0A

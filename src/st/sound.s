@@ -58,6 +58,18 @@ sound_vectors:
 ; from $00 to $10 that will decide what sound to play. If
 ; the value is outside of this range, then this method does
 ; nothing.
+;
+; Sounds available include the following:
+;
+; 0 - step
+; 2 - hit
+; 4 - attack 1 (melee?)
+; 6 - attack 2 (ranged?)
+; 8 - spell cast failed
+; 10 - cast spell
+; 12 - fire cannon
+; 14 - movement blocked
+; 16 - invalid command
 ;-----------------------------------------------------------
 
 play_sound_a:
