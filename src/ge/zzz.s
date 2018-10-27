@@ -9,8 +9,8 @@
 
 .export clear_text_area
 
-.export j92F4
-.export s948D
+.export save_character
+.export wait_for_user
 
 character_roster    := $B000
 selected_character  := $C4F8
@@ -20,62 +20,74 @@ selected_character  := $C4F8
 .segment "CODE_ZZZ"
 
 ;-----------------------------------------------------------
-;                         j92F4
+;                     save_character
 ;
 ;-----------------------------------------------------------
 
-j92F4:  jsr     s947F
-        .byte   "~ Save this character? (Y-N) "
+save_character:
+        jsr     clear_and_print_text_at_2_20
 
+        .byte   "~ Save this character? (Y-N) ",$00
 
-
-        .byte   $00
         jsr     clear_text_area
+
         jsr     st_read_input
         jsr     st_print_char
-        cmp     #$59
-        beq     b9329
-        cmp     #$4E
-        bne     j92F4
-        jmp     create_character
 
-b9329:  lda     selected_character
+        cmp     #$59                                    ; Did the user type 'Y'?
+        beq     @confirmed
+
+        cmp     #$4E                                    ; Did the user type 'N'?
+        bne     save_character
+
+        jmp     create_character                        ; If we decide not to save, start over...
+
+@confirmed:
+        lda     selected_character                      ; x := selected_character * 16
         asl     a
         asl     a
         asl     a
         asl     a
         tax
-        lda     #$FF
+
+        lda     #$FF                                    ; Mark the roster slot as taken
         sta     character_roster,x
-        ldy     #$00
+
+        ldy     #$00                                    ; y := 0
+
+        inx                                             ; x += 3
         inx
         inx
-        inx
-b933B:  lda     mi_player_name,y
+
+@loop:  lda     mi_player_name,y                        ; Copy the character name into the roster
         sta     character_roster,x
         inx
         iny
-        cpy     #$0D
-        bcc     b933B
-        ldx     #$01
+        cpy     #$0D                                    ; Copy 13 characters                     
+        bcc     @loop
+
+        ldx     #$01                                    ; Save the character roster
         jsr     save_file
-        lda     selected_character
+
+        lda     selected_character                      ; Save the character
         clc
         adc     #$02
         tax
         jsr     save_file
-        jmp     main_menu
+
+        jmp     main_menu                               ; Return to the main menu
 
 
 
 .segment "CODE_ZZZ2"
 
 ;-----------------------------------------------------------
-;                         s947F
+;                clear_and_print_text_at_2_20
 ;
 ;-----------------------------------------------------------
 
-s947F:  ldx     #$02
+clear_and_print_text_at_2_20:
+        ldx     #$02
         stx     CUR_X
         ldy     #$14
         sty     CUR_Y
@@ -86,11 +98,12 @@ s947F:  ldx     #$02
 
 
 ;-----------------------------------------------------------
-;                         s948D
+;                      wait_for_user
 ;
 ;-----------------------------------------------------------
 
-s948D:  ldx     #$02
+wait_for_user:
+        ldx     #$02
         ldy     #$15
         jsr     mi_print_text_at_x_y
 
@@ -105,14 +118,29 @@ s948D:  ldx     #$02
 
         jsr     st_set_text_window_full
         jsr     cursor_to_1_1
+
+        ; continued in clear_text_area
+
+
+
+;-----------------------------------------------------------
+;                     clear_text_area
+;
+;-----------------------------------------------------------
+
 clear_text_area:
         jsr     mi_store_text_area
+
         dec     CUR_X_MAX
-b94C5:  jsr     st_clear_to_end_of_text_row_a
+
+@loop:  jsr     st_clear_to_end_of_text_row_a
+
         jsr     mi_cursor_to_col_1
         inc     CUR_Y
+
         ldy     CUR_Y
         iny
         cpy     CUR_Y_MAX
-        bcc     b94C5
+        bcc     @loop
+
         jmp     mi_restore_text_area

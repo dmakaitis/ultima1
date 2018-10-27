@@ -13,8 +13,7 @@
 .import clear_text_area
 .import draw_border
 .import main_menu
-
-.import j92F4
+.import save_character
 
 selected_character  := $C4F8
 
@@ -331,7 +330,7 @@ b9281:  jsr     st_read_input
         lda     #$03
         sta     CUR_Y
         jsr     mi_print_player_name
-        jmp     j92F4
+        jmp     save_character
 
 b92A1:  cmp     #$3A
         beq     b92A9
@@ -395,17 +394,19 @@ s9359:  lda     #$00
         lda     w93E9
         beq     b9393
 
-        jsr     mi_print_text
+        jsr     mi_print_text                           ; Tell the user how many points are left to distribute
         
         .byte   "Points left to distribute: ",$00
 
         lda     points_to_distribute
         jsr     mi_print_short_int
 
-b9393:  dec     CUR_X_MAX
+b9393:  dec     CUR_X_MAX                               ; Clear the rest of the line except the last character
         jsr     st_clear_to_end_of_text_row_a
         inc     CUR_X_MAX
+
         jsr     mi_print_crlf_col_1
+
 b939D:  inc     mi_w81C4
         inc     CUR_Y
         ldx     #$0A
@@ -418,12 +419,15 @@ b939D:  inc     mi_w81C4
 b93B2:  jsr     mi_print_char
         jsr     mi_print_string_entry_x
         .addr   mi_r7842_table
-        lda     #$2E
+
+        lda     #$2E                                    ; Print '.'s until we reach column 26
         sta     mi_w85BE
-b93BF:  jsr     mi_print_char
+@loop_periods:
+        jsr     mi_print_char
         ldx     CUR_X
         cpx     #$1A
-        bcc     b93BF
+        bcc     @loop_periods
+
         lda     mi_w81C4
         asl     a
         tax

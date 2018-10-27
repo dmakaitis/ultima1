@@ -18,8 +18,7 @@
 .import create_character
 .import draw_border
 .import select_character
-
-.import s948D
+.import wait_for_user
 
 PROCESSOR_PORT      := $0001
 
@@ -119,7 +118,7 @@ main_menu:
         .byte   "Disk error.",$00
 
         jsr     mi_restore_text_area                    ; Wait for the user to aknowledge the error, then return to main menu
-        jsr     s948D
+        jsr     wait_for_user
         jmp     main_menu
 
 
