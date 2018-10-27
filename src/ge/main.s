@@ -14,7 +14,7 @@
 
 .export main_menu
 
-.import clear_text_area
+.import clear_text_area_below_cursor
 .import create_character
 .import draw_border
 .import select_character
@@ -49,7 +49,7 @@ main_menu:
         sta     BM_ADDR_MASK
 
         jsr     draw_border
-        jsr     clear_text_area
+        jsr     clear_text_area_below_cursor
 
         ldy     #$06
         ldx     #$0C
@@ -73,7 +73,7 @@ main_menu:
         jsr     st_read_input
 
         pha
-        jsr     clear_text_area
+        jsr     clear_text_area_below_cursor
         pla
 
         cmp     #$41                                    ; If the input is 'A' then jump to creating a character.

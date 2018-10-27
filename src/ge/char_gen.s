@@ -10,7 +10,7 @@
 
 .export character_generation
 
-.import clear_text_area
+.import clear_text_area_below_cursor
 .import draw_border
 .import main_menu
 .import save_character
@@ -22,8 +22,12 @@ selected_character  := $C4F8
 .segment "CODE_CHAR_GEN"
 
 ;-----------------------------------------------------------
-;                    create_character
+;                   character_generation
 ;
+; Allows the user to create a character. First they will be
+; allowed to distrubute 30 points across six attribute.
+; Then they can select their race. Next they can choose
+; their sex. After that, the may select their class.
 ;-----------------------------------------------------------
 
 character_generation:
@@ -37,7 +41,7 @@ character_generation:
         
         .byte   $0E," Character Generation ",$18,"~",$00
         
-        jsr     clear_text_area
+        jsr     clear_text_area_below_cursor
 
 
 
@@ -76,12 +80,15 @@ character_generation:
 
 
 
-        jsr     s9359
-        lda     #$1E
+        jsr     display_attributes
+
+        lda     #$1E                                    ; Give the player 30 points to distribute
         sta     points_to_distribute
-        ldx     #$01
-        stx     w93E9
-        ldy     #$0F
+
+        ldx     #$01                                    ; Select the first attribute
+        stx     selected_attribute
+
+        ldy     #$0F                                    ; Print the instructions
         jsr     mi_print_text_at_x_y
         
         .byte   " Move cursor with up and down arrows,~"
@@ -90,63 +97,99 @@ character_generation:
         .byte   " Press RETURN when finished,~"
         .byte   " or space bar to go back to main menu.",$00
 
-b9006:  jsr     s9359
-        lda     #$63
+@attribute_loop:
+        jsr     display_attributes
+
+        lda     #$63                                    ; Hide the cursor
         sta     CUR_X
-        jsr     st_read_input
+
+        jsr     st_read_input                           ; y := user input
         tay
-        lda     w93E9
+
+        lda     selected_attribute                      ; x := 2 * selected_attribute
         asl     a
         tax
-        cpy     #$20
-        bne     b901D
-        jmp     main_menu
 
-b901D:  cpy     #$3A
-        bne     b9030
-        lda     mi_player_hits,x
+        cpy     #$20                                    ; Did user press space?
+        bne     @check_press_left
+        jmp     main_menu                               ; If so, go back to the main menu
+
+@check_press_left:
+        cpy     #$3A                                    ; Did the user press LEFT?
+        bne     @check_press_right
+
+        lda     mi_player_hits,x                        ; If so, is the current attribute value equal to 10?
         cmp     #$0A
-        beq     b9006
-        dec     mi_player_hits,x
-        inc     points_to_distribute
-        bne     b9006
-b9030:  cpy     #$3B
-        bne     L9048
-        lda     points_to_distribute
-        beq     b9006
-        lda     mi_player_hits,x
-        cmp     #$19
-        bcs     b9006
-        inc     mi_player_hits,x
-        dec     points_to_distribute
-        bpl     b9006
-L9048:  cpy     #$2F
-        bne     b905D
-        inc     w93E9
-        lda     w93E9
-        cmp     #$07
-        bcc     b9006
-        lda     #$01
-        sta     w93E9
-        beq     b9006
-b905D:  cpy     #$40
-        bne     b906D
-        dec     w93E9
-        bne     b9006
-        lda     #$06
-        sta     w93E9
-        bne     b9006
-b906D:  cpy     #$0D
-        bne     b9006
-        ldy     points_to_distribute
-        beq     b907C
-        jsr     mi_play_sound_spell_and_read_input
-        jmp     b9006
+        beq     @attribute_loop                         ; If so, ignore
 
-b907C:  sty     w93E9
-        jsr     s9359
-        jsr     clear_text_area
-        ldy     #$12
+        dec     mi_player_hits,x                        ; Lower the attribute by one and return one point to distribute
+        inc     points_to_distribute
+        bne     @attribute_loop
+
+
+@check_press_right:
+        cpy     #$3B                                    ; Did the user press RIGHT?
+        bne     @check_press_down
+
+        lda     points_to_distribute                    ; Are there any points left to distribute?
+        beq     @attribute_loop                         ; If not, ignore
+
+        lda     mi_player_hits,x                        ; Is the attribute already equal to 30?
+        cmp     #$19
+        bcs     @attribute_loop                         ; If so, ignore
+
+        inc     mi_player_hits,x                        ; Increase the attribute by one and remove a point to distrubute
+        dec     points_to_distribute
+        bpl     @attribute_loop
+
+
+@check_press_down:                                      ; Did the user press DOWN?
+        cpy     #$2F
+        bne     @check_press_up
+
+        inc     selected_attribute                      ; Select the next attribute
+
+        lda     selected_attribute                      ; If the last attribute was already selected, go back to the first attribute
+        cmp     #$07
+        bcc     @attribute_loop
+        lda     #$01
+        sta     selected_attribute
+        beq     @attribute_loop
+
+
+@check_press_up:
+        cpy     #$40                                    ; Did the user press UP?
+        bne     @check_press_return
+
+        dec     selected_attribute                      ; Select the previous attribute
+
+        bne     @attribute_loop                         ; If the first attribute was already selected, go to the last attribute
+        lda     #$06
+        sta     selected_attribute
+        bne     @attribute_loop
+
+@check_press_return:
+        cpy     #$0D                                    ; Did the user press RETURN?
+        bne     @attribute_loop
+
+        ldy     points_to_distribute                    ; Are there points left to distribute?
+        beq     select_race
+
+        jsr     mi_play_error_sound_and_read_input      ; If not, play an error sound and wait for more input
+        jmp     @attribute_loop
+
+
+
+
+;-----------------------------------------------------------
+
+select_race:
+        sty     selected_attribute                      ; selected_attribute := 0
+        jsr     display_attributes                      ; Remove the header from the attribute display
+
+        jsr     clear_text_area_below_cursor
+
+        ldy     #$12                                    ; Print race options
         ldx     #$0B
         jsr     mi_print_text_at_x_y
 
@@ -161,15 +204,19 @@ b907C:  sty     w93E9
         
         .byte   "Select thy race: ",$00
 
-b90CE:  jsr     st_read_input
-        cmp     #$41
-        bcc     b90CE
+@race_loop:
+        jsr     st_read_input
+
+        cmp     #$41                                    ; Is the input in the range of 'A' - 'D'?
+        bcc     @race_loop
         cmp     #$45
-        bcs     b90CE
-        sec
+        bcs     @race_loop
+
+        sec                                             ; Store the selected race
         sbc     #$40
         sta     mi_player_race
-        ldy     #$0C
+
+        ldy     #$0C                                    ; Add the selected race to the display
         ldx     #$0D
         jsr     mi_print_text_at_x_y
         
@@ -178,39 +225,57 @@ b90CE:  jsr     st_read_input
         ldx     mi_player_race
         jsr     mi_print_string_entry_x
         .addr   mi_race_name_table
-        jsr     clear_text_area
-        lda     mi_player_race
+
+        jsr     clear_text_area_below_cursor
+
+        lda     mi_player_race                          ; Did the user select human?
         cmp     #$01
-        bne     b910A
-        lda     mi_player_intelligence
+        bne     @check_elf
+
+        lda     mi_player_intelligence                  ; If so, increase their intelligence by 5
         clc
         adc     #$05
         sta     mi_player_intelligence
-        bne     b913A
-b910A:  cmp     #$02
-        bne     b9119
-        lda     mi_player_agility
+        bne     select_sex
+
+@check_elf:
+        cmp     #$02                                    ; Did the user select elf?
+        bne     @check_dwarf
+
+        lda     mi_player_agility                       ; If so, increase their agility by 5
         clc
         adc     #$05
         sta     mi_player_agility
-        bne     b913A
-b9119:  cmp     #$03
-        bne     b9128
-        lda     mi_player_strength
+        bne     select_sex
+
+@check_dwarf:
+        cmp     #$03                                    ; Did the user select dwarf?
+        bne     @bobbit
+
+        lda     mi_player_strength                      ; If so, increase their strength by 5
         clc
         adc     #$05
         sta     mi_player_strength
-        bne     b913A
-b9128:  lda     mi_player_wisdom
+        bne     select_sex
+
+@bobbit: 
+        lda     mi_player_wisdom                        ; Must have selected bobbit; increase their wisdom by 5...
         clc
         adc     #$0A
         sta     mi_player_wisdom
-        lda     mi_player_strength
+        lda     mi_player_strength                      ; ...but lower their strength by 5
         sec
         sbc     #$05
         sta     mi_player_strength
-b913A:  jsr     s9359
-        ldy     #$12
+
+
+
+;-----------------------------------------------------------
+
+select_sex:
+        jsr     display_attributes                      ; Update the attributes based on the selected race
+
+        ldy     #$12                                    ; Display the sex options
         ldx     #$0B
         jsr     mi_print_text_at_x_y
         
@@ -223,15 +288,19 @@ b913A:  jsr     s9359
         
         .byte   "Select thy sex: ",$00
 
-b9170:  jsr     st_read_input
-        cmp     #$41
-        bcc     b9170
+@sex_loop:
+        jsr     st_read_input
+
+        cmp     #$41                                    ; Is the input in the range of 'A' - 'B'?
+        bcc     @sex_loop
         cmp     #$43
-        bcs     b9170
-        sec
+        bcs     @sex_loop
+
+        sec                                             ; If so, store the selecte sex
         sbc     #$41
         sta     mi_player_sex
-        ldy     #$0D
+
+        ldy     #$0D                                    ; Display the selected sex
         ldx     #$0E
         jsr     mi_print_text_at_x_y
         
@@ -240,7 +309,12 @@ b9170:  jsr     st_read_input
         ldx     mi_player_sex
         jsr     mi_print_string_entry_x
         .addr   sex_table
-        jsr     clear_text_area
+
+
+
+;-----------------------------------------------------------
+
+        jsr     clear_text_area_below_cursor            ; Select the class options
         ldy     #$12
         ldx     #$0B
         jsr     mi_print_text_at_x_y
@@ -256,15 +330,18 @@ b9170:  jsr     st_read_input
         
         .byte   "Select thy class: ",$00
 
-b91E8:  jsr     st_read_input
+@class_loop:
+        jsr     st_read_input                           ; Is the input in the range 'A' - 'D'?
         cmp     #$41
-        bcc     b91E8
+        bcc     @class_loop
         cmp     #$45
-        bcs     b91E8
-        sec
+        bcs     @class_loop
+
+        sec                                             ; Store the selected class
         sbc     #$40
         sta     mi_player_class
-        ldy     #$0E
+
+        ldy     #$0E                                    ; Display the selected class
         ldx     #$0C
         jsr     mi_print_text_at_x_y
 
@@ -273,40 +350,52 @@ b91E8:  jsr     st_read_input
         ldx     mi_player_class
         jsr     mi_print_string_entry_x
         .addr   mi_class_name_table
-        lda     mi_player_class
+
+        lda     mi_player_class                         ; Did the user select fighter?
         cmp     #$01
-        bne     b922B
-        lda     mi_player_strength
+        bne     @check_cleric
+
+        lda     mi_player_strength                      ; If so, increase strength by 10...
         clc
         adc     #$0A
         sta     mi_player_strength
-        lda     mi_player_agility
+
+        lda     mi_player_agility                       ; ...and agility by 10
         clc
         adc     #$0A
         sta     mi_player_agility
         bne     b9252
-b922B:  cmp     #$02
-        bne     b923A
-        lda     mi_player_wisdom
+
+@check_cleric:
+        cmp     #$02                                    ; Did the user select cleric?
+        bne     @check_wizard
+
+        lda     mi_player_wisdom                        ; If so, increase wisdom by 10
         clc
         adc     #$0A
         sta     mi_player_wisdom
         bne     b9252
-b923A:  cmp     #$03
-        bne     b9249
-        lda     mi_player_intelligence
+
+@check_wizard:
+        cmp     #$03                                    ; Did the user select wizard?
+        bne     @thief
+
+        lda     mi_player_intelligence                  ; If so, increase intelligence by 10
         clc
         adc     #$0A
         sta     mi_player_intelligence
         bne     b9252
-b9249:  lda     mi_player_agility
+
+@thief:
+        lda     mi_player_agility                       ; Player must have selected thief, so increase agility by 10
         clc
         adc     #$0A
         sta     mi_player_agility
-b9252:  jsr     s9359
-        jsr     st_get_random_number_
+
+b9252:  jsr     display_attributes
+        jsr     st_get_random_number
         sta     mi_w8264
-        jsr     st_get_random_number_
+        jsr     st_get_random_number
         sta     mi_w8265
         ldy     #$10
         ldx     #$02
@@ -314,7 +403,7 @@ b9252:  jsr     s9359
 
         .byte   "Enter thy name: ",$00
         
-        jsr     clear_text_area
+        jsr     clear_text_area_below_cursor
         lda     #$00
         sta     w93EA
 b9281:  jsr     st_read_input
@@ -324,7 +413,7 @@ b9281:  jsr     st_read_input
         txa
         beq     b9281
         dec     CUR_Y
-        jsr     clear_text_area
+        jsr     clear_text_area_below_cursor
         lda     #$0B
         sta     CUR_X
         lda     #$03
@@ -378,21 +467,22 @@ b92D1:  cpx     #$0D
 .segment "CODE_S9359"
 
 ;-----------------------------------------------------------
-;                         s9359
+;                     display_attributes
 ;
 ;-----------------------------------------------------------
 
-s9359:  lda     #$00
+display_attributes:
+        lda     #$00
         sta     mi_w85BE
-        sta     mi_w81C4
+        sta     mi_current_attribute
 
         ldx     #$05                                    ; Move the cursor to (5, 3)
         stx     CUR_X
         ldy     #$03
         sty     CUR_Y
 
-        lda     w93E9
-        beq     b9393
+        lda     selected_attribute                      ; If no attribute is selected, skip the header
+        beq     @skip_header
 
         jsr     mi_print_text                           ; Tell the user how many points are left to distribute
         
@@ -401,24 +491,31 @@ s9359:  lda     #$00
         lda     points_to_distribute
         jsr     mi_print_short_int
 
-b9393:  dec     CUR_X_MAX                               ; Clear the rest of the line except the last character
+@skip_header:
+        dec     CUR_X_MAX                               ; Clear the rest of the line except the last character
         jsr     st_clear_to_end_of_text_row_a
         inc     CUR_X_MAX
 
-        jsr     mi_print_crlf_col_1
+        jsr     mi_print_crlf_col_1                     ; Advance to the next line
 
-b939D:  inc     mi_w81C4
-        inc     CUR_Y
-        ldx     #$0A
+@loop:  inc     mi_current_attribute
+
+        inc     CUR_Y                                   ; Advance to the next line
+
+        ldx     #$0A                                    ; Move cursor to column 10
         stx     CUR_X
-        lda     #$20
-        ldx     mi_w81C4
-        cpx     w93E9
-        bne     b93B2
+
+        lda     #$20                                    ; Print the '>' next to the currently selected attribute
+        ldx     mi_current_attribute
+        cpx     selected_attribute
+        bne     @print_prefix
+
         lda     #$0E
-b93B2:  jsr     mi_print_char
-        jsr     mi_print_string_entry_x
-        .addr   mi_r7842_table
+@print_prefix:
+        jsr     mi_print_char
+
+        jsr     mi_print_string_entry_x                 ; Print the attribute name
+        .addr   mi_attribute_table
 
         lda     #$2E                                    ; Print '.'s until we reach column 26
         sta     mi_w85BE
@@ -428,19 +525,23 @@ b93B2:  jsr     mi_print_char
         cpx     #$1A
         bcc     @loop_periods
 
-        lda     mi_w81C4
+        lda     mi_current_attribute                    ; Print the value for the attribute
         asl     a
         tax
         lda     mi_player_hits,x
         jsr     mi_print_short_int
-        lda     #$20
-        ldx     mi_w81C4
-        cpx     w93E9
-        bne     b93DF
+
+        lda     #$20                                    ; Print the '<' after the currently selected attribute
+        ldx     mi_current_attribute
+        cpx     selected_attribute
+        bne     @print_suffix
         lda     #$18
-b93DF:  jsr     mi_print_char
-        cpx     #$06
-        bcc     b939D
+@print_suffix:
+        jsr     mi_print_char
+
+        cpx     #$06                                    ; Go through all six attributes
+        bcc     @loop
+
         rts
 
 
@@ -455,7 +556,8 @@ b93DF:  jsr     mi_print_char
 
 points_to_distribute:
         .byte   $00,$00
-w93E9:  .byte   $00
+selected_attribute:
+        .byte   $00
 w93EA:  .byte   $00
 
 

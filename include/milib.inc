@@ -2,10 +2,10 @@
 ; MI library routines
 
 mi_race_name_table                  := $7763;
-mi_r7842_table                      := $7842;
+mi_attribute_table                  := $7842;
 mi_class_name_table                 := $7911;
 
-mi_w81C4                            := $81C4;
+mi_current_attribute                := $81C4;
 
 mi_player_save_data                 := $81E2;
 
@@ -45,7 +45,7 @@ mi_print_short_int                  := $8582;
 mi_s8689                            := $8689;
 mi_restore_text_area                := $8701;
 mi_store_text_area                  := $870C;
-mi_play_sound_spell_and_read_input  := $8772;
+mi_play_error_sound_and_read_input  := $8772;
 mi_print_player_name                := $8BA1;
 
 mi_j8C5E                            := $8C5E;

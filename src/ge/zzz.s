@@ -7,7 +7,7 @@
 .import draw_border
 .import main_menu
 
-.export clear_text_area
+.export clear_text_area_below_cursor
 
 .export save_character
 .export wait_for_user
@@ -29,7 +29,7 @@ save_character:
 
         .byte   "~ Save this character? (Y-N) ",$00
 
-        jsr     clear_text_area
+        jsr     clear_text_area_below_cursor
 
         jsr     st_read_input
         jsr     st_print_char
@@ -91,7 +91,7 @@ clear_and_print_text_at_2_20:
         stx     CUR_X
         ldy     #$14
         sty     CUR_Y
-        jsr     clear_text_area
+        jsr     clear_text_area_below_cursor
         jmp     mi_print_text
 
 
@@ -114,21 +114,21 @@ wait_for_user:
 
         lda     #$14
         sta     CUR_Y
-        bne     clear_text_area
+        bne     clear_text_area_below_cursor
 
         jsr     st_set_text_window_full
         jsr     cursor_to_1_1
 
-        ; continued in clear_text_area
+        ; continued in clear_text_area_below_cursor
 
 
 
 ;-----------------------------------------------------------
-;                     clear_text_area
+;                clear_text_area_below_cursor
 ;
 ;-----------------------------------------------------------
 
-clear_text_area:
+clear_text_area_below_cursor:
         jsr     mi_store_text_area
 
         dec     CUR_X_MAX
