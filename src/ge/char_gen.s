@@ -2,6 +2,7 @@
 ;
 ; char_gen.s
 ;
+; Allows the user to create a new character.
 ;
 ;-------------------------------------------------------------------------------
 
@@ -27,7 +28,8 @@ selected_character  := $C4F8
 ; Allows the user to create a character. First they will be
 ; allowed to distrubute 30 points across six attribute.
 ; Then they can select their race. Next they can choose
-; their sex. After that, the may select their class.
+; their sex. After that, the may select their class. Finally
+; they will be able to name their character.
 ;-----------------------------------------------------------
 
 character_generation:
@@ -364,7 +366,7 @@ select_sex:
         clc
         adc     #$0A
         sta     mi_player_agility
-        bne     b9252
+        bne     name_character
 
 @check_cleric:
         cmp     #$02                                    ; Did the user select cleric?
@@ -374,7 +376,7 @@ select_sex:
         clc
         adc     #$0A
         sta     mi_player_wisdom
-        bne     b9252
+        bne     name_character
 
 @check_wizard:
         cmp     #$03                                    ; Did the user select wizard?
@@ -384,7 +386,7 @@ select_sex:
         clc
         adc     #$0A
         sta     mi_player_intelligence
-        bne     b9252
+        bne     name_character
 
 @thief:
         lda     mi_player_agility                       ; Player must have selected thief, so increase agility by 10
@@ -392,26 +394,39 @@ select_sex:
         adc     #$0A
         sta     mi_player_agility
 
-b9252:  jsr     display_attributes
+
+
+;-----------------------------------------------------------
+
+name_character:
+        jsr     display_attributes
+
+        jsr     st_get_random_number                    ; Generate a random seed and store it for the character
+        sta     mi_player_random_seed
         jsr     st_get_random_number
-        sta     mi_w8264
-        jsr     st_get_random_number
-        sta     mi_w8265
-        ldy     #$10
+        sta     mi_player_random_seed + 1
+
+        ldy     #$10                                    ; Prompt the user for their name
         ldx     #$02
         jsr     mi_print_text_at_x_y
 
         .byte   "Enter thy name: ",$00
         
         jsr     clear_text_area_below_cursor
-        lda     #$00
-        sta     w93EA
-b9281:  jsr     st_read_input
-        ldx     w93EA
-        cmp     #$0D
-        bne     b92A1
-        txa
-        beq     b9281
+
+        lda     #$00                                    ; Start with a name with zero characters
+        sta     name_length
+
+@loop:  jsr     st_read_input
+
+        ldx     name_length                             ; x := name_length
+
+        cmp     #$0D                                    ; Did the user press RETURN?
+        bne     @check_delete
+
+        txa                                             ; Are there any letters in the name? If not, keep waiting for input
+        beq     @loop
+
         dec     CUR_Y
         jsr     clear_text_area_below_cursor
         lda     #$0B
@@ -421,46 +436,61 @@ b9281:  jsr     st_read_input
         jsr     mi_print_player_name
         jmp     save_character
 
-b92A1:  cmp     #$3A
-        beq     b92A9
+@check_delete:
+        cmp     #$3A                                    ; Did the player press LEFT or DELETE?
+        beq     @delete
         cmp     #$14
-        bne     b92B9
-b92A9:  dex
-        bmi     b9281
-        stx     w93EA
+        bne     @validate_first_character
+
+@delete:
+        dex                                             ; Make sure we have some characters in the name to delete...
+        bmi     @loop
+
+        stx     name_length                             ; Remove the last character from the name
         lda     #$00
         sta     mi_player_name,x
         dec     CUR_X
-        jmp     b9281
+        jmp     @loop
 
-b92B9:  cpx     #$00
-        bne     b92D1
-        cmp     #$41
-        bcc     b9281
+@validate_first_character:
+        cpx     #$00                                    ; Are there any characters in the name so far?
+        bne     @validate_input
+
+        cmp     #$41                                    ; Is the input in the range of 'A' - 'Z'? If not, ignore it
+        bcc     @loop
         cmp     #$5B
-        bcs     b9281
-b92C5:  sta     mi_player_name,x
-        inc     w93EA
+        bcs     @loop
+
+@add_character_to_name:
+        sta     mi_player_name,x
+        inc     name_length
         jsr     mi_print_char
-        jmp     b9281
+        jmp     @loop
 
-b92D1:  cpx     #$0D
-        bcs     b9281
-        cmp     #$20
-        bcc     b9281
-        cmp     #$40
-        beq     b9281
-        cmp     #$2F
-        beq     b9281
-        cmp     #$41
-        bcc     b92C5
+@validate_input:
+        cpx     #$0D                                    ; Do we already have 13 characters in the name? If so, ignore input
+        bcs     @loop
+
+        cmp     #$20                                    ; Did the user enter a non-printable character? If so, ignore input
+        bcc     @loop
+
+        cmp     #$40                                    ; Did the user enter UP? If so, ignore (this would be a non-printable character)
+        beq     @loop
+
+        cmp     #$2F                                    ; Did the user enter DOWN? If so, ignore (this character is used for towne guards)
+        beq     @loop
+
+        cmp     #$41                                    ; If the input is NOT in the range 'A' - 'Z', add it to the name
+        bcc     @add_character_to_name
         cmp     #$5B
-        bcs     b92C5
-        ldy     mi_player_sex,x
+        bcs     @add_character_to_name
+
+        ldy     mi_player_name - 1,x                    ; Was the previous character a SPACE? If so, add the character to the name
         cpy     #$20
-        beq     b92C5
-        ora     #$20
-        bne     b92C5
+        beq     @add_character_to_name
+
+        ora     #$20                                    ; Otherwise, convert to lower case and add to the name
+        bne     @add_character_to_name
 
 
 
@@ -558,7 +588,8 @@ points_to_distribute:
         .byte   $00,$00
 selected_attribute:
         .byte   $00
-w93EA:  .byte   $00
+name_length:
+        .byte   $00
 
 
 

@@ -27,8 +27,7 @@ mi_player_class                     := $824D;
 mi_player_food                      := $825A;
 mi_player_experience                := $825C;
 
-mi_w8264                            := $8264;
-mi_w8265                            := $8265;
+mi_player_random_seed               := $8264;
 
 mi_w85BE                            := $85BE;
 
