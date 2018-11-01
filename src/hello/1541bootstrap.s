@@ -19,15 +19,15 @@ VIA1_PORTB:= $1800
 .segment "BOOTSTRAP_1541"
 .org    $0146
 
-        ldx     #$00                    ; Delay to allow C64 code to get ready to write
+        ldx     #$00                                    ; Delay to allow C64 code to get ready to write
 @loop_delay:
         dex
         bne     @loop_delay
 
-        sei                             ; Disable interrupts to ensure exact timing
+        sei                                             ; Disable interrupts to ensure exact timing
 
         jsr     read_256_bytes
-        jmp     code_target             ; Jump to code that was just received
+        jmp     code_target                             ; Jump to code that was just received
 
 
 
@@ -58,19 +58,19 @@ VIA1_PORTB:= $1800
 read_256_bytes:
         ldy     #$00
 
-        lda     #$08                    ; set clock out to signal the C64 that we are ready to receive
+        lda     #$08                                    ; set clock out to signal the C64 that we are ready to receive
         sta     VIA1_PORTB
 
 @loop_read_bytes:
-        ldx     #$00                    ; wait for DATA IN to indicate the C64 is ready to send a byte
+        ldx     #$00                                    ; wait for DATA IN to indicate the C64 is ready to send a byte
         lda     #$01
 @loop_wait_for_c64:
         bit     VIA1_PORTB
         beq     @loop_wait_for_c64
 
-        stx     VIA1_PORTB              ; initialize the serial port
+        stx     VIA1_PORTB                              ; initialize the serial port
 
-        lda     VIA1_PORTB              ; read the first four bits and store in buffer
+        lda     VIA1_PORTB                              ; read the first four bits and store in buffer
         asl
         nop
         eor     VIA1_PORTB
@@ -80,7 +80,7 @@ read_256_bytes:
         asl
         sta     read_buffer
 
-        lda     VIA1_PORTB              ; read the second four bits and combine with buffer
+        lda     VIA1_PORTB                              ; read the second four bits and combine with buffer
         asl
         nop
         eor     VIA1_PORTB
@@ -88,7 +88,7 @@ read_256_bytes:
 
 @read_target_vector:= * + 1
 
-        sta     code_target,y           ; Store the byte into the target memory.
+        sta     code_target,y                           ; Store the byte into the target memory.
         iny
         bne     @loop_read_bytes
         rts

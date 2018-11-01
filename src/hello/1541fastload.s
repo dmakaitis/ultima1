@@ -54,35 +54,35 @@ __start_1541_fastload_code:
 .segment "FASTLOAD_1541"
 .org    $0500
 
-        inc     read_target_vector + 1  ; Load the next 256 bytes of code from the C64
+        inc     read_target_vector + 1                  ; Load the next 256 bytes of code from the C64
         jsr     read_256_bytes
 
-        cli                             ; Enable interrupts
+        cli                                             ; Enable interrupts
 
         jsr     DOS_TURN_ON_LED
         jsr     DOS_READ_BAM
 
-        sei                             ; Disable interrupts
+        sei                                             ; Disable interrupts
 
-        lda     #$15                    ; Set timer latch?
+        lda     #$15                                    ; Set timer latch?
         sta     VIA2_TIMER_LATCH + 1
 
         lda     #$03
         sta     $3C
 
-        lda     #$12                    ; Load first sector of disk directory
+        lda     #$12                                    ; Load first sector of disk directory
         ldx     #$01
 
 @load_directory_sector:
         jsr     read_sector
 
-        ldx     #$07                    ; Start with the first directory entry in sector just read
+        ldx     #$07                                    ; Start with the first directory entry in sector just read
 
 @check_directory_entry:
         lda     directory_entry_offsets,x
-        sta     $3B                     ; Word at $3B now holds the address in memory of the directory entry
+        sta     $3B                                     ; Word at $3B now holds the address in memory of the directory entry
 
-        ldy     #$00                    ; Is the entry a properly closed PRG file?
+        ldy     #$00                                    ; Is the entry a properly closed PRG file?
         lda     ($3B),y
         cmp     #$82
         bne     @advance_to_next_entry
@@ -91,25 +91,25 @@ __start_1541_fastload_code:
 @check_filename_char:
         lda     filename,y
 
-        cmp     #$2A                    ; Are we trying to load the file '*'?
-        beq     load_file               ; If so, accept the first file we find...
+        cmp     #$2A                                    ; Are we trying to load the file '*'?
+        beq     load_file                               ; If so, accept the first file we find...
 
-        cmp     #$3F                    ; Is the current character in the filename a '?'?
-        beq     @matched_filename_char  ; If so, treat this as a match against the current character in directory entry
-        cmp     ($3B),y                 ; Compare the current character with the directory entry
-        bne     @advance_to_next_entry  ; If they do not match, go to the next entry
+        cmp     #$3F                                    ; Is the current character in the filename a '?'?
+        beq     @matched_filename_char                  ; If so, treat this as a match against the current character in directory entry
+        cmp     ($3B),y                                 ; Compare the current character with the directory entry
+        bne     @advance_to_next_entry                  ; If they do not match, go to the next entry
 
 @matched_filename_char:
         iny
         cpy     #$12
-        bne     @check_filename_char    ; Have we compared all 16 characters (18 - 2)?
-        beq     load_file               ; If so, then this is the file we want
+        bne     @check_filename_char                    ; Have we compared all 16 characters (18 - 2)?
+        beq     load_file                               ; If so, then this is the file we want
 
 @advance_to_next_entry:
         dex
         bpl     @check_directory_entry
-        ldx     BUFFER0 + 1             ; Get next sector
-        lda     BUFFER0                 ; Get next track
+        ldx     BUFFER0 + 1                             ; Get next sector
+        lda     BUFFER0                                 ; Get next track
         bne     @load_directory_sector
 
         lda     #$FF
@@ -123,18 +123,18 @@ __start_1541_fastload_code:
 directory_entry_offsets:  .byte   $E2,$C2,$A2,$82,$62,$42,$22,$02
 
 load_file:
-        ldy     #$02                    ; Get the first sector
+        ldy     #$02                                    ; Get the first sector
         lda     ($3B),y
         tax
-        dey                             ; Get the first track
+        dey                                             ; Get the first track
         lda     ($3B),y
 
 @load_file_sector:
         jsr     read_sector
         jsr     send_256_bytes
-        ldx     BUFFER0 + 1             ; Get next sector
-        lda     BUFFER0                 ; Get next track
-        bne     @load_file_sector       ; If next track is not 0, then read next sector of file
+        ldx     BUFFER0 + 1                             ; Get next sector
+        lda     BUFFER0                                 ; Get next track
+        bne     @load_file_sector                       ; If next track is not 0, then read next sector of file
 
         lda     #$F7
         and     VIA2_PORTB
@@ -158,42 +158,42 @@ load_file:
 send_256_bytes:
         ldy     #$00
 
-@loop:  lda     BUFFER0,y               ; Load the upper four bits to write
+@loop:  lda     BUFFER0,y                               ; Load the upper four bits to write
         lsr
         lsr
         lsr
         lsr
 
-        tax                             ; Lookup the encoding for the bits
+        tax                                             ; Lookup the encoding for the bits
         lda     serial_encoding_table,x
         tax
 
-        lda     #$01                    ; Wait for the serial lines to be available
+        lda     #$01                                    ; Wait for the serial lines to be available
 @wait_for_data_in_low:
         bit     VIA1_PORTB
         beq     @wait_for_data_in_low
 
-        lda     #$08                    ; Signal that we're ready to send data
+        lda     #$08                                    ; Signal that we're ready to send data
         sta     VIA1_PORTB
 
-        lda     #$01                    ; Wait for C64 to signal it's ready to receive
+        lda     #$01                                    ; Wait for C64 to signal it's ready to receive
 @wait_for_data_in_high:
         bit     VIA1_PORTB
         bne     @wait_for_data_in_high
 
-        stx     VIA1_PORTB              ; Send encoded bits
+        stx     VIA1_PORTB                              ; Send encoded bits
         txa
         asl     a
         and     #$0F
         sta     VIA1_PORTB
 
-        lda     BUFFER0,y               ; Load the lower four bits to write
+        lda     BUFFER0,y                               ; Load the lower four bits to write
         and     #$0F
 
-        tax                             ; Lookup the encoding for the bits
+        tax                                             ; Lookup the encoding for the bits
         lda     serial_encoding_table,x
 
-        sta     VIA1_PORTB              ; Send encoded bits
+        sta     VIA1_PORTB                              ; Send encoded bits
         asl
         and     #$0F
         nop
@@ -202,7 +202,7 @@ send_256_bytes:
         nop
         nop
 
-        lda     #$00                    ; signal byte is complete
+        lda     #$00                                    ; signal byte is complete
         sta     VIA1_PORTB
 
         iny
@@ -238,58 +238,58 @@ serial_encoding_table:
 ;-----------------------------------------------------------
 
 read_sector:
-        stx     BUFFER0_SECTOR          ; Store track/sector in buffer 0 track/status register
+        stx     BUFFER0_SECTOR                          ; Store track/sector in buffer 0 track/status register
         sta     BUFFER0
         cmp     BUFFER0_TRACK
         php
         sta     BUFFER0_TRACK
         plp
-        beq     @skip_read_sector_header    ; Branch if the track has not changed since last time
+        beq     @skip_read_sector_header                ; Branch if the track has not changed since last time
 
-        lda     #$B0                    ; Set buffer 0 command/status to read in sector header
+        lda     #$B0                                    ; Set buffer 0 command/status to read in sector header
         sta     BUFFER0_COMMAND
 
-        cli                             ; Enable interrupts to allow command to execute
+        cli                                             ; Enable interrupts to allow command to execute
 
 @loop_wait_read_sector_header:
         bit     BUFFER0_COMMAND
         bmi     @loop_wait_read_sector_header
 
-        sei                             ; Disable interrupts
+        sei                                             ; Disable interrupts
 
-        lda     BUFFER0_COMMAND         ; Make sure we read the data okay
+        lda     BUFFER0_COMMAND                         ; Make sure we read the data okay
         cmp     #$01
         bne     @handle_error
 
 @skip_read_sector_header:
-        lda     #$EE                    ; Attach byte ready line to CPU overflow flag
+        lda     #$EE                                    ; Attach byte ready line to CPU overflow flag
         sta     VIA2_AUX
 
-        lda     #<BUFFER0_TRACK         ; Point buffer track/sector register to buffer 0
+        lda     #<BUFFER0_TRACK                         ; Point buffer track/sector register to buffer 0
         sta     BUFFER_TRACK_SECTOR_ADDR
         lda     #>BUFFER0_TRACK
         sta     BUFFER_TRACK_SECTOR_ADDR + 1
 
-                                        ; the high byte of BUFFER_TRACK_SECTOR_ADDR is the
-                                        ; same as the low byte of BUFFER_ADDR, so we can 
-                                        ; skip the extra LDA...
+                                                        ; the high byte of BUFFER_TRACK_SECTOR_ADDR is the
+                                                        ; same as the low byte of BUFFER_ADDR, so we can 
+                                                        ; skip the extra LDA...
 
-        sta     BUFFER_ADDR             ; Set read buffer to buffer 0 ($0300)
+        sta     BUFFER_ADDR                             ; Set read buffer to buffer 0 ($0300)
         lda     #>BUFFER0
         sta     BUFFER_ADDR + 1
 
         jsr     read_block_header
 
 @loop_read_bytes:
-        bvc     @loop_read_bytes        ; Wait for overflow flag to indicate data is ready
+        bvc     @loop_read_bytes                        ; Wait for overflow flag to indicate data is ready
         clv
 
-        lda     VIA2_PORTA              ; Read byte into buffer
+        lda     VIA2_PORTA                              ; Read byte into buffer
         sta     BUFFER0,y
         iny
         bne     @loop_read_bytes
 
-        ldy     #$BA                    ; Read bytes into GCR-decoding buffer at $01BA-$01FF
+        ldy     #$BA                                    ; Read bytes into GCR-decoding buffer at $01BA-$01FF
 @loop_read_bytes2:
         bvc     @loop_read_bytes2
         clv
@@ -299,12 +299,12 @@ read_sector:
         iny
         bne     @loop_read_bytes2
 
-        jsr     LF8E0                   ; Probably calculates the block signature for validation...
+        jsr     LF8E0                                   ; Probably calculates the block signature for validation...
         lda     DATA_BLK_SIG
         cmp     EXPECTED_DATA_BLK_SIG
         beq     @data_block_signature_ok
 
-        lda     #$22                    ; Send an error response
+        lda     #$22                                    ; Send an error response
         bne     give_error
 
 @data_block_signature_ok:
@@ -312,11 +312,11 @@ read_sector:
         cmp     COMPUTED_CHECKSUM
         beq     @checksum_ok
 
-        lda     #$23                    ; Send an error response
+        lda     #$23                                    ; Send an error response
         bne     give_error
 
 @checksum_ok:
-        lda     #$EC                    ; Detach byte ready line from overflow processor flag
+        lda     #$EC                                    ; Detach byte ready line from overflow processor flag
         sta     VIA2_AUX
         rts
 
@@ -345,55 +345,55 @@ give_error:
 ;-----------------------------------------------------------
 
 read_block_header:
-        lda     EXPECTED_HEADER_ID      ; Read ID 1
+        lda     EXPECTED_HEADER_ID                      ; Read ID 1
         sta     LAST_HEADER_ID
-        lda     EXPECTED_HEADER_ID + 1  ; Read ID 2
+        lda     EXPECTED_HEADER_ID + 1                  ; Read ID 2
         sta     LAST_HEADER_ID + 1
-        lda     BUFFER0_TRACK           ; Get track
+        lda     BUFFER0_TRACK                           ; Get track
         sta     LAST_TRACK
-        lda     BUFFER0_SECTOR          ; Get sector
+        lda     BUFFER0_SECTOR                          ; Get sector
         sta     LAST_SECTOR
-        lda     #$00                    ; Calculate parity for block header
+        lda     #$00                                    ; Calculate parity for block header
         eor     LAST_HEADER_ID
         eor     LAST_HEADER_ID + 1
         eor     LAST_TRACK
         eor     LAST_SECTOR
         sta     LAST_HEADER_CHECKSUM
-        jsr     DOS_ENCODE_BLOCK_HEADER ; and save
+        jsr     DOS_ENCODE_BLOCK_HEADER                 ; and save
 
-        ldx     #$5A                    ; 90 attempts
+        ldx     #$5A                                    ; 90 attempts
 @read_header_byte:
         jsr     wait_for_sync
 
 @wait_for_byte_ready:
         bvc     @wait_for_byte_ready
         clv
-        lda     VIA2_PORTA              ; Read data from block header
-        cmp     $24,y                   ; Compare with saved data
+        lda     VIA2_PORTA                              ; Read data from block header
+        cmp     $24,y                                   ; Compare with saved data
         beq     @header_byte_read_ok
         dex
-        bne     @read_header_byte       ; Try again if we have attempts left over
-        lda     #$20                    ; Send read error
+        bne     @read_header_byte                       ; Try again if we have attempts left over
+        lda     #$20                                    ; Send read error
         bne     give_error
 
 @header_byte_read_ok:
         iny
-        cpy     #$08                    ; Have we read 8 bytes yet?
+        cpy     #$08                                    ; Have we read 8 bytes yet?
         bne     @wait_for_byte_ready
 
 wait_for_sync:
-        lda     #$D0                    ; Start timer
+        lda     #$D0                                    ; Start timer
         sta     VIA1_TIMER + 1
         lda     #$21
 @loop:  bit     VIA1_TIMER + 1
-        bpl     give_error              ; if timer run down, then error
+        bpl     give_error                              ; if timer run down, then error
 
-        bit     VIA2_PORTB              ; SYNC signal
-        bmi     @loop                   ; sync signal not found yet?
+        bit     VIA2_PORTB                              ; SYNC signal
+        bmi     @loop                                   ; sync signal not found yet?
 
-        lda     VIA2_PORTA              ; Read byte
+        lda     VIA2_PORTA                              ; Read byte
         clv
-filename:                               ; The filename data is really three bytes later (see note below)
+filename:                                               ; The filename data is really three bytes later (see note below)
         ldy     #$00
         rts
 

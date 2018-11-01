@@ -44,7 +44,7 @@ autoload:
         jsr    KERNEL_SETLFS
 
         lda    #$05                 ; filename length
-        ldx    #<filename
+        ldx    #<filename           ; filename address
         ldy    #>filename
         jsr    KERNEL_SETNAM
 
