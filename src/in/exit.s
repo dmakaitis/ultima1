@@ -9,7 +9,7 @@
 .include "c64.inc"
 .include "kernel.inc"
 .include "global.inc"
-.include "diskio.inc"
+.include "hello.inc"
 .include "in.inc"
 
 .import disable_sprites

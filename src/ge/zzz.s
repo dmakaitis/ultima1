@@ -1,6 +1,6 @@
 .include "milib.inc"
 .include "stlib.inc"
-.include "diskio.inc"
+.include "hello.inc"
 
 .import create_character
 .import cursor_to_1_1

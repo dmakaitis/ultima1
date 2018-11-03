@@ -18,6 +18,7 @@ ORIG_PRG_OUT = build/orig/prg
 ORIG_SRC_OUT = build/orig/src
 BIN_OBJ = build/binobj
 BIN_OUT = build/bin
+INC_OUT = build/include
 
 CA65 = /usr/local/bin/ca65
 LD65 = /usr/local/bin/ld65
@@ -25,6 +26,7 @@ DA65 = /usr/local/bin/da65
 
 CIMAGE = $(BIN_OUT)/cimage
 DIMAGE = $(BIN_OUT)/dimage
+MAP2INC = $(BIN_OUT)/map2inc
 
 u1files: $(addprefix $(PRG_OUT)/, $(addsuffix .prg, $(U1FILES)))
 
@@ -46,24 +48,41 @@ $(PRG_OUT)/u1.prg: src/u1/u1.cfg $(u1_obj)
 	$(LD65) -C $< $(u1_obj) -o $@ -vm -m $(MAPS_OUT)/u1.map
 
 hello_obj = $(addprefix $(PRG_OBJ)/hello/, $(addsuffix .o, $(basename $(notdir $(wildcard src/hello/*.s)))))
-$(PRG_OUT)/hello.prg: src/hello/hello.cfg $(hello_obj)
+$(PRG_OUT)/hello.prg $(MAPS_OUT)/hello.map: src/hello/hello.cfg $(hello_obj)
+	@mkdir -p $(@D)
+	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(hello_obj) -o $@ -vm -m $(MAPS_OUT)/hello.map
 
 st_obj = $(addprefix $(PRG_OBJ)/st/, $(addsuffix .o, $(basename $(notdir $(wildcard src/st/*.s)))))
 $(PRG_OUT)/st.prg: src/st/st.cfg $(st_obj)
+	@mkdir -p $(@D)
+	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(st_obj) -o $@ -vm -m $(MAPS_OUT)/st.map
 
 lo_obj = $(addprefix $(PRG_OBJ)/lo/, $(addsuffix .o, $(basename $(notdir $(wildcard src/lo/*.s)))))
 $(PRG_OUT)/lo.prg: src/lo/lo.cfg $(lo_obj)
+	@mkdir -p $(@D)
+	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(lo_obj) -o $@ -vm -m $(MAPS_OUT)/lo.map
 
 ge_obj = $(addprefix $(PRG_OBJ)/ge/, $(addsuffix .o, $(basename $(notdir $(wildcard src/ge/*.s)))))
+$(ge_obj): $(INC_OUT)/hello.inc
 $(PRG_OUT)/ge.prg: src/ge/ge.cfg $(ge_obj)
+	@mkdir -p $(@D)
+	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(ge_obj) -o $@ -vm -m $(MAPS_OUT)/ge.map
 
 in_obj = $(addprefix $(PRG_OBJ)/in/, $(addsuffix .o, $(basename $(notdir $(wildcard src/in/*.s)))))
+$(in_obj): $(INC_OUT)/hello.inc
 $(PRG_OUT)/in.prg: src/in/in.cfg $(in_obj)
+	@mkdir -p $(@D)
+	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(in_obj) -o $@ -vm -m $(MAPS_OUT)/in.map
+
+$(INC_OUT)/%.inc: $(MAPS_OUT)/%.map $(MAP2INC)
+	@mkdir -p $(@D)
+	$(MAP2INC) -m $< -i src/$*/$*.exp -o $@
+
 
 verify: u1files $(addprefix $(ORIG_PRG_OUT)/, $(addsuffix .prg, $(U1FILES)))
 	./chkfile u1.prg
@@ -92,7 +111,7 @@ $(PRG_OBJ)/st/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(st_assets)
 
 $(PRG_OBJ)/%.o: src/%.s
 	@mkdir -p $(@D)
-	$(CA65) $< -o $@ -I include --bin-include-dir $(ASSETS_OUT)
+	$(CA65) $< -o $@ -I include -I $(INC_OUT) --bin-include-dir $(ASSETS_OUT)
 
 ###########################################################
 # The following rules are for building command line
@@ -109,6 +128,10 @@ $(DIMAGE): $(BIN_OBJ)/dimage.o
 $(CIMAGE): $(BIN_OBJ)/cimage.o
 	@mkdir -p $(@D)
 	c++ -o $@ $(BIN_OBJ)/cimage.o -lpng
+
+$(MAP2INC): $(BIN_OBJ)/map2inc.o
+	@mkdir -p $(@D)
+	c++ -o $@ $(BIN_OBJ)/map2inc.o
 
 $(BIN_OBJ)/%.o: util/%.cpp
 	@mkdir -p $(@D)

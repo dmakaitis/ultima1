@@ -11,6 +11,7 @@
 .export save_file_a
 
 .export selected_character
+.export save_selected_character
 
 .import check_drive_status
 

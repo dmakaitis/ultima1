@@ -9,7 +9,7 @@
 
 .include "milib.inc"
 .include "stlib.inc"
-.include "diskio.inc"
+.include "hello.inc"
 
 .export create_character
 
