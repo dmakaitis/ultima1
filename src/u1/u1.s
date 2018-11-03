@@ -16,12 +16,9 @@
 
 .include "c64.inc"
 .include "kernel.inc"
-
-.import main
+.include "hello.inc"
 
         .setcpu "6502"
-
-target          :=  $8000
 
 ; Ensure the first two bytes of the file are $02d7 so the c64 will read this
 ; into the correct location. For this to work, the linker will need to be
@@ -49,11 +46,11 @@ autoload:
         jsr    KERNEL_SETNAM
 
         lda    #$00                 ; load
-        ldx    #<target         
-        ldy    #>target
+        ldx    #<main         
+        ldy    #>main
         jsr    KERNEL_LOAD
 
-        jmp    target
+        jmp    main
 
 .segment "U1_DATA"
 

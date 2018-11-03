@@ -8,8 +8,8 @@
 
 .include "c64.inc"
 .include "kernel.inc"
-.include "global.inc"
 .include "in.inc"
+.include "lo.inc"
 
 .export draw_text
 .export erase_text_area
@@ -135,13 +135,13 @@ draw_character:
         lsr     a
         lsr     a
         clc
-        adc     #>font
+        adc     #>lo_font
         sta     @read_ptr + 1
 
         ldx     #7                      ; Copy the character (8 bytes) to the bitmap
 @loop:
 @read_ptr       := * + 1
-        lda     font,x
+        lda     lo_font,x
 @write_ptr      := * + 1
         sta     $2000,x
         dex

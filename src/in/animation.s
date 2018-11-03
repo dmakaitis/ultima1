@@ -8,7 +8,6 @@
 
 .include "c64.inc"
 .include "kernel.inc"
-.include "global.inc"
 .include "macros.inc"
 .include "in.inc"
 

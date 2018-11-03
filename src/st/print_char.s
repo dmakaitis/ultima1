@@ -6,7 +6,7 @@
 ;
 ;-------------------------------------------------------------------------------
 
-.include "global.inc"
+.include "lo.inc"
 
 .import bitmap_x_offset_hi
 .import bitmap_x_offset_lo
@@ -103,7 +103,7 @@ print_char:
         ldx     #$07                            ; Copy the 8 bytes for the character to bitmap memory
 @loop:
 @font_addr      := * + 1
-        lda     font,x
+        lda     lo_font,x
         eor     CHAR_REV
 @bitmap_addr    := * + 1
         sta     BITMAP_MEM,x

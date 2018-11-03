@@ -1,6 +1,8 @@
 ; ---------------------------------------------------------------------------
 ; MI library routines
 
+mi_main             				:= $7400
+
 mi_race_name_table                  := $7763;
 mi_attribute_table                  := $7842;
 mi_class_name_table                 := $7911;

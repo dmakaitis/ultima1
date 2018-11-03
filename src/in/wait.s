@@ -9,7 +9,6 @@
 
 .include "c64.inc"
 .include "kernel.inc"
-.include "global.inc"
 .include "in.inc"
 
 .import exit_intro

@@ -10,7 +10,7 @@
 
 .include "c64.inc"
 .include "kernel.inc"
-.include "global.inc"
+.include "lo.inc"
 
 .export main
 .export load_or_cache_file

@@ -8,6 +8,8 @@
 .include "c64.inc"
 .include "kernel.inc"
 
+.export lo_font
+
 .export origin_logo
 
         .setcpu "6502"
@@ -28,6 +30,7 @@
 
 .segment "FONT"
 
+lo_font:
         .incbin "font.bin"
 
 

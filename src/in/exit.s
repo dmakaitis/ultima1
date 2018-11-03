@@ -8,9 +8,9 @@
 
 .include "c64.inc"
 .include "kernel.inc"
-.include "global.inc"
 .include "hello.inc"
 .include "in.inc"
+.include "milib.inc"
 
 .import disable_sprites
 

@@ -42,39 +42,41 @@ build/u1.d64: u1files
 		-write build/prg/in.prg in
 
 u1_obj = $(addprefix $(PRG_OBJ)/u1/, $(addsuffix .o, $(basename $(notdir $(wildcard src/u1/*.s)))))
-$(PRG_OUT)/u1.prg: src/u1/u1.cfg $(u1_obj)
+$(u1_obj): $(INC_OUT)/hello.inc
+$(PRG_OUT)/u1.prg $(MAPS_OUT)/u1.map: src/u1/u1.cfg $(u1_obj)
 	@mkdir -p $(@D)
 	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(u1_obj) -o $@ -vm -m $(MAPS_OUT)/u1.map
 
 hello_obj = $(addprefix $(PRG_OBJ)/hello/, $(addsuffix .o, $(basename $(notdir $(wildcard src/hello/*.s)))))
+$(hello_obj): $(INC_OUT)/lo.inc
 $(PRG_OUT)/hello.prg $(MAPS_OUT)/hello.map: src/hello/hello.cfg $(hello_obj)
 	@mkdir -p $(@D)
 	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(hello_obj) -o $@ -vm -m $(MAPS_OUT)/hello.map
 
 st_obj = $(addprefix $(PRG_OBJ)/st/, $(addsuffix .o, $(basename $(notdir $(wildcard src/st/*.s)))))
-$(PRG_OUT)/st.prg: src/st/st.cfg $(st_obj)
+$(PRG_OUT)/st.prg $(MAPS_OUT)/st.map: src/st/st.cfg $(st_obj)
 	@mkdir -p $(@D)
 	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(st_obj) -o $@ -vm -m $(MAPS_OUT)/st.map
 
 lo_obj = $(addprefix $(PRG_OBJ)/lo/, $(addsuffix .o, $(basename $(notdir $(wildcard src/lo/*.s)))))
-$(PRG_OUT)/lo.prg: src/lo/lo.cfg $(lo_obj)
+$(PRG_OUT)/lo.prg $(MAPS_OUT)/lo.map: src/lo/lo.cfg $(lo_obj)
 	@mkdir -p $(@D)
 	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(lo_obj) -o $@ -vm -m $(MAPS_OUT)/lo.map
 
 ge_obj = $(addprefix $(PRG_OBJ)/ge/, $(addsuffix .o, $(basename $(notdir $(wildcard src/ge/*.s)))))
 $(ge_obj): $(INC_OUT)/hello.inc $(INC_OUT)/st.inc
-$(PRG_OUT)/ge.prg: src/ge/ge.cfg $(ge_obj)
+$(PRG_OUT)/ge.prg $(MAPS_OUT)/ge.map: src/ge/ge.cfg $(ge_obj)
 	@mkdir -p $(@D)
 	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(ge_obj) -o $@ -vm -m $(MAPS_OUT)/ge.map
 
 in_obj = $(addprefix $(PRG_OBJ)/in/, $(addsuffix .o, $(basename $(notdir $(wildcard src/in/*.s)))))
 $(in_obj): $(INC_OUT)/hello.inc
-$(PRG_OUT)/in.prg: src/in/in.cfg $(in_obj)
+$(PRG_OUT)/in.prg $(MAPS_OUT)/in.map: src/in/in.cfg $(in_obj)
 	@mkdir -p $(@D)
 	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(in_obj) -o $@ -vm -m $(MAPS_OUT)/in.map

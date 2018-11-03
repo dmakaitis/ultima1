@@ -12,7 +12,7 @@
 
 .import origin_logo
 
-.export display_logo
+.export lo_main
 
         .setcpu "6502"
         
@@ -43,7 +43,7 @@ load_file       := $C486
 ; Called by hello.prg after the system has been initialized.
 ;-----------------------------------------------------------
 
-display_logo:
+lo_main:
         lda     #$00                    ; Disable screen
         sta     VIC_CTRL1
 
