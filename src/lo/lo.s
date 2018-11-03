@@ -9,6 +9,8 @@
 
 .include "c64.inc"
 .include "kernel.inc"
+.include "hello.inc"
+.include "in.inc"
 
 .import origin_logo
 
@@ -26,11 +28,6 @@
 screen_memory   := $0400
 
 bitmap_memory   := $2000
-
-L6800           := $6800
-
-load_file_cached:= $C480
-load_file       := $C486
 
 
 
@@ -122,12 +119,12 @@ lo_main:
         jsr     disolve_logo
 
         ldx     #$05                    ; Cache the 'OU' file under KERNEL ROM
-        jsr     load_file
+        jsr     load_or_cache_file
 
         ldx     #$0C                    ; Load the 'IN' file
-        jsr     load_file_cached
+        jsr     load_file
 
-        jmp     L6800
+        jmp     in_main
 
 
 

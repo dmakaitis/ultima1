@@ -9,7 +9,6 @@ GLOBAL {
 
 ASMINC	{ FILE "orig/c64.inc"; };
 ASMINC	{ FILE "include/kernel.inc"; };
-ASMINC	{ FILE "include/global.inc"; };
 
 RANGE	{ START $0800;	END $0BFF;	TYPE ByteTable; };
 RANGE	{ START $0C00;	END $0C9D;	TYPE Code; };

@@ -10,7 +10,7 @@
 
 .include "c64.inc"
 .include "kernel.inc"
-.include "lo.inc"
+; .include "lo.inc"
 
 .export main
 .export load_or_cache_file
@@ -23,6 +23,7 @@
 
         .setcpu "6502"
 
+lo_main                 := $0C00
 
 PROCESSOR_PORT          := $01
 

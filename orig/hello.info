@@ -9,7 +9,6 @@ GLOBAL {
 
 ASMINC	{ FILE "orig/c64.inc"; };
 ASMINC	{ FILE "include/kernel.inc"; };
-ASMINC	{ FILE "include/global.inc"; };
 
 RANGE	{ START $8000;	END $811C;	TYPE Code; };
 RANGE	{ START $811D;	END $8187;	TYPE TextTable; };

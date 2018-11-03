@@ -6,6 +6,9 @@
 ;
 ;-------------------------------------------------------------------------------
 
+.include "c64.inc"
+.include "kernel.inc"
+
 .export st_init_snd_gfx
 .export st_do_nothing
 .export st_do_nothing2
@@ -40,10 +43,6 @@
 .export st_do_nothing4
 .export st_do_nothing5
 .export st_wait_for_raster
-
-.include "c64.inc"
-.include "kernel.inc"
-.include "global.inc"
 
 .import clear_current_text_row
 .import clear_main_viewport

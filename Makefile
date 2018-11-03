@@ -49,19 +49,21 @@ $(PRG_OUT)/u1.prg $(MAPS_OUT)/u1.map: src/u1/u1.cfg $(u1_obj)
 	$(LD65) -C $< $(u1_obj) -o $@ -vm -m $(MAPS_OUT)/u1.map
 
 hello_obj = $(addprefix $(PRG_OBJ)/hello/, $(addsuffix .o, $(basename $(notdir $(wildcard src/hello/*.s)))))
-$(hello_obj): $(INC_OUT)/lo.inc
+# $(hello_obj): $(INC_OUT)/lo.inc
 $(PRG_OUT)/hello.prg $(MAPS_OUT)/hello.map: src/hello/hello.cfg $(hello_obj)
 	@mkdir -p $(@D)
 	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(hello_obj) -o $@ -vm -m $(MAPS_OUT)/hello.map
 
 st_obj = $(addprefix $(PRG_OBJ)/st/, $(addsuffix .o, $(basename $(notdir $(wildcard src/st/*.s)))))
+$(st_obj): $(INC_OUT)/lo.inc
 $(PRG_OUT)/st.prg $(MAPS_OUT)/st.map: src/st/st.cfg $(st_obj)
 	@mkdir -p $(@D)
 	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(st_obj) -o $@ -vm -m $(MAPS_OUT)/st.map
 
 lo_obj = $(addprefix $(PRG_OBJ)/lo/, $(addsuffix .o, $(basename $(notdir $(wildcard src/lo/*.s)))))
+$(lo_obj): $(INC_OUT)/in.inc
 $(PRG_OUT)/lo.prg $(MAPS_OUT)/lo.map: src/lo/lo.cfg $(lo_obj)
 	@mkdir -p $(@D)
 	@mkdir -p $(MAPS_OUT)

@@ -10,6 +10,8 @@
 .include "kernel.inc"
 .include "in.inc"
 
+.export in_main
+
 .import run_intro
 
         .setcpu "6502"
@@ -30,12 +32,5 @@
 
 .code
 
-main:   jmp     run_intro
-
-
-
-
-
-
-
-
+in_main:
+        jmp     run_intro

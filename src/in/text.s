@@ -9,10 +9,12 @@
 .include "c64.inc"
 .include "kernel.inc"
 .include "in.inc"
-.include "lo.inc"
+; .include "lo.inc"
 
 .export draw_text
 .export erase_text_area
+
+lo_font         := $0800
 
 cursor_x        := $32
 cursor_y        := $33

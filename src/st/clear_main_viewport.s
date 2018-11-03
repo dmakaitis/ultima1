@@ -8,7 +8,6 @@
 
 .include "c64.inc"
 .include "kernel.inc"
-.include "global.inc"
 
 .export clear_main_viewport
 

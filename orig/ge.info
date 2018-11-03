@@ -8,7 +8,6 @@ GLOBAL {
 
 ASMINC  { FILE "orig/c64.inc"; };
 ASMINC  { FILE "include/kernel.inc"; };
-ASMINC  { FILE "include/global.inc"; };
 ASMINC  { FILE "orig/hello.inc"; };
 ASMINC  { FILE "include/milib.inc"; };
 ASMINC  { FILE "orig/st.inc"; };
