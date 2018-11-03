@@ -494,7 +494,7 @@ name_character:
 
 
 
-.segment "CODE_S9359"
+.segment "CODE_DISPLAY"
 
 ;-----------------------------------------------------------
 ;                     display_attributes

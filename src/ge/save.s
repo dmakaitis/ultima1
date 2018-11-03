@@ -1,26 +1,33 @@
+;-------------------------------------------------------------------------------
+;
+; save_character.s
+;
+; Saves the newly created character and updates the character roster.
+;
+;-------------------------------------------------------------------------------
+
 .include "milib.inc"
 .include "st.inc"
 .include "hello.inc"
 
-.import create_character
-.import cursor_to_1_1
-.import draw_border
-.import main_menu
-
-.export clear_text_area_below_cursor
-
 .export save_character
-.export wait_for_user
+
+.import clear_and_print_text_at_2_20
+.import clear_text_area_below_cursor
+.import create_character
+.import main_menu
 
 character_roster    := $B000
 
         .setcpu "6502"
 
-.segment "CODE_ZZZ"
+.segment "CODE_SAVE"
 
 ;-----------------------------------------------------------
 ;                     save_character
 ;
+; Saves the newly created character and updates the
+; character roster.
 ;-----------------------------------------------------------
 
 save_character:
@@ -75,71 +82,3 @@ save_character:
         jsr     save_file
 
         jmp     main_menu                               ; Return to the main menu
-
-
-
-.segment "CODE_ZZZ2"
-
-;-----------------------------------------------------------
-;                clear_and_print_text_at_2_20
-;
-;-----------------------------------------------------------
-
-clear_and_print_text_at_2_20:
-        ldx     #$02
-        stx     CUR_X
-        ldy     #$14
-        sty     CUR_Y
-        jsr     clear_text_area_below_cursor
-        jmp     mi_print_text
-
-
-
-
-;-----------------------------------------------------------
-;                      wait_for_user
-;
-;-----------------------------------------------------------
-
-wait_for_user:
-        ldx     #$02
-        ldy     #$15
-        jsr     mi_print_text_at_x_y
-
-        .byte   "Press Space to continue: ",$00
-
-        jsr     st_read_input
-        jsr     mi_cursor_to_col_1
-
-        lda     #$14
-        sta     CUR_Y
-        bne     clear_text_area_below_cursor
-
-        jsr     st_set_text_window_full
-        jsr     cursor_to_1_1
-
-        ; continued in clear_text_area_below_cursor
-
-
-
-;-----------------------------------------------------------
-;                clear_text_area_below_cursor
-;
-;-----------------------------------------------------------
-
-clear_text_area_below_cursor:
-        jsr     mi_store_text_area
-
-        dec     CUR_X_MAX
-
-@loop:  jsr     st_clear_to_end_of_text_row_a
-
-        jsr     mi_cursor_to_col_1
-        inc     CUR_Y
-
-        ldy     CUR_Y
-        iny
-        cpy     CUR_Y_MAX
-        bcc     @loop
-
-        jmp     mi_restore_text_area
