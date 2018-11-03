@@ -23,7 +23,6 @@
 PROCESSOR_PORT      := $0001
 
 character_roster    := $B000
-selected_character  := $C4F8
 
         .setcpu "6502"
 
@@ -39,7 +38,7 @@ selected_character  := $C4F8
 ;-----------------------------------------------------------
 
         ldx     #$11                                    ; Load the RO file (character roster) at $B000
-        jsr     load_file_cached
+        jsr     load_file
 
 main_menu:
         jsr     st_set_text_window_full                 ; Set the text view to fill the entire window (minus border)
@@ -98,7 +97,7 @@ main_menu:
         clc
         adc     #$12
         tax
-        jsr     load_file_cached
+        jsr     load_file
 
         bcs     @on_error                               ; If there's an I/O error, or the loaded data doesn't
         lda     mi_player_save_data                     ; start with the bytes $CA,$01, then tell the user we've

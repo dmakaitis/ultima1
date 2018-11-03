@@ -1,5 +1,8 @@
 .PHONY: all u1files verify clean utils origsrc assets compileassets
 
+# OLD_SHELL := $(SHELL)
+# SHELL = $(warning [$@ ($^) ($?)])$(OLD_SHELL)
+
 # U1 files original order: 
 #		u1, tc, ma, fi, hello, tw, st, 
 #		dd, lo, ge, ou, ro, p0, ca, pr, 
@@ -38,6 +41,8 @@ build/u1.d64: u1files
 
 u1_obj = $(addprefix $(PRG_OBJ)/u1/, $(addsuffix .o, $(basename $(notdir $(wildcard src/u1/*.s)))))
 $(PRG_OUT)/u1.prg: src/u1/u1.cfg $(u1_obj)
+	@mkdir -p $(@D)
+	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(u1_obj) -o $@ -vm -m $(MAPS_OUT)/u1.map
 
 hello_obj = $(addprefix $(PRG_OBJ)/hello/, $(addsuffix .o, $(basename $(notdir $(wildcard src/hello/*.s)))))
@@ -59,20 +64,6 @@ $(PRG_OUT)/ge.prg: src/ge/ge.cfg $(ge_obj)
 in_obj = $(addprefix $(PRG_OBJ)/in/, $(addsuffix .o, $(basename $(notdir $(wildcard src/in/*.s)))))
 $(PRG_OUT)/in.prg: src/in/in.cfg $(in_obj)
 	$(LD65) -C $< $(in_obj) -o $@ -vm -m $(MAPS_OUT)/in.map
-
-# $(PRG_OUT)/%.prg: src/%.cfg $(PRG_OBJ)/%.o
-# 	$(LD65) -C $< $(PRG_OBJ)/$*.o -o $@ -vm -m $(MAPS_OUT)/$*.map
-
-object_dirs = $(addprefix $(PRG_OBJ)/, $(U1FILES))
-build: 
-	-@mkdir -p $(object_dirs)
-	-@mkdir -p $(PRG_OUT)
-	-@mkdir -p $(MAPS_OUT)
-	-@mkdir -p $(ASSETS_OUT)
-	-@mkdir -p $(ORIG_PRG_OUT)
-	-@mkdir -p $(ORIG_SRC_OUT)
-	-@mkdir -p $(BIN_OBJ)
-	-@mkdir -p $(BIN_OUT)
 
 verify: u1files $(addprefix $(ORIG_PRG_OUT)/, $(addsuffix .prg, $(U1FILES)))
 	./chkfile u1.prg
@@ -99,7 +90,8 @@ $(PRG_OBJ)/lo/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(lo_assets)
 $(PRG_OBJ)/in/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(in_assets)))
 $(PRG_OBJ)/st/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(st_assets)))
 
-$(PRG_OBJ)/%.o: src/%.s build
+$(PRG_OBJ)/%.o: src/%.s
+	@mkdir -p $(@D)
 	$(CA65) $< -o $@ -I include --bin-include-dir $(ASSETS_OUT)
 
 ###########################################################
@@ -111,12 +103,15 @@ utils = dimage cimage
 utils: build $(addprefix $(BIN_OUT)/, $(utils))
 
 $(DIMAGE): $(BIN_OBJ)/dimage.o
+	@mkdir -p $(@D)
 	c++ -o $@ $(BIN_OBJ)/dimage.o -lpng
 
 $(CIMAGE): $(BIN_OBJ)/cimage.o
+	@mkdir -p $(@D)
 	c++ -o $@ $(BIN_OBJ)/cimage.o -lpng
 
-$(BIN_OBJ)/%.o: util/%.cpp build
+$(BIN_OBJ)/%.o: util/%.cpp
+	@mkdir -p $(@D)
 	c++ -Wno-c++11-extensions -c -o $@ $<
 
 ###########################################################
@@ -128,10 +123,12 @@ $(BIN_OBJ)/%.o: util/%.cpp build
 infofiles = $(addprefix $(ORIG_SRC_OUT)/, $(addsuffix .s, $(basename $(notdir $(wildcard orig/*.info)))))
 origsrc: $(infofiles)
 
-$(ORIG_PRG_OUT)/%.prg: ultima1.d64 build
+$(ORIG_PRG_OUT)/%.prg: ultima1.d64
+	@mkdir -p $(@D)
 	c1541 $< -read $* $@
 
 $(ORIG_SRC_OUT)/%.s: orig/%.info
+	@mkdir -p $(@D)
 	$(DA65) -i $<
 
 $(ORIG_SRC_OUT)/u1.s: $(ORIG_PRG_OUT)/u1.prg
@@ -249,46 +246,61 @@ assets/tiles.png: $(ORIG_PRG_OUT)/st.prg $(DIMAGE)
 compileassets: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(pngassets)))
 
 $(ASSETS_OUT)/font.bin: assets/font.png $(CIMAGE)
+	@mkdir -p $(@D)
 	$(CIMAGE) -qb -i $< -o $@
 
 $(ASSETS_OUT)/osibig.bin: assets/osibig.png $(CIMAGE)
+	@mkdir -p $(@D)
 	$(CIMAGE) -qb -i $< -o $@
 
 $(ASSETS_OUT)/intro_studio.bin: assets/intro_studio.png $(CIMAGE)
+	@mkdir -p $(@D)
 	$(CIMAGE) -q -i $< -o $@
 
 $(ASSETS_OUT)/intro_title.bin: assets/intro_title.png $(CIMAGE)
+	@mkdir -p $(@D)
 	$(CIMAGE) -qb -i $< -o $@
 
 $(ASSETS_OUT)/intro_horse%.bin: assets/intro_horse%.png $(CIMAGE)
+	@mkdir -p $(@D)
 	$(CIMAGE) -q -i $< -o $@
 
 $(ASSETS_OUT)/intro_backdrop.bin: assets/intro_backdrop.png $(CIMAGE)
+	@mkdir -p $(@D)
 	$(CIMAGE) -qbc -C 192 -i $< -o $@
 
 $(ASSETS_OUT)/intro_car.bin: assets/intro_car.png $(CIMAGE)
+	@mkdir -p $(@D)
 	$(CIMAGE) -q -i $< -o $@
 
 $(ASSETS_OUT)/intro_knight%.bin: assets/intro_knight%.png $(CIMAGE)
+	@mkdir -p $(@D)
 	$(CIMAGE) -q -i $< -o $@
 
 $(ASSETS_OUT)/intro_sword.bin: assets/intro_sword.png $(CIMAGE)
+	@mkdir -p $(@D)
 	$(CIMAGE) -q -i $< -o $@
 
 $(ASSETS_OUT)/intro_sword_mask.bin: assets/intro_sword_mask.png $(CIMAGE)
+	@mkdir -p $(@D)
 	$(CIMAGE) -q -i $< -o $@
 
 $(ASSETS_OUT)/intro_sword_hand.bin: assets/intro_sword_hand.png $(CIMAGE)
+	@mkdir -p $(@D)
 	$(CIMAGE) -q -i $< -o $@
 
 $(ASSETS_OUT)/intro_hand.bin: assets/intro_hand.png $(CIMAGE)
+	@mkdir -p $(@D)
 	$(CIMAGE) -q -i $< -o $@
 
 $(ASSETS_OUT)/intro_bird_body%.bin: assets/intro_bird_body%.png $(CIMAGE)
+	@mkdir -p $(@D)
 	$(CIMAGE) -q -i $< -o $@
 
 $(ASSETS_OUT)/intro_bird_head%.bin: assets/intro_bird_head%.png $(CIMAGE)
+	@mkdir -p $(@D)
 	$(CIMAGE) -q -i $< -o $@
 
 $(ASSETS_OUT)/tiles.bin: assets/tiles.png $(CIMAGE)
+	@mkdir -p $(@D)
 	$(CIMAGE) -qB -i $< -o $@

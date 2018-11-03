@@ -183,8 +183,6 @@ LABEL   { NAME "character_roster_2";    ADDR $B010; };
 LABEL   { NAME "character_roster_3";    ADDR $B020; };
 LABEL   { NAME "character_roster_4";    ADDR $B030; };
 
-LABEL   { NAME "selected_character";    ADDR $C4F8; };
-
 ########################
 # Zero Page
 

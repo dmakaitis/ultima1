@@ -10,15 +10,14 @@
 
 .export load_file_a
 .export load_file_cached_a
-.export check_drive_status
 
-.export filename
-.export file_start_address
-.export file_end_address
+.import check_drive_status
 
-.export write_filenames
-.export write_start_addresses
-.export write_end_addresses
+.import filename
+.import file_start_address
+
+.import read_filenames
+.import read_start_addresses
 
 PROCESSOR_PORT          := $01
 
@@ -138,129 +137,4 @@ load_file_a:
         ldy     file_start_address + 1
         jsr     KERNEL_LOAD
 
-check_drive_status:
-        lda     #$00                                    ; Clear out file name
-        jsr     KERNEL_SETNAM
-        lda     #$0F                                    ; open 15,8,15
-        tay
-        ldx     #$08
-        jsr     KERNEL_SETLFS
-        jsr     KERNEL_OPEN
-        ldx     #$0F                                    ; Read status from channel 15
-        jsr     KERNEL_CHKIN
-        jsr     KERNEL_CHRIN
-        pha
-
-        lda     #$0F                                    ; Close the channel and restore default I/O channels
-        jsr     KERNEL_CLOSE
-        jsr     KERNEL_CLRCHN
-
-        pla
-        cmp     #$30
-        beq     LC58C
-        sec
-        rts
-
-
-
-
-LC58C:  clc
-        rts
-        rts
-
-
-
-
-
-.segment "DATA_FILE_METADATA"
-
-file_start_address:
-        .addr   $0000
-file_end_address:
-        .addr   $0000
-
-        .byte   "S:"
-filename:  
-        .byte   "GM"
-
-
-
-
-read_filenames:  
-        .byte   "TC"
-        .byte   "MA"
-        .byte   "PL"
-        .byte   "FI"
-
-        .byte   "GE"
-        .byte   "OU"
-        .byte   "DN"
-        .byte   "TW"
-
-        .byte   "CA"
-        .byte   "SP"
-        .byte   "TM"
-        .byte   "ST"                                    ; Screen and Text routines
-
-        .byte   "IN"                                    ; Displays Ultima I intro animation
-        .byte   "MI"
-        .byte   "LO"                                    ; Displays Origin logo and loads intro
-        .byte   "PR"                                    ; PR is for copy protection - reading this file should fail
-
-
-
-
-write_filenames:
-        .byte   "DD"
-        .byte   "RO"
-        .byte   "P0"
-        .byte   "P1"
-        .byte   "P2"
-        .byte   "P3"
-
-
-
-
-read_start_addresses:
-        .addr   $4000
-        .addr   $C700
-        .addr   $6400
-        .addr   $6420
-
-        .addr   $8C9E
-        .addr   $E000
-        .addr   $8C9E
-        .addr   $8C9E
-
-        .addr   $8C9E
-        .addr   $8C9E
-        .addr   $8C9E
-        .addr   $0C00
-
-        .addr   $6800
-        .addr   $7400
-        .addr   $0800
-        .addr   $12C0
-
-
-
-
-write_start_addresses:
-        .addr   $B000
-        .addr   $B000
-        .addr   $81E2
-        .addr   $81E2
-        .addr   $81E2
-        .addr   $81E2
-write_end_addresses:
-        .addr   $B001
-        .addr   $B040
-        .addr   $83AC
-        .addr   $83AC
-        .addr   $83AC
-        .addr   $83AC
-
-
-
-
-        .byte   $00
+        ; continued in check_drive_status

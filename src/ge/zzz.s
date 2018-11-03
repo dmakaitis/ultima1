@@ -13,7 +13,6 @@
 .export wait_for_user
 
 character_roster    := $B000
-selected_character  := $C4F8
 
         .setcpu "6502"
 

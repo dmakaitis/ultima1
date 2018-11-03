@@ -13,21 +13,13 @@
 .include "global.inc"
 
 .export main
+.export load_or_cache_file
 .export load_file
-.export load_file_cached
 .export save_file
 
+.import save_file_a
 .import load_file_a
 .import load_file_cached_a
-.import check_drive_status
-
-.import filename
-.import file_start_address
-.import file_end_address
-
-.import write_filenames
-.import write_start_addresses
-.import write_end_addresses
 
         .setcpu "6502"
 
@@ -177,7 +169,7 @@ main:   sei
         ;-----------------------------------------------------------
 
         ldx     #$10
-        jsr     load_file_cached
+        jsr     load_file
 
         ;-----------------------------------------------------------
         ; Initialize vectors
@@ -256,7 +248,7 @@ main:   sei
         ;-----------------------------------------------------------
 
         ldx     #$0E
-        jsr     load_file_cached
+        jsr     load_file
 
         ;-----------------------------------------------------------
         ; Save the selected floppy driver indicator to disk (file
@@ -1065,92 +1057,9 @@ filename_buffer:
 
 
 
-load_file_cached:
+load_file:
         jmp     load_file_cached_a
 save_file:
         jmp     save_file_a
-load_file:
+load_or_cache_file:
         jmp     load_file_a
-        ldx     LC4F8
-        inx
-        inx
-
-
-
-
-;-----------------------------------------------------------
-;                         save_file
-;
-; Saves one of the game files. The file to save is selected
-; by the value in the x register, which may be one of the
-; following:
-;
-;   0 : DD @ $B000-$B001 - disk driver selection
-;   1 : RO @ $B000-$B040 - ???
-;   2 : P0 @ $81E2-$83AC - Player save slot 1
-;   3 : P1 @ $81E2-$83AC - Player save slot 2
-;   4 : P2 @ $81E2-$83AC - Player save slot 3
-;   5 : P3 @ $81E2-$83AC - Player save slot 4
-;
-; The memory range saved for each file is listed above.
-;-----------------------------------------------------------
-
-save_file_a:
-        txa                                             ; x = x * 2
-        asl
-        tax
-
-        lda     write_filenames,x                       ; Load the two character filename into memory at $C595
-        sta     filename                                ; $C593 already holds the characters 'S:', so the result
-        lda     write_filenames + 1,x                   ; will be a DOS command to delete the file at $C593
-        sta     filename + 1
-
-        lda     write_start_addresses,x                 ; Get start address of data to save
-        sta     file_start_address
-        lda     write_start_addresses + 1,x
-        sta     file_start_address + 1
-
-        lda     write_end_addresses,x                   ; Get end address of data to save (+1)
-        sta     file_end_address
-        lda     write_end_addresses + 1,x
-        sta     file_end_address + 1
-
-        ;-----------------------------------------------------------
-        ; Delete the requested file
-        ;-----------------------------------------------------------
-
-        lda     #$04                                    ; Set filename to four characters at $C593
-        ldx     #$93
-        ldy     #$C5
-        jsr     KERNEL_SETNAM
-
-        lda     #$0F                                    ; open 15,8,5,"S:xx"
-        tay
-        ldx     #$08
-        jsr     KERNEL_SETLFS
-        jsr     KERNEL_OPEN
-        lda     #$0F
-        jsr     KERNEL_CLOSE
-
-        ;-----------------------------------------------------------
-        ; Save the requested file
-        ;-----------------------------------------------------------
-
-        lda     #$02                                    ; Save file
-        ldx     #$08
-        ldy     #$FF
-        jsr     KERNEL_SETLFS
-        lda     #$02
-        ldx     #$95
-        ldy     #$C5
-        jsr     KERNEL_SETNAM
-        lda     file_start_address
-        sta     $60
-        lda     file_start_address + 1
-        sta     $61
-        lda     #$60
-        ldx     file_end_address
-        ldy     file_end_address + 1
-        jsr     KERNEL_SAVE
-        jmp     check_drive_status
-LC4F8:  brk

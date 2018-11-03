@@ -37,5 +37,5 @@ exit_intro:
         bne     @loop
 
         ldx     #$0D                    ; Load MI at $7400
-        jsr     load_file_cached
+        jsr     load_file
         jmp     mi_main                 ; Execute MI
