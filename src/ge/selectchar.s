@@ -7,7 +7,7 @@
 ;-------------------------------------------------------------------------------
 
 .include "milib.inc"
-.include "stlib.inc"
+.include "st.inc"
 
 .export select_character
 

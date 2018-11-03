@@ -1,5 +1,3 @@
-.include "stlib.inc"
-
 .import bitmap_x_offset_hi
 .import bitmap_x_offset_lo
 .import bitmap_y_offset_hi
@@ -16,6 +14,8 @@
 
 .export w1786
 .export w1788
+
+BM_ADDR_MASK                        := $5C;
 
 zp24                    := $24
 zp25                    := $25

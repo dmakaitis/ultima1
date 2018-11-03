@@ -6,7 +6,7 @@
 ;
 ;-------------------------------------------------------------------------------
 
-.include "stlib.inc"
+.include "st.inc"
 
 .export print_character_roster
 

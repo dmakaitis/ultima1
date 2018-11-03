@@ -6,8 +6,6 @@
 ;
 ;-------------------------------------------------------------------------------
 
-.include "stlib.inc"
-
 .export draw_world
 
 .export tile_images
@@ -32,6 +30,8 @@ ship_flag_l_hi          := tile_images + $182
 ship_flag_l_lo          := tile_images + $183
 ship_flag_r_hi          := tile_images + $18A
 ship_flag_r_lo          := tile_images + $18B
+
+BM_ADDR_MASK                        := $5C;
 
 PLAYER_X                := $20
 PLAYER_Y                := $21

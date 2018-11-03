@@ -7,9 +7,11 @@
 ;-------------------------------------------------------------------------------
 
 .include "c64.inc"
-.include "stlib.inc"
 
 .export copy_screen_2_to_1
+
+BM_ADDR_MASK                        := $5C;
+BM2_ADDR_MASK                       := $5D;
 
 TMP_PTR_LO      := $60
 TMP_PTR_HI      := $61

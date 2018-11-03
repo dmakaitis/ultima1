@@ -6,6 +6,41 @@
 ;
 ;-------------------------------------------------------------------------------
 
+.export st_init_snd_gfx
+.export st_do_nothing
+.export st_do_nothing2
+.export st_do_nothing3
+.export st_copy_screen_2_to_1
+.export st_scroll_text_area_up
+.export st_clear_current_text_row
+.export st_clear_to_end_of_text_row_a
+.export st_clear_text_window
+.export st_set_text_window_full
+.export st_set_text_window_stats
+.export st_set_text_window_command
+.export st_set_text_window_main
+.export st_clear_main_viewport
+.export st_swap_bitmaps
+.export st_print_char
+.export st_draw_world
+.export st_wait_for_input
+.export st_get_random_number
+.export st_scan_and_buffer_input
+.export st_read_input
+.export st_get_input
+.export st_draw_world_and_get_input
+.export st_update_cursor
+.export st_play_sound_a
+.export st_queue_sound
+.export st_play_next_sound
+.export st_s168B
+.export st_s168E
+.export st_s1691
+.export st_s1694
+.export st_do_nothing4
+.export st_do_nothing5
+.export st_wait_for_raster
+
 .include "c64.inc"
 .include "kernel.inc"
 .include "global.inc"
@@ -112,7 +147,7 @@ st_draw_world:
 st_wait_for_input:
         jmp     wait_for_input
 
-st_get_random_number_:
+st_get_random_number:
         jmp     get_random_number
 
 st_scan_and_buffer_input:

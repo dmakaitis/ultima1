@@ -7,7 +7,7 @@
 ;-------------------------------------------------------------------------------
 
 .include "milib.inc"
-.include "stlib.inc"
+.include "st.inc"
 
 .export cursor_to_1_1
 .export draw_border

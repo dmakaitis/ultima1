@@ -8,7 +8,9 @@
 ;-------------------------------------------------------------------------------
 
 .include "c64.inc"
-.include "stlib.inc"
+
+.export BM_ADDR_MASK
+.export BM2_ADDR_MASK
 
 .import wait_for_raster
 .import play_next_sound
@@ -19,6 +21,9 @@
 .export swap_bitmaps
 .export do_nothing2
 .export do_nothing3
+
+BM_ADDR_MASK                        := $5C;
+BM2_ADDR_MASK                       := $5D;
 
         .setcpu "6502"
 

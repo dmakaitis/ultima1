@@ -1,5 +1,5 @@
 .include "milib.inc"
-.include "stlib.inc"
+.include "st.inc"
 .include "hello.inc"
 
 .import create_character

@@ -7,7 +7,7 @@
 ;-------------------------------------------------------------------------------
 
 .include "milib.inc"
-.include "stlib.inc"
+.include "st.inc"
 
 .export character_generation
 

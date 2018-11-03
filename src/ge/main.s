@@ -9,7 +9,7 @@
 .include "c64.inc"
 
 .include "milib.inc"
-.include "stlib.inc"
+.include "st.inc"
 .include "hello.inc"
 
 .export main_menu

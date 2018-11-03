@@ -6,12 +6,24 @@
 ;
 ;-------------------------------------------------------------------------------
 
-.include "stlib.inc"
-
 .export set_text_window_command
 .export set_text_window_full
 .export set_text_window_main
 .export set_text_window_stats
+
+.export CUR_X
+.export CUR_Y
+.export CUR_X_OFF
+.export CUR_X_MAX
+.export CUR_Y_MIN
+.export CUR_Y_MAX
+
+CUR_X_OFF                           := $2E;
+CUR_X_MAX                           := $2F;
+CUR_Y_MIN                           := $30;
+CUR_Y_MAX                           := $31;
+CUR_X                               := $32;
+CUR_Y                               := $33;
 
         .setcpu "6502"
 

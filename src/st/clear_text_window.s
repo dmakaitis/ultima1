@@ -7,14 +7,19 @@
 ;
 ;-------------------------------------------------------------------------------
 
-.include "stlib.inc"
-
 .import scrmem_y_offset_hi
 .import scrmem_y_offset_lo
 
 .import clear_entire_text_row_a
 
 .export clear_text_window
+
+CUR_X_OFF                           := $2E;
+CUR_X_MAX                           := $2F;
+CUR_Y_MIN                           := $30;
+CUR_Y_MAX                           := $31;
+CUR_Y                               := $33;
+BM_ADDR_MASK                        := $5C
 
 TMP_PTR_LO      := $60
 TMP_PTR_HI      := $61

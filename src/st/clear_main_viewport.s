@@ -9,9 +9,10 @@
 .include "c64.inc"
 .include "kernel.inc"
 .include "global.inc"
-.include "stlib.inc"
 
 .export clear_main_viewport
+
+BM_ADDR_MASK    := $5C
 
 TMP_PTR_LO      := $60
 TMP_PTR_HI      := $61

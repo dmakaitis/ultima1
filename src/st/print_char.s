@@ -7,7 +7,6 @@
 ;-------------------------------------------------------------------------------
 
 .include "global.inc"
-.include "stlib.inc"
 
 .import bitmap_x_offset_hi
 .import bitmap_x_offset_lo
@@ -18,6 +17,13 @@
 .import scrmem_y_offset_lo
 
 .export print_char
+
+CUR_X_OFF                           := $2E;
+CUR_X_MAX                           := $2F;
+CUR_X                               := $32;
+CUR_Y                               := $33;
+BM_ADDR_MASK                        := $5C;
+BM2_ADDR_MASK                       := $5D;
 
 CHAR_REV        := $1F
 

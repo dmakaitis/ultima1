@@ -7,7 +7,6 @@
 ;-------------------------------------------------------------------------------
 
 .include "c64.inc"
-.include "stlib.inc"
 
 .export scroll_text_area_up
 .export clear_current_text_row
@@ -20,6 +19,15 @@
 .import bitmap_x_offset_lo
 .import bitmap_y_offset_hi
 .import bitmap_y_offset_lo
+
+CUR_X_OFF                           := $2E;
+CUR_X_MAX                           := $2F;
+CUR_Y_MIN                           := $30;
+CUR_Y_MAX                           := $31;
+CUR_X                               := $32;
+CUR_Y                               := $33;
+BM_ADDR_MASK                        := $5C;
+BM2_ADDR_MASK                       := $5D;
 
 CHAR_REV                := $1F
 

@@ -12,6 +12,8 @@
 .import get_random_number
 .import delay_a_squared
 
+.export st_sound_enabled_flag
+
 .export play_sound_a
 .export queue_sound
 .export play_next_sound
@@ -83,7 +85,7 @@ play_sound_a:
         cpx     #$12                                    ; If the argument is >= $12, then return
         bcs     return
 
-        lda     sound_enabled_flag                      ; Check some flag to see if this method should be disabled
+        lda     st_sound_enabled_flag                   ; Check some flag to see if this method should be disabled
         beq     return
 
         php
@@ -335,5 +337,5 @@ sid_amp_cfg:
 
 .segment "DATA_1638"
 
-sound_enabled_flag:
+st_sound_enabled_flag:
         .byte   $FF

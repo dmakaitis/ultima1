@@ -8,7 +8,7 @@
 ;-------------------------------------------------------------------------------
 
 .include "milib.inc"
-.include "stlib.inc"
+.include "st.inc"
 .include "hello.inc"
 
 .export create_character
