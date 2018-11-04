@@ -9,7 +9,7 @@ GLOBAL {
 ASMINC  { FILE "orig/c64.inc"; };
 ASMINC  { FILE "include/kernel.inc"; };
 ASMINC  { FILE "orig/hello.inc"; };
-ASMINC  { FILE "include/milib.inc"; };
+ASMINC  { FILE "orig/mi.inc"; };
 ASMINC  { FILE "orig/st.inc"; };
 
 SEGMENT { START $8C9C;  END $8C9D;  NAME "LOADADDR"; };

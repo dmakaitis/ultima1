@@ -10,11 +10,12 @@
 .include "kernel.inc"
 .include "hello.inc"
 .include "in.inc"
-.include "milib.inc"
 
 .import disable_sprites
 
 .export exit_intro
+
+mi_main         := $7400
 
         .setcpu "6502"
 

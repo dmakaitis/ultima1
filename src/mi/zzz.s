@@ -3,6 +3,44 @@
 .include "hello.inc"
 .include "st.inc"
 
+.export mi_cursor_to_col_0
+.export mi_cursor_to_col_1
+.export mi_play_error_sound_and_read_input
+.export mi_print_char
+.export mi_print_crlf_col_1
+.export mi_print_player_name
+.export mi_print_short_int
+.export mi_print_string_entry_x
+.export mi_print_text
+.export mi_print_text_at_x_y
+.export mi_print_x_chars
+.export mi_restore_text_area
+.export mi_store_text_area
+
+.export mi_j8C5E
+.export mi_s84C0
+.export mi_s8689
+
+.export mi_attribute_table
+.export mi_class_name_table
+.export mi_race_name_table
+
+.export mi_player_save_data
+.export mi_player_agility
+.export mi_player_class
+.export mi_player_hits
+.export mi_player_intelligence
+.export mi_player_name
+.export mi_player_race
+.export mi_player_random_seed
+.export mi_player_sex
+.export mi_player_sound_flag
+.export mi_player_strength
+.export mi_player_wisdom
+
+.export mi_current_attribute
+.export mi_w85BE
+
 dec_lo          := $3C
 dec_mid         := $3D
 dec_hi          := $3E

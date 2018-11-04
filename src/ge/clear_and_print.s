@@ -8,7 +8,7 @@
 ;-------------------------------------------------------------------------------
 
 .include "st.inc"
-.include "milib.inc"
+.include "mi.inc"
 
 .export clear_and_print_text_at_2_20
 

@@ -7,7 +7,7 @@
 ;
 ;-------------------------------------------------------------------------------
 
-.include "milib.inc"
+.include "mi.inc"
 .include "st.inc"
 
 .import cursor_to_1_1

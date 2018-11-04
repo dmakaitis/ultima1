@@ -8,7 +8,7 @@
 
 .include "c64.inc"
 
-.include "milib.inc"
+.include "mi.inc"
 .include "st.inc"
 .include "hello.inc"
 

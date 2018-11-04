@@ -70,7 +70,7 @@ $(PRG_OUT)/lo.prg $(MAPS_OUT)/lo.map: src/lo/lo.cfg $(lo_obj)
 	$(LD65) -C $< $(lo_obj) -o $@ -vm -m $(MAPS_OUT)/lo.map
 
 ge_obj = $(addprefix $(PRG_OBJ)/ge/, $(addsuffix .o, $(basename $(notdir $(wildcard src/ge/*.s)))))
-$(ge_obj): $(INC_OUT)/hello.inc $(INC_OUT)/st.inc
+$(ge_obj): $(INC_OUT)/hello.inc $(INC_OUT)/st.inc $(INC_OUT)/mi.inc
 $(PRG_OUT)/ge.prg $(MAPS_OUT)/ge.map: src/ge/ge.cfg $(ge_obj)
 	@mkdir -p $(@D)
 	@mkdir -p $(MAPS_OUT)
@@ -173,8 +173,8 @@ $(ORIG_SRC_OUT)/hello_1541.s: $(ORIG_PRG_OUT)/hello.prg
 $(ORIG_SRC_OUT)/hello_1541_0500.s: $(ORIG_PRG_OUT)/hello.prg
 $(ORIG_SRC_OUT)/lo.s: $(ORIG_PRG_OUT)/lo.prg
 $(ORIG_SRC_OUT)/in.s: $(ORIG_PRG_OUT)/in.prg
-$(ORIG_SRC_OUT)/mi.s: $(ORIG_PRG_OUT)/mi.prg include/milib.inc orig/st.inc
-$(ORIG_SRC_OUT)/ge.s: $(ORIG_PRG_OUT)/ge.prg include/milib.inc orig/st.inc
+$(ORIG_SRC_OUT)/mi.s: $(ORIG_PRG_OUT)/mi.prg orig/mi.inc orig/st.inc
+$(ORIG_SRC_OUT)/ge.s: $(ORIG_PRG_OUT)/ge.prg orig/mi.inc orig/st.inc
 $(ORIG_SRC_OUT)/st.s: $(ORIG_PRG_OUT)/st.prg orig/st.inc
 
 ###########################################################
