@@ -8,7 +8,6 @@
 .export mi_play_error_sound_and_reset_buffers
 .export mi_print_char
 .export mi_print_crlf_col_1
-.export mi_print_player_name
 .export mi_print_short_int
 .export mi_print_string_entry_x
 .export mi_print_text
@@ -165,17 +164,16 @@ zpA2            := $A2
         .byte   $E0,$C0,$80,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
+
+
 mi_race_name_table:
-        .byte   "lizar"
-        .byte   $E4
-        .byte   "huma"
-        .byte   $EE
-        .byte   "el"
-        .byte   $E6
-        .byte   "dwar"
-        .byte   $E6
-        .byte   "bobbi"
-        .byte   $F4
+        .byte   "lizar",$E4
+        .byte   "huma",$EE
+        .byte   "el",$E6
+        .byte   "dwar",$E6
+        .byte   "bobbi",$F4
+
+
         .byte   $68,$61,$6E,$64,$F3,$64,$61,$67
         .byte   $67,$65,$F2,$6D,$61,$63,$E5,$61
         .byte   $78,$E5,$72,$6F,$70,$65,$20,$26
@@ -201,23 +199,18 @@ mi_race_name_table:
         .byte   $6F,$EC,$6C,$20,$73,$77,$6F,$72
         .byte   $E4,$70,$68,$61,$7A,$6F,$F2,$62
         .byte   $6C,$61,$73,$74,$65,$F2
+
+
 mi_attribute_table:
-        .byte   "Hit point"
+        .byte   "Hit point",$F3
+        .byte   "Strengt",$E8
+        .byte   "Agilit",$F9
+        .byte   "Stamin",$E1
+        .byte   "Charism",$E1
+        .byte   "Wisdo",$ED
+        .byte   "Intelligenc",$E5
 
-        .byte   $F3
-        .byte   "Strengt"
-        .byte   $E8
-        .byte   "Agilit"
-        .byte   $F9
-        .byte   "Stamin"
-        .byte   $E1
-        .byte   "Charism"
-        .byte   $E1
-        .byte   "Wisdo"
-        .byte   $ED
-        .byte   "Intelligenc"
 
-        .byte   $E5
         .byte   $47,$6F,$6C,$E4,$52,$61,$63,$E5
         .byte   $54,$79,$70,$E5,$50,$72,$61,$79
         .byte   $65,$F2,$4F,$70,$65,$EE,$55,$6E
@@ -237,17 +230,16 @@ mi_attribute_table:
         .byte   $63,$75,$75,$6D,$20,$73,$75,$69
         .byte   $F4,$72,$65,$66,$6C,$65,$63,$74
         .byte   $20,$73,$75,$69,$F4
+
+
 mi_class_name_table:
-        .byte   "peasan"
-        .byte   $F4
-        .byte   "fighte"
-        .byte   $F2
-        .byte   "cleri"
-        .byte   $E3
-        .byte   "wizar"
-        .byte   $E4
-        .byte   "thie"
-        .byte   $E6
+        .byte   "peasan",$F4
+        .byte   "fighte",$F2
+        .byte   "cleri",$E3
+        .byte   "wizar",$E4
+        .byte   "thie",$E6
+
+
         .byte   $66,$6F,$6F,$F4,$68,$6F,$72,$73
         .byte   $E5,$63,$61,$72,$F4,$72,$61,$66
         .byte   $F4,$66,$72,$69,$67,$61,$74,$E5
@@ -1214,14 +1206,9 @@ b8B94:  jsr     st_clear_current_text_row
         jsr     reset_buffers
         jmp     mi_store_text_area
 
-mi_print_player_name:
-        ldx     #$00
-b8BA3:  lda     mi_player_name,x
-        beq     b8BAE
-        jsr     mi_print_char
-        inx
-        bne     b8BA3
-b8BAE:  rts
+
+
+.segment "UNKNOWN"
 
         .byte   $60,$20,$8E,$84,$20,$6F,$66,$66
         .byte   $00,$60,$AD,$38,$16,$49,$FF,$8D
