@@ -31,7 +31,7 @@ character_roster    := $B000
 ;-----------------------------------------------------------
 ;                       main_menu
 ;
-; Displays the Ultima 1 main menu and handles the user's
+; Displays the Ultima 1 main menu and handles the users
 ; input. From the main menu, the user can either choose to
 ; create a new character, or play with an existing
 ; character.
@@ -86,7 +86,7 @@ main_menu:
         jsr     st_print_char
 
         lda     character_roster                        ; Check the first byte of all the character names.
-        ora     character_roster + $10                  ; If they're all zero, then we have no characters yet.
+        ora     character_roster + $10                  ; If they are all zero, then we have no characters yet.
         ora     character_roster + $20
         ora     character_roster + $30
         beq     @no_characters
@@ -99,8 +99,8 @@ main_menu:
         tax
         jsr     load_file
 
-        bcs     @on_error                               ; If there's an I/O error, or the loaded data doesn't
-        lda     mi_player_save_data                     ; start with the bytes $CA,$01, then tell the user we've
+        bcs     @on_error                               ; If there is an I/O error, or the loaded data does not
+        lda     mi_player_save_data                     ; start with the bytes $CA,$01, then tell the user we have
         cmp     #$CA                                    ; failed.
         bne     @on_error
         lda     mi_player_save_data + 1
@@ -156,7 +156,7 @@ main_menu:
         lda     #$36                                    ; Turn I/O and KERNAL back on
         sta     PROCESSOR_PORT
 
-        lda     mi_player_sound_flag                    ; Load player's saved sound preference
+        lda     mi_player_sound_flag                    ; Load players saved sound preference
         sta     st_sound_enabled_flag
 
         lda     #$60                                    ; Reconfigure the bitmap address mask

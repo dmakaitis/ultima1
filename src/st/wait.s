@@ -3,7 +3,7 @@
 ; wait.s
 ;
 ; Waits for the screen raster to reach the bottom of the visible screen. The 
-; method will scan for and buffer input while it's waiting.
+; method will scan for and buffer input while it is waiting.
 ;
 ;-------------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@
 ;
 ; Waits for the screen raster to reach the bottom of the
 ; visible screen. The method will scan for and buffer input
-; while it's waiting.
+; while it is waiting.
 ;-----------------------------------------------------------
 
 wait_for_raster:

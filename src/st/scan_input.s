@@ -133,7 +133,7 @@ scan_input:
         bne     @reset_repeat_timer
 
 @check_10ths_timer:
-        ldy     CIA1_TOD10                              ; If the 10ths timer is less than the repeat timer, then don't repeat the key
+        ldy     CIA1_TOD10                              ; If the 10ths timer is less than the repeat timer, then do not repeat the key
         cpy     key_repeat_rate_10ths
         bcc     @do_not_repeat
 

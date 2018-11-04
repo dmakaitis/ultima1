@@ -16,7 +16,7 @@
 .export do_nothing
 
 CHAR_REV                := $1F
-zp5B                    := $5B
+SOUND_BUFFER_SIZE       := $5B
 INPUT_BUFFER_SIZE       := $56
 
 SCRN_MEM                := $0400
@@ -47,7 +47,7 @@ init_snd_gfx:
         sta     SID_SUR3
         lda     #$00
         sta     INPUT_BUFFER_SIZE
-        sta     zp5B
+        sta     SOUND_BUFFER_SIZE
         sta     CHAR_REV
         sta     CIA1_TOD10
         lda     #$18

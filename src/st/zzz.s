@@ -87,7 +87,7 @@ w1788:  .byte   $06
 
 do_s168E:
         ldy     zp27                                    ; y := zp27
-        bmi     done                                    ; if y is negative (high bit set), then we're done
+        bmi     done                                    ; if y is negative (high bit set), then we are done
 
         ldx     zp26                                    ; x := xp26
 

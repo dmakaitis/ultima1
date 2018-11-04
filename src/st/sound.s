@@ -14,6 +14,9 @@
 
 .export st_sound_enabled_flag
 
+.export INPUT_BUFFER_SIZE
+.export SOUND_BUFFER_SIZE
+
 .export play_sound_a
 .export queue_sound
 .export play_next_sound

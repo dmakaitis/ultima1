@@ -9,7 +9,7 @@
 #		in , dn, mi, tm, sp, p1, p2, p3
 U1FILES = u1 hello st \
 			lo ge \
-			in
+			in mi
 PRG_OBJ = build/prgobj
 PRG_OUT = build/prg
 ASSETS_OUT = build/assets
@@ -83,6 +83,13 @@ $(PRG_OUT)/in.prg $(MAPS_OUT)/in.map: src/in/in.cfg $(in_obj)
 	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(in_obj) -o $@ -vm -m $(MAPS_OUT)/in.map
 
+mi_obj = $(addprefix $(PRG_OBJ)/mi/, $(addsuffix .o, $(basename $(notdir $(wildcard src/mi/*.s)))))
+$(mi_obj): $(INC_OUT)/st.inc
+$(PRG_OUT)/mi.prg $(MAPS_OUT)/mi.map: src/mi/mi.cfg $(mi_obj)
+	@mkdir -p $(@D)
+	@mkdir -p $(MAPS_OUT)
+	$(LD65) -C $< $(mi_obj) -o $@ -vm -m $(MAPS_OUT)/mi.map
+
 $(INC_OUT)/%.inc: $(MAPS_OUT)/%.map $(MAP2INC)
 	@mkdir -p $(@D)
 	$(MAP2INC) -m $< -i src/$*/$*.exp -o $@
@@ -95,6 +102,7 @@ verify: u1files $(addprefix $(ORIG_PRG_OUT)/, $(addsuffix .prg, $(U1FILES)))
 	./chkfile lo.prg
 	./chkfile ge.prg
 	./chkfile in.prg
+	./chkfile mi.prg	
 
 clean:
 	-rm -Rf build

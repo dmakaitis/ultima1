@@ -17,6 +17,7 @@
 .import scrmem_y_offset_lo
 
 .export print_char
+.export CHAR_REV
 
 CUR_X_OFF                           := $2E;
 CUR_X_MAX                           := $2F;

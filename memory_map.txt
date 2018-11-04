@@ -1,4 +1,60 @@
 +----------------------------------------------------------------------------------------------------------------------+
+| $0000-$00FF    : Zero page                                                                                           |
+|          $001F : Print inverse bitmap flag (ST)                                                                      |
+|          $0020 : Player X coordinate (ST)                                                                            |
+|          $0021 : Player Y coordinate (ST)                                                                            |
+|                                                                                                                      |
+|          $0024 : zzz??? (ST)                                                                                         |
+|          $0025 : zzz??? (ST)                                                                                         |
+|          $0026 : zzz??? (ST)                                                                                         |
+|          $0027 : zzz??? (ST)                                                                                         |
+|          $0028 : zzz??? (ST)                                                                                         |
+|          $0029 : zzz??? (ST)                                                                                         |
+|          $002A : sound/zzz??? (ST)                                                                                   |
+|          $002B : sound/zzz??? (ST)                                                                                   |
+|                                                                                                                      |
+|          $002E : Text window left edge (ST)                                                                          |
+|          $002F : Text window width (ST)                                                                              |
+|          $0030 : Text window top (ST)                                                                                |
+|          $0031 : Text window bottom (ST)                                                                             |
+|          $0032 : Text cursor X coordinate (zero is at left edge of window) (ST)                                      |
+|          $0033 : Text cursor Y coordinate (zero is at top of screen) (ST)                                            |
+|    $0034-$0035 : Temporary pointer (ST)                                                                              |
+|                                                                                                                      |
+|          $003A : sound/zzz??? (ST)                                                                                   |
+|          $003B : sound/zzz??? (ST)                                                                                   |
+|    $003C-$0040 : Temporary storage for printing numbers (MI)                                                         |
+|                                                                                                                      |
+|          $0043 : Temporary storage (ST)                                                                              |
+|                                                                                                                      |
+|          $0045 : View X coordinate (ST)                                                                              |
+|          $0046 : View Y coordinate (ST)                                                                              |
+|          $0047 : Screen Y coordinate (ST)                                                                            |
+|          $0048 : Temporary storage (ST)                                                                              |
+|          $0049 : Temporary storage (ST)                                                                              |
+|                                                                                                                      |
+|    $004C-$004D : Temporary pointer (ST)                                                                              |
+|    $004E-$0055 : Input buffer (ST)                                                                                   |
+|          $0056 : Number of characters stored in the input buffer (ST)                                                |
+|    $0057-$005A : Sound buffer (ST)                                                                                   |
+|          $005B : Number of sounds stored in the sounds buffer (ST)                                                   |
+|          $005C : Mask for hi byte of memory address of bitmap screen 1 (ST)                                          |
+|          $005D : Mask for hi byte of memory address of bitmap screen 2 (ST)                                          |
+|          $005E : Temporary storage (ST)                                                                              |
+|          $005F : Temporary storage (ST)                                                                              |
+|    $0060-$0061 : Temporary pointer (ST)                                                                              |
+|    $0062-$0063 : Temporary pointer (ST)                                                                              |
+|    $0064-$0065 : Temporary pointer (ST)                                                                              |
+|    $0066-$0078 : World draw buffer (ST)                                                                              |
+|                                                                                                                      |
+|          $00A2 : ??? (MI)                                                                                            |
+|                                                                                                                      |
+|          $00C5 : scan_input??? (ST)                                                                                  |
++----------------------------------------------------------------------------------------------------------------------+
+| $0100-$01FF    : Stack                                                                                               |
++----------------------------------------------------------------------------------------------------------------------+
+
++----------------------------------------------------------------------------------------------------------------------+
 | $02D7-$0303    : U1                                                                                                  |
 +----------------------------------------------------------------------------------------------------------------------+
 
@@ -17,6 +73,10 @@
 
 +----------------------------------------------------------------------------------------------------------------------+
 | $2000-$3FFF    : Bitmap Memory                                                                                       |
++----------------------------------------------------------------------------------------------------------------------+
+| $4000-$5FFF    : Bitmap Memory 2                                                                                     |
++----------------------------------------------------------------------------------------------------------------------+
+| $6000-$63FF    : Screen Memory 2                                                                                     |
 +----------------------------------------------------------------------------------------------------------------------+
 
 +--------------------------------------+
