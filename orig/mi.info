@@ -13,19 +13,21 @@ ASMINC  { FILE "orig/mi.inc"; };
 ASMINC  { FILE "orig/st.inc"; };
 
 SEGMENT { START $73FE;  END $73FF;  NAME "LOADADDR"; };
-SEGMENT { START $7400;  END $8CCD;  NAME "code"; };
+SEGMENT { START $7400;  END $8174;  NAME "data"; };
+SEGMENT { START $8175;  END $8CCD;  NAME "code"; };
 
 RANGE   { START $73FE;  END $73FF;  TYPE AddrTable; };
 RANGE   { START $7400;  END $7402;  TYPE Code; };
 RANGE   { START $7403;  END $7762;  TYPE ByteTable; };
 RANGE   { START $7763;  END $777B;  TYPE TextTable; };
-RANGE   { START $777C;  END $7841;  TYPE ByteTable; };
+RANGE   { START $777C;  END $7841;  TYPE TextTable; };
 RANGE   { START $7842;  END $787B;  TYPE TextTable; };
-RANGE   { START $787C;  END $7910;  TYPE ByteTable; };
-
-RANGE   { START $7911;  END $792F;  TYPE TextTable; };
-RANGE   { START $7930;  END $8174;  TYPE ByteTable; };
-
+RANGE   { START $787C;  END $7910;  TYPE TextTable; };
+RANGE   { START $7911;  END $7A50;  TYPE TextTable; };
+RANGE   { START $7A51;  END $7A84;  TYPE ByteTable; };
+RANGE   { START $7A85;  END $7C17;  TYPE TextTable; };
+RANGE   { START $7C18;  END $7CBF;  TYPE ByteTable; };
+RANGE   { START $7CC0;  END $8174;  TYPE TextTable; };
 RANGE   { START $8175;  END $8179;  TYPE Code; };
 RANGE   { START $817A;  END $8186;  TYPE TextTable; };
 RANGE   { START $8187;  END $81A6;  TYPE Code; };
