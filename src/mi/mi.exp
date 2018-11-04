@@ -1,6 +1,9 @@
+mi_clear_screen_and_draw_border
 mi_cursor_to_col_0
 mi_cursor_to_col_1
-mi_play_error_sound_and_read_input
+mi_display_stats
+mi_load_ou_module
+mi_play_error_sound_and_reset_buffers
 mi_print_char
 mi_print_crlf_col_1
 mi_print_player_name
@@ -11,10 +14,6 @@ mi_print_text_at_x_y
 mi_print_x_chars
 mi_restore_text_area
 mi_store_text_area
-
-mi_j8C5E
-mi_s84C0
-mi_s8689
 
 mi_attribute_table
 mi_class_name_table

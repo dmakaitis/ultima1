@@ -73,7 +73,7 @@ character_generation:
         inc     @dest + 1
 
 @check_done:
-        lda     @source                                 ; Keep going until we've copied $8a bytes
+        lda     @source                                 ; Keep going until we have copied $8a bytes
         cmp     #<(new_char_template + $8a)
         bne     @loop
         lda     @source + 1
@@ -177,7 +177,7 @@ character_generation:
         ldy     points_to_distribute                    ; Are there points left to distribute?
         beq     select_race
 
-        jsr     mi_play_error_sound_and_read_input      ; If not, play an error sound and wait for more input
+        jsr     mi_play_error_sound_and_reset_buffers   ; If not, play an error sound
         jmp     @attribute_loop
 
 

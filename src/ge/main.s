@@ -162,10 +162,10 @@ main_menu:
         lda     #$60                                    ; Reconfigure the bitmap address mask
         sta     BM_ADDR_MASK
 
-        jsr     mi_s84C0
+        jsr     mi_clear_screen_and_draw_border
         jsr     st_set_text_window_command
         jsr     st_scroll_text_area_up
-        jsr     mi_s8689
+        jsr     mi_display_stats
 
         lda     #$60                                    ; Reconfigure the second bitmap address mask
         sta     BM2_ADDR_MASK
@@ -173,7 +173,7 @@ main_menu:
         jsr     st_swap_bitmaps
         jsr     st_copy_screen_2_to_1
 
-        jmp     mi_j8C5E
+        jmp     mi_load_ou_module
 
 
 

@@ -5,7 +5,7 @@
 
 .export mi_cursor_to_col_0
 .export mi_cursor_to_col_1
-.export mi_play_error_sound_and_read_input
+.export mi_play_error_sound_and_reset_buffers
 .export mi_print_char
 .export mi_print_crlf_col_1
 .export mi_print_player_name
@@ -17,9 +17,8 @@
 .export mi_restore_text_area
 .export mi_store_text_area
 
-.export mi_j8C5E
-.export mi_s84C0
-.export mi_s8689
+.export mi_clear_screen_and_draw_border
+.export mi_display_stats
 
 .export mi_attribute_table
 .export mi_class_name_table
@@ -41,6 +40,11 @@
 .export mi_current_attribute
 .export mi_w85BE
 
+.export check_drive_status
+.export draw_border
+.export reset_buffers
+.export reset_screen_swapping
+
 dec_lo          := $3C
 dec_mid         := $3D
 dec_hi          := $3E
@@ -52,8 +56,6 @@ zpA2            := $A2
         .setcpu "6502"
 
 .segment        "CODE_ZZZ"
-
-mi_main:jmp     do_mi_main
 
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$03
@@ -511,27 +513,39 @@ mi_class_name_table:
         .byte   $68,$65,$20,$54,$75,$72,$74,$6C
         .byte   $E5,$4C,$6F,$73,$74,$20,$46,$72
         .byte   $69,$65,$6E,$64,$F3
-s8175:  bcc     b818E
-        jsr     mi_print_text
-        .byte   "}Disk error "
 
-        .byte   $00
+
+
+check_drive_status:
+        bcc     @no_error
+        jsr     mi_print_text
+
+        .byte   "}Disk error ",$00
+
         jsr     s8B64
         jsr     st_clear_to_end_of_text_row_a
         sec
-b818E:  rts
+@no_error:
+        rts
 
-s818F:  lda     BM_ADDR_MASK
+
+
+reset_screen_swapping:  lda     BM_ADDR_MASK
         bne     b8196
         jsr     st_copy_screen_2_to_1
-b8196:  lda     #$97
-        sta     CIA2_PRA
+
+b8196:  lda     #$97                                    ; Set bitmap memory to $2000 and
+        sta     CIA2_PRA                                ; screen memory to $0400
         lda     #$18
         sta     VIC_VIDEO_ADR
+
         lda     #$00
         sta     BM_ADDR_MASK
         sta     BM2_ADDR_MASK
+
         rts
+
+
 
 text_area_cache:
         .byte   $00,$28,$00,$18,$00,$00
@@ -792,10 +806,16 @@ mi_print_x_chars:
         bne     mi_print_x_chars
         rts
 
-mi_s84C0:
+
+
+mi_clear_screen_and_draw_border:
         jsr     st_set_text_window_full
         jsr     st_clear_text_window
-s84C6:  jsr     st_set_text_window_full
+
+
+
+draw_border:
+        jsr     st_set_text_window_full
         lda     #$10
         jsr     mi_print_char
         ldx     #$26
@@ -803,7 +823,8 @@ s84C6:  jsr     st_set_text_window_full
         jsr     mi_print_x_chars
         lda     #$12
         jsr     st_print_char
-b84DA:  inc     CUR_Y
+
+@loop:  inc     CUR_Y
         jsr     mi_cursor_to_col_0
         lda     #$0A
         jsr     st_print_char
@@ -814,7 +835,8 @@ b84DA:  inc     CUR_Y
         jsr     st_scan_and_buffer_input
         lda     CUR_Y
         eor     #$12
-        bne     b84DA
+        bne     @loop
+
         sta     CUR_X
         inc     CUR_Y
         lda     #$04
@@ -835,6 +857,8 @@ b8516:  inc     CUR_Y
         cpx     #$17
         bcc     b8516
         rts
+
+
 
 to_decimal_a_x:
         stx     hex_lo
@@ -948,15 +972,19 @@ mi_w85BE:
         .byte   $D8,$60,$F8,$38,$A2,$00,$BD,$50
         .byte   $82,$69,$00,$9D,$50,$82,$E8,$B0
         .byte   $F5,$D8,$60
-mi_s8689:
+
+
+
+mi_display_stats:
         jsr     mi_store_text_area
         jsr     st_set_text_window_stats
         jsr     mi_print_text
-        .byte   "Hits |Food |Exp. |Coin "
 
+        .byte   "Hits |Food |Exp. |Coin ",$00
 
-        .byte   $00
         jmp     j86C9
+
+
 
 s86AD:  cmp     #$01
         bcs     b86BB
@@ -972,9 +1000,15 @@ b86BB:  jsr     print_long_int
         sta     CHAR_REV
         rts
 
-        .byte   $20,$0C,$87
+
+        jsr     mi_store_text_area
+
+
+
 j86C9:  jsr     st_set_text_window_stats
+
         sta     mi_w85BE
+
         lda     #$24
         sta     CUR_X_OFF
         lda     #$04
@@ -1021,15 +1055,16 @@ b870E:  lda     CUR_X_OFF,x
         .byte   $66,$66,$65,$63,$74,$3F,$00,$A9
         .byte   $08,$D0,$0A,$20,$20,$87,$A9,$3F
         .byte   $20,$67,$16
-mi_play_error_sound_and_read_input:
+mi_play_error_sound_and_reset_buffers:
         lda     #$10
         jsr     st_play_sound_a
-s8777:  nop
+reset_buffers:
+        nop
         nop
         nop
         jsr     KERNEL_GETIN
         cmp     #$00
-        bne     s8777
+        bne     reset_buffers
         lda     #$00
         sta     SOUND_BUFFER_SIZE
         sta     INPUT_BUFFER_SIZE
@@ -1165,7 +1200,7 @@ s8B64:  jsr     mi_print_text
 
 
         .byte   $00
-        jsr     s8777
+        jsr     reset_buffers
 b8B85:  jsr     st_read_input
         cmp     #$0D
         beq     b8B94
@@ -1176,7 +1211,7 @@ b8B85:  jsr     st_read_input
 b8B94:  jsr     st_clear_current_text_row
         inc     CUR_X
         dec     CUR_Y
-        jsr     s8777
+        jsr     reset_buffers
         jmp     mi_store_text_area
 
 mi_print_player_name:
@@ -1210,57 +1245,3 @@ b8BAE:  rts
         .byte   $02,$20,$85,$16,$A9,$02,$20,$85
         .byte   $16,$AD,$C3,$81,$85,$5D,$20,$64
         .byte   $16,$4C,$77,$87,$20,$CE,$8B
-mi_j8C5E:
-        lda     #$01
-j8C60:  ldx     #$FF
-        txs
-        cmp     #$07
-        bcs     b8C6A
-        tax
-        bne     b8C74
-b8C6A:  ldx     #$04
-        jsr     load_file
-        bcs     b8C6A
-        jmp     do_mi_main
-
-b8C74:  clc
-        adc     #$04
-        sta     w8C97
-b8C7A:  jsr     s8777
-        ldx     w8C97
-        jsr     load_file
-        jsr     s8175
-        bcs     b8C7A
-        jsr     s818F
-        jsr     mi_s8689
-        jsr     s84C6
-        jsr     mi_restore_text_area
-        jmp     do_mi_main
-
-w8C97:  .byte   $04,$20,$3D,$16,$4C,$9B,$8C
-do_mi_main:
-        sei
-        ldx     #$FF
-        txs
-        ldx     #$0B
-        jsr     load_file
-        ldx     #$0F
-        jsr     load_file
-        jsr     st_set_text_window_full
-        jsr     st_init_snd_gfx
-        lda     #$60
-        sta     BM_ADDR_MASK
-        sta     BM2_ADDR_MASK
-        jsr     st_swap_bitmaps
-        jsr     s818F
-        lda     #$96
-        sta     CIA2_PRA
-        lda     #$80
-        sta     VIC_VIDEO_ADR
-        lda     #$00
-        jmp     j8C60
-
-        .byte   $C8
-
-; End of "code" segment
-.code
