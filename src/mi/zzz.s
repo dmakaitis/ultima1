@@ -1,6 +1,4 @@
-.include "c64.inc"
 .include "kernel.inc"
-.include "hello.inc"
 .include "st.inc"
 
 .export mi_cursor_to_col_0
@@ -19,26 +17,23 @@
 .export mi_clear_screen_and_draw_border
 .export mi_display_stats
 
-.export mi_player_save_data
-.export mi_player_agility
-.export mi_player_class
-.export mi_player_hits
-.export mi_player_intelligence
-.export mi_player_name
-.export mi_player_race
-.export mi_player_random_seed
-.export mi_player_sex
-.export mi_player_sound_flag
-.export mi_player_strength
-.export mi_player_wisdom
-
 .export mi_current_attribute
 .export mi_w85BE
 
-.export check_drive_status
 .export draw_border
 .export reset_buffers
-.export reset_screen_swapping
+.export press_space_to_continue
+
+.import inc_then_read_ptr
+.import read_then_inc_ptr
+
+.import mi_player_experience
+.import mi_player_food
+.import mi_player_hits
+.import mi_player_money
+
+.import rts_ptr
+.import read_ptr
 
 dec_lo          := $3C
 dec_mid         := $3D
@@ -52,170 +47,56 @@ zpA2            := $A2
 
 .segment "CODE_ZZZ"
 
-check_drive_status:
-        bcc     @no_error
-        jsr     mi_print_text
-
-        .byte   "}Disk error ",$00
-
-        jsr     s8B64
-        jsr     st_clear_to_end_of_text_row_a
-        sec
-@no_error:
-        rts
-
-
-
-reset_screen_swapping:  lda     BM_ADDR_MASK
-        bne     b8196
-        jsr     st_copy_screen_2_to_1
-
-b8196:  lda     #$97                                    ; Set bitmap memory to $2000 and
-        sta     CIA2_PRA                                ; screen memory to $0400
-        lda     #$18
-        sta     VIC_VIDEO_ADR
-
-        lda     #$00
-        sta     BM_ADDR_MASK
-        sta     BM2_ADDR_MASK
-
-        rts
-
-
-
 text_area_cache:
         .byte   $00,$28,$00,$18,$00,$00
-w81AD:  .byte   $00,$2F,$55,$31,$2E,$50,$4C,$41
-        .byte   $59,$45,$52,$2F,$55,$31,$2E,$56
-        .byte   $41,$52,$53,$00,$00,$00,$00
-mi_current_attribute:
-        .byte   $00,$05,$50,$00,$00,$40,$2F,$3B
-        .byte   $3A,$20,$41,$42,$43,$44,$45,$46
-        .byte   $47,$48,$49,$4B,$4E,$4F,$51,$52
-        .byte   $53,$54,$55,$56,$58,$5A
-mi_player_save_data:
-        .byte   $CA,$01,$00,$00,$FF
-mi_player_sound_flag:
-        .byte   $FF,$20,$20,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$01,$01,$01,$01,$01
-        .byte   $01,$01,$01,$01,$01,$01,$01,$01
-        .byte   $01,$01,$01,$01,$01,$01,$01,$01
-        .byte   $01,$01,$03,$03,$03,$00,$03,$03
-        .byte   $03,$03,$03,$03,$01,$01,$01,$01
-        .byte   $01,$01,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$FF
-        .byte   $FF,$FF,$FF,$00,$00
-mi_player_sex:
-        .byte   $01
-mi_player_name:
-        .byte   $47,$6C,$69,$6E,$64,$61,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00
-mi_player_hits:
-        .byte   $84
-player_hits_hi:
-        .byte   $03
-mi_player_strength:
-        .byte   $5A,$00
-mi_player_agility:
-        .byte   $5A,$00
-mi_player_stamina:
-        .byte   $0F,$00
-mi_player_charisma:
-        .byte   $0F,$00
-mi_player_wisdom:
-        .byte   $32,$00
-mi_player_intelligence:
-        .byte   $0F,$00
-mi_player_money:
-        .byte   $38
-player_money_hi:
-        .byte   $08
-mi_player_race:
-        .byte   $02,$00
-mi_player_class:
-        .byte   $02,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$95
-mi_player_food:
-        .byte   $59
-player_food_hi:
-        .byte   $00
-mi_player_experience:
-        .byte   $37
-player_experience_hi:
-        .byte   $02,$E8,$03,$E8,$03,$00,$FF
-mi_player_random_seed:
-        .byte   $EF,$BE,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-inc_then_read_ptr:
-        inc     rts_ptr_lo
-        bne     b83B4
-        inc     rts_ptr_hi
-b83B4:
-rts_ptr_lo      := * + 1
-rts_ptr_hi      := * + 2
-        lda     BASIC_BUF
-        rts
 
-read_then_inc_ptr:
-read_ptr_lo     := * + 1
-read_ptr_hi     := * + 2
-        lda     BASIC_BUF
-        inc     read_ptr_lo
-        bne     b83C3
-        inc     read_ptr_hi
-b83C3:  rts
+w81AD:
+        .byte   $00
+
+        .byte   $2F,$55,$31,$2E,$50,$4C,$41,$59
+        .byte   $45,$52,$2F,$55,$31,$2E,$56,$41
+        .byte   $52,$53,$00,$00,$00,$00
+
+mi_current_attribute:
+        .byte   $00
+
+        .byte   $05,$50,$00,$00,$40,$2F,$3B,$3A
+        .byte   $20,$41,$42,$43,$44,$45,$46,$47
+        .byte   $48,$49,$4B,$4E,$4F,$51,$52,$53
+        .byte   $54,$55,$56,$58,$5A
+
+
+
+.segment "CODE_ZZZ2"
 
         .byte   $48,$4A,$4A,$4A,$4A,$20,$CD,$83
         .byte   $68
+
+
+
+;-----------------------------------------------------------
+;
+;-----------------------------------------------------------
+
 print_digit:
         and     #$0F
         ora     #$30
         cmp     #$3A
         bcc     mi_print_char
         adc     #$06
+
+;-----------------------------------------------------------
+
 mi_print_char:
         jsr     st_print_char
         inc     CUR_X
 b83DC:  rts
+
+
+
+;-----------------------------------------------------------
+;
+;-----------------------------------------------------------
 
 print_char_or_esc:
         and     #$7F
@@ -229,15 +110,30 @@ print_char_or_esc:
         lda     CUR_X
         cmp     #$02
         bcc     mi_cursor_to_col_1
+
+;-----------------------------------------------------------
+
 mi_print_crlf_col_1:
         jsr     print_lfcr
+
+;-----------------------------------------------------------
+
 mi_cursor_to_col_1:
         lda     #$01
         sta     CUR_X
         rts
 
+
+
+;-----------------------------------------------------------
+;
+;-----------------------------------------------------------
+
 clear_to_end_then_print_lfcr:
         jsr     st_clear_to_end_of_text_row_a
+
+;-----------------------------------------------------------
+
 print_lfcr:
         inc     CUR_Y
         lda     CUR_Y
@@ -252,28 +148,40 @@ print_lfcr:
         tax
         pla
         tay
+
+;-----------------------------------------------------------
+
 mi_cursor_to_col_0:
         lda     #$00
         sta     CUR_X
         rts
 
+
+
         .byte   $E6,$30,$C6,$31,$E6,$2E,$C6,$2F
         .byte   $C6,$2F,$A5,$30,$85,$33,$D0,$EB
+
+
+
+;-----------------------------------------------------------
+;
+;-----------------------------------------------------------
+
 mi_print_string_entry_x:
         sec
         ror     w81AD
         bit     a:zpA2
         pla
-        sta     rts_ptr_lo
+        sta     rts_ptr
         pla
-        sta     rts_ptr_hi
+        sta     rts_ptr + 1
         jsr     inc_then_read_ptr
-        sta     read_ptr_lo
+        sta     read_ptr
         jsr     inc_then_read_ptr
-        sta     read_ptr_hi
-        lda     rts_ptr_hi
+        sta     read_ptr + 1
+        lda     rts_ptr + 1
         pha
-        lda     rts_ptr_lo
+        lda     rts_ptr
         pha
         txa
         beq     b8455
@@ -309,14 +217,23 @@ b847F:  jsr     read_then_inc_ptr
         sta     CUR_X
         jmp     b8455
 
+
+
+;-----------------------------------------------------------
+;
+;-----------------------------------------------------------
+
 mi_print_text_at_x_y:
         stx     CUR_X
         sty     CUR_Y
+
+;-----------------------------------------------------------
+
 mi_print_text:
         pla
-        sta     rts_ptr_lo
+        sta     rts_ptr
         pla
-        sta     rts_ptr_hi
+        sta     rts_ptr + 1
 j8496:  jsr     inc_then_read_ptr
         beq     b84B0
         cmp     #$7F
@@ -330,11 +247,17 @@ b84A5:  jsr     inc_then_read_ptr
         sta     CUR_X
         jmp     j8496
 
-b84B0:  lda     rts_ptr_hi
+b84B0:  lda     rts_ptr + 1
         pha
-        lda     rts_ptr_lo
+        lda     rts_ptr
         pha
         rts
+
+
+
+;-----------------------------------------------------------
+;
+;-----------------------------------------------------------
 
 mi_print_x_chars:
         jsr     mi_print_char
@@ -344,11 +267,15 @@ mi_print_x_chars:
 
 
 
+;-----------------------------------------------------------
+;
+;-----------------------------------------------------------
+
 mi_clear_screen_and_draw_border:
         jsr     st_set_text_window_full
         jsr     st_clear_text_window
 
-
+;-----------------------------------------------------------
 
 draw_border:
         jsr     st_set_text_window_full
@@ -395,6 +322,10 @@ b8516:  inc     CUR_Y
         rts
 
 
+
+;-----------------------------------------------------------
+;
+;-----------------------------------------------------------
 
 to_decimal_a_x:
         stx     hex_lo
@@ -443,10 +374,20 @@ dec_cnt_mid:
         .byte   $00
 dec_cnt_hi:
         .byte   $00
+
+
+
+;-----------------------------------------------------------
+;
+;-----------------------------------------------------------
+
 print_long_int:
         jsr     to_decimal_a_x
         inx
         bne     b8588
+
+;-----------------------------------------------------------
+
 mi_print_short_int:
         tax
         lda     #$00
@@ -469,6 +410,12 @@ b859D:  lda     dec_lo,x
         bpl     b858E
 b85A5:  rts
 
+
+
+;-----------------------------------------------------------
+;
+;-----------------------------------------------------------
+
 s85A6:  and     #$0F
         bne     b85B7
         cmp     w85BD
@@ -479,6 +426,10 @@ s85A6:  and     #$0F
 
 b85B7:  sta     w85BD
 b85BA:  jmp     print_digit
+
+
+
+;-----------------------------------------------------------
 
 w85BD:  .byte   $00
 mi_w85BE:
@@ -510,6 +461,10 @@ mi_w85BE:
         .byte   $F5,$D8,$60
 
 
+
+;-----------------------------------------------------------
+;
+;-----------------------------------------------------------
 
 mi_display_stats:
         jsr     mi_store_text_area
@@ -549,17 +504,17 @@ j86C9:  jsr     st_set_text_window_stats
         sta     CUR_X_OFF
         lda     #$04
         sta     CUR_X_MAX
-        lda     player_hits_hi
+        lda     mi_player_hits + 1
         ldx     mi_player_hits
         jsr     s86AD
-        lda     player_food_hi
+        lda     mi_player_food + 1
         ldx     mi_player_food
         jsr     s86AD
-        lda     player_experience_hi
+        lda     mi_player_experience + 1
         ldx     mi_player_experience
         jsr     print_long_int
         jsr     clear_to_end_then_print_lfcr
-        lda     player_money_hi
+        lda     mi_player_money + 1
         ldx     mi_player_money
         jsr     print_long_int
         jsr     st_clear_to_end_of_text_row_a
@@ -571,6 +526,12 @@ b8703:  lda     text_area_cache,x
         bpl     b8703
         rts
 
+
+
+;-----------------------------------------------------------
+;
+;-----------------------------------------------------------
+
 mi_store_text_area:
         ldx     #$05
 b870E:  lda     CUR_X_OFF,x
@@ -578,6 +539,10 @@ b870E:  lda     CUR_X_OFF,x
         dex
         bpl     b870E
         rts
+
+
+
+;-----------------------------------------------------------
 
         .byte   $AE,$EE,$81,$20,$2D,$84,$88,$78
         .byte   $60,$A5,$33,$0A,$0A,$0A,$AA,$A4
@@ -591,6 +556,13 @@ b870E:  lda     CUR_X_OFF,x
         .byte   $66,$66,$65,$63,$74,$3F,$00,$A9
         .byte   $08,$D0,$0A,$20,$20,$87,$A9,$3F
         .byte   $20,$67,$16
+
+
+
+;-----------------------------------------------------------
+;
+;-----------------------------------------------------------
+
 mi_play_error_sound_and_reset_buffers:
         lda     #$10
         jsr     st_play_sound_a
@@ -605,6 +577,10 @@ reset_buffers:
         sta     SOUND_BUFFER_SIZE
         sta     INPUT_BUFFER_SIZE
         rts
+
+
+
+;-----------------------------------------------------------
 
         .byte   $20,$0C,$87,$A9,$04,$85,$30,$85
         .byte   $2E,$A9,$10,$85,$31,$A9,$20,$85
@@ -730,24 +706,34 @@ reset_buffers:
         .byte   $20,$D7,$83,$4C,$26,$84,$AD,$C3
         .byte   $81,$85,$5D,$20,$64,$16,$20,$46
         .byte   $16,$20,$01,$87
-s8B64:  jsr     mi_print_text
-        .byte   "}Press Space to continue: "
 
 
 
-        .byte   $00
-        jsr     reset_buffers
-b8B85:  jsr     st_read_input
-        cmp     #$0D
-        beq     b8B94
+;-----------------------------------------------------------
+;
+;-----------------------------------------------------------
+
+press_space_to_continue:  jsr     mi_print_text
+
+        .byte   "}Press Space to continue: ",$00
+
+        jsr     reset_buffers                           ; Make sure we do not have any buffered input before waiting
+
+@loop:  jsr     st_read_input
+
+        cmp     #$0D                                    ; Keep looping until the user has pressed
+        beq     b8B94                                   ; RETURN, SPACE or ??? (fire maybe)
         cmp     #$1B
         beq     b8B94
         cmp     #$20
-        bne     b8B85
-b8B94:  jsr     st_clear_current_text_row
-        inc     CUR_X
+        bne     @loop
+
+b8B94:  jsr     st_clear_current_text_row               ; Remove "Press Space..." message
+
+        inc     CUR_X                                   ; Put the cursor back to where it was
         dec     CUR_Y
-        jsr     reset_buffers
+
+        jsr     reset_buffers                           ; Make sure we have no buffered input left before continuing
         jmp     mi_store_text_area
 
 
