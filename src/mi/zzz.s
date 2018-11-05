@@ -1,16 +1,8 @@
 .include "kernel.inc"
 .include "st.inc"
 
-.export mi_cursor_to_col_0
-.export mi_cursor_to_col_1
 .export mi_play_error_sound_and_reset_buffers
-.export mi_print_char
-.export mi_print_crlf_col_1
 .export mi_print_short_int
-.export mi_print_string_entry_x
-.export mi_print_text
-.export mi_print_text_at_x_y
-.export mi_print_x_chars
 .export mi_restore_text_area
 .export mi_store_text_area
 
@@ -22,26 +14,25 @@
 
 .export draw_border
 .export reset_buffers
-.export press_space_to_continue
 
-.import inc_then_read_ptr
-.import read_then_inc_ptr
+.import mi_cursor_to_col_0
+.import mi_print_char
+.import mi_print_text
+.import mi_print_x_chars
+
+.import clear_to_end_then_print_lfcr
+.import print_digit
 
 .import mi_player_experience
 .import mi_player_food
 .import mi_player_hits
 .import mi_player_money
 
-.import rts_ptr
-.import read_ptr
-
 dec_lo          := $3C
 dec_mid         := $3D
 dec_hi          := $3E
 hex_lo          := $3F
 hex_hi          := $40
-
-zpA2            := $A2
 
         .setcpu "6502"
 
@@ -50,8 +41,7 @@ zpA2            := $A2
 text_area_cache:
         .byte   $00,$28,$00,$18,$00,$00
 
-w81AD:
-        .byte   $00
+.segment "CODE_ZZZ2"
 
         .byte   $2F,$55,$31,$2E,$50,$4C,$41,$59
         .byte   $45,$52,$2F,$55,$31,$2E,$56,$41
@@ -67,205 +57,14 @@ mi_current_attribute:
 
 
 
-.segment "CODE_ZZZ2"
+.segment "CODE_ZZZ3"
 
         .byte   $48,$4A,$4A,$4A,$4A,$20,$CD,$83
         .byte   $68
 
 
 
-;-----------------------------------------------------------
-;
-;-----------------------------------------------------------
-
-print_digit:
-        and     #$0F
-        ora     #$30
-        cmp     #$3A
-        bcc     mi_print_char
-        adc     #$06
-
-;-----------------------------------------------------------
-
-mi_print_char:
-        jsr     st_print_char
-        inc     CUR_X
-b83DC:  rts
-
-
-
-;-----------------------------------------------------------
-;
-;-----------------------------------------------------------
-
-print_char_or_esc:
-        and     #$7F
-        cmp     #$7C
-        bcc     mi_print_char
-        beq     print_lfcr
-        cmp     #$7E
-        beq     mi_print_crlf_col_1
-        cmp     #$7D
-        bne     b83DC
-        lda     CUR_X
-        cmp     #$02
-        bcc     mi_cursor_to_col_1
-
-;-----------------------------------------------------------
-
-mi_print_crlf_col_1:
-        jsr     print_lfcr
-
-;-----------------------------------------------------------
-
-mi_cursor_to_col_1:
-        lda     #$01
-        sta     CUR_X
-        rts
-
-
-
-;-----------------------------------------------------------
-;
-;-----------------------------------------------------------
-
-clear_to_end_then_print_lfcr:
-        jsr     st_clear_to_end_of_text_row_a
-
-;-----------------------------------------------------------
-
-print_lfcr:
-        inc     CUR_Y
-        lda     CUR_Y
-        cmp     CUR_Y_MAX
-        bcc     mi_cursor_to_col_0
-        tya
-        pha
-        txa
-        pha
-        jsr     st_scroll_text_area_up
-        pla
-        tax
-        pla
-        tay
-
-;-----------------------------------------------------------
-
-mi_cursor_to_col_0:
-        lda     #$00
-        sta     CUR_X
-        rts
-
-
-
-        .byte   $E6,$30,$C6,$31,$E6,$2E,$C6,$2F
-        .byte   $C6,$2F,$A5,$30,$85,$33,$D0,$EB
-
-
-
-;-----------------------------------------------------------
-;
-;-----------------------------------------------------------
-
-mi_print_string_entry_x:
-        sec
-        ror     w81AD
-        bit     a:zpA2
-        pla
-        sta     rts_ptr
-        pla
-        sta     rts_ptr + 1
-        jsr     inc_then_read_ptr
-        sta     read_ptr
-        jsr     inc_then_read_ptr
-        sta     read_ptr + 1
-        lda     rts_ptr + 1
-        pha
-        lda     rts_ptr
-        pha
-        txa
-        beq     b8455
-b844C:  jsr     read_then_inc_ptr
-        asl     a
-        bcc     b844C
-        dex
-        bne     b844C
-b8455:  jsr     read_then_inc_ptr
-        cmp     #$7F
-        beq     b847F
-        pha
-        bit     w81AD
-        bpl     b8475
-        and     #$7F
-        cmp     #$7C
-        bcs     b8475
-        cmp     #$61
-        bcc     b8472
-        cmp     #$7B
-        bcs     b8472
-        eor     #$20
-b8472:  sta     w81AD
-b8475:  jsr     print_char_or_esc
-        pla
-        bpl     b8455
-        lsr     w81AD
-        rts
-
-b847F:  jsr     read_then_inc_ptr
-        clc
-        adc     CUR_X
-        sta     CUR_X
-        jmp     b8455
-
-
-
-;-----------------------------------------------------------
-;
-;-----------------------------------------------------------
-
-mi_print_text_at_x_y:
-        stx     CUR_X
-        sty     CUR_Y
-
-;-----------------------------------------------------------
-
-mi_print_text:
-        pla
-        sta     rts_ptr
-        pla
-        sta     rts_ptr + 1
-j8496:  jsr     inc_then_read_ptr
-        beq     b84B0
-        cmp     #$7F
-        beq     b84A5
-        jsr     print_char_or_esc
-        jmp     j8496
-
-b84A5:  jsr     inc_then_read_ptr
-        clc
-        adc     CUR_X
-        sta     CUR_X
-        jmp     j8496
-
-b84B0:  lda     rts_ptr + 1
-        pha
-        lda     rts_ptr
-        pha
-        rts
-
-
-
-;-----------------------------------------------------------
-;
-;-----------------------------------------------------------
-
-mi_print_x_chars:
-        jsr     mi_print_char
-        dex
-        bne     mi_print_x_chars
-        rts
-
-
+.segment "CODE_ZZZ4"
 
 ;-----------------------------------------------------------
 ;
@@ -706,35 +505,6 @@ reset_buffers:
         .byte   $20,$D7,$83,$4C,$26,$84,$AD,$C3
         .byte   $81,$85,$5D,$20,$64,$16,$20,$46
         .byte   $16,$20,$01,$87
-
-
-
-;-----------------------------------------------------------
-;
-;-----------------------------------------------------------
-
-press_space_to_continue:  jsr     mi_print_text
-
-        .byte   "}Press Space to continue: ",$00
-
-        jsr     reset_buffers                           ; Make sure we do not have any buffered input before waiting
-
-@loop:  jsr     st_read_input
-
-        cmp     #$0D                                    ; Keep looping until the user has pressed
-        beq     b8B94                                   ; RETURN, SPACE or ??? (fire maybe)
-        cmp     #$1B
-        beq     b8B94
-        cmp     #$20
-        bne     @loop
-
-b8B94:  jsr     st_clear_current_text_row               ; Remove "Press Space..." message
-
-        inc     CUR_X                                   ; Put the cursor back to where it was
-        dec     CUR_Y
-
-        jsr     reset_buffers                           ; Make sure we have no buffered input left before continuing
-        jmp     mi_store_text_area
 
 
 

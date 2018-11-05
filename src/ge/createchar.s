@@ -48,7 +48,7 @@ b8E23:  txa                                             ; See if the current slo
         bne     b8E31                                   ; If it is, then we have at least one empty slot for a new character
         jmp     character_generation                    ; Go to the character generation screen with the first empty slot selected
 
-b8E31:  inx                                             ; If the slot is not empty, keep going until we've checked all four
+b8E31:  inx                                             ; If the slot is not empty, keep going until we have checked all four
         cpx     #$04
         bcc     b8E23
 
