@@ -2,14 +2,12 @@
 .include "st.inc"
 
 .export mi_play_error_sound_and_reset_buffers
-.export mi_print_short_int
 .export mi_restore_text_area
 .export mi_store_text_area
 
 .export mi_display_stats
 
 .export mi_current_attribute
-.export mi_w85BE
 
 .export reset_buffers
 
@@ -18,17 +16,14 @@
 
 .import clear_to_end_then_print_lfcr
 .import print_digit
+.import print_long_int
 
 .import mi_player_experience
 .import mi_player_food
 .import mi_player_hits
 .import mi_player_money
 
-dec_lo          := $3C
-dec_mid         := $3D
-dec_hi          := $3E
-hex_lo          := $3F
-hex_hi          := $40
+.import mi_number_padding
 
         .setcpu "6502"
 
@@ -63,116 +58,8 @@ mi_current_attribute:
 .segment "CODE_ZZZ4"
 
 ;-----------------------------------------------------------
-;
-;-----------------------------------------------------------
 
-to_decimal_a_x:
-        stx     hex_lo
-        sta     hex_hi
-        ldx     #$00
-        stx     dec_lo
-        stx     dec_mid
-        stx     dec_hi
-        stx     dec_cnt_hi
-        stx     dec_cnt_mid
-        inx
-        stx     dec_cnt_lo
-        sed
-b8539:  lsr     hex_hi
-        ror     hex_lo
-        bcc     b8555
-        clc
-        lda     dec_lo
-        adc     dec_cnt_lo
-        sta     dec_lo
-        lda     dec_mid
-        adc     dec_cnt_mid
-        sta     dec_mid
-        lda     dec_hi
-        adc     dec_cnt_hi
-        sta     dec_hi
-b8555:  clc
-        lda     dec_cnt_lo
-        adc     dec_cnt_lo
-        sta     dec_cnt_lo
-        lda     dec_cnt_mid
-        adc     dec_cnt_mid
-        sta     dec_cnt_mid
-        lda     dec_cnt_hi
-        adc     dec_cnt_hi
-        sta     dec_cnt_hi
-        lda     hex_lo
-        ora     hex_hi
-        bne     b8539
-        cld
-        rts
-
-dec_cnt_lo:
-        .byte   $01
-dec_cnt_mid:
-        .byte   $00
-dec_cnt_hi:
-        .byte   $00
-
-
-
-;-----------------------------------------------------------
-;
-;-----------------------------------------------------------
-
-print_long_int:
-        jsr     to_decimal_a_x
-        inx
-        bne     b8588
-
-;-----------------------------------------------------------
-
-mi_print_short_int:
-        tax
-        lda     #$00
-        jsr     to_decimal_a_x
-b8588:  sta     w85BD
-        jmp     j8597
-
-b858E:  lda     dec_lo,x
-        lsr     a
-        lsr     a
-        lsr     a
-        lsr     a
-        jsr     s85A6
-j8597:  txa
-        bne     b859D
-        inc     w85BD
-b859D:  lda     dec_lo,x
-        jsr     s85A6
-        dex
-        bpl     b858E
-b85A5:  rts
-
-
-
-;-----------------------------------------------------------
-;
-;-----------------------------------------------------------
-
-s85A6:  and     #$0F
-        bne     b85B7
-        cmp     w85BD
-        bne     b85BA
-        lda     mi_w85BE
-        beq     b85A5
-        jmp     mi_print_char
-
-b85B7:  sta     w85BD
-b85BA:  jmp     print_digit
-
-
-
-;-----------------------------------------------------------
-
-w85BD:  .byte   $00
-mi_w85BE:
-        .byte   $00,$A0,$FF,$38,$C8,$E9,$0A,$B0
+        .byte   $A0,$FF,$38,$C8,$E9,$0A,$B0
         .byte   $FB,$98,$60,$85,$43,$20,$70,$16
         .byte   $C5,$43,$90,$04,$E5,$43,$B0,$F8
         .byte   $C9,$00,$85,$43,$60,$20,$73,$16
@@ -237,7 +124,7 @@ b86BB:  jsr     print_long_int
 
 j86C9:  jsr     st_set_text_window_stats
 
-        sta     mi_w85BE
+        sta     mi_number_padding
 
         lda     #$24
         sta     CUR_X_OFF

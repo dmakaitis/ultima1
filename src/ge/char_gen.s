@@ -503,7 +503,7 @@ name_character:
 
 display_attributes:
         lda     #$00
-        sta     mi_w85BE
+        sta     mi_number_padding
         sta     mi_current_attribute
 
         ldx     #$05                                    ; Move the cursor to (5, 3)
@@ -548,7 +548,7 @@ display_attributes:
         .addr   mi_attribute_table
 
         lda     #$2E                                    ; Print '.'s until we reach column 26
-        sta     mi_w85BE
+        sta     mi_number_padding                       ; (and use '.'s to left pad the value)
 @loop_periods:
         jsr     mi_print_char
         ldx     CUR_X
