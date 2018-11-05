@@ -6,19 +6,15 @@
 .export mi_restore_text_area
 .export mi_store_text_area
 
-.export mi_clear_screen_and_draw_border
 .export mi_display_stats
 
 .export mi_current_attribute
 .export mi_w85BE
 
-.export draw_border
 .export reset_buffers
 
-.import mi_cursor_to_col_0
 .import mi_print_char
 .import mi_print_text
-.import mi_print_x_chars
 
 .import clear_to_end_then_print_lfcr
 .import print_digit
@@ -65,62 +61,6 @@ mi_current_attribute:
 
 
 .segment "CODE_ZZZ4"
-
-;-----------------------------------------------------------
-;
-;-----------------------------------------------------------
-
-mi_clear_screen_and_draw_border:
-        jsr     st_set_text_window_full
-        jsr     st_clear_text_window
-
-;-----------------------------------------------------------
-
-draw_border:
-        jsr     st_set_text_window_full
-        lda     #$10
-        jsr     mi_print_char
-        ldx     #$26
-        lda     #$04
-        jsr     mi_print_x_chars
-        lda     #$12
-        jsr     st_print_char
-
-@loop:  inc     CUR_Y
-        jsr     mi_cursor_to_col_0
-        lda     #$0A
-        jsr     st_print_char
-        lda     #$27
-        sta     CUR_X
-        lda     #$08
-        jsr     st_print_char
-        jsr     st_scan_and_buffer_input
-        lda     CUR_Y
-        eor     #$12
-        bne     @loop
-
-        sta     CUR_X
-        inc     CUR_Y
-        lda     #$04
-        jsr     mi_print_char
-        ldx     #$26
-        lda     #$06
-        jsr     mi_print_x_chars
-        lda     #$04
-        jsr     st_print_char
-        lda     #$1E
-        sta     CUR_X
-        lda     #$02
-        jsr     st_print_char
-        lda     #$0C
-b8516:  inc     CUR_Y
-        jsr     st_print_char
-        ldx     CUR_Y
-        cpx     #$17
-        bcc     b8516
-        rts
-
-
 
 ;-----------------------------------------------------------
 ;
