@@ -9,6 +9,7 @@
 .include "st.inc"
 
 .export mi_display_stats
+.export mi_s86C6
 
 .import mi_print_text
 .import mi_store_text_area
@@ -48,7 +49,7 @@ mi_display_stats:
 
 
 ;-----------------------------------------------------------
-;                    print_stat_value_low_rev
+;                   print_stat_value_low_rev
 ;
 ; Prints the value for a stat. If the stat value is less
 ; than 100, the value will be highlighted by printing it in
@@ -79,6 +80,7 @@ print_stat_value_low_rev:
 ;-----------------------------------------------------------
 ;-----------------------------------------------------------
 
+mi_s86C6:
         jsr     mi_store_text_area
 
 

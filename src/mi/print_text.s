@@ -18,6 +18,8 @@
 .export mi_print_text_at_x_y
 .export mi_print_x_chars
 
+.export s83ED
+
 .export clear_to_end_then_print_lfcr
 .export print_digit
 
@@ -92,7 +94,7 @@ print_char_or_esc:
         cmp     #$7D
         bne     done                                    ; Handle code $7D
 
-        lda     CUR_X                                   ; Handle code $7F
+s83ED:  lda     CUR_X                                   ; Handle code $7F
         cmp     #$02
         bcc     mi_cursor_to_col_1
 

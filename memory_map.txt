@@ -42,8 +42,8 @@
 |          $005D : Mask for hi byte of memory address of bitmap screen 2 (ST)                                          |
 |          $005E : Temporary storage (ST)                                                                              |
 |          $005F : Temporary storage (ST)                                                                              |
-|    $0060-$0061 : Temporary pointer (ST)                                                                              |
-|    $0062-$0063 : Temporary pointer (ST)                                                                              |
+|    $0060-$0061 : Temporary pointer (MI,ST)                                                                           |
+|    $0062-$0063 : Temporary pointer (MI,ST)                                                                           |
 |    $0064-$0065 : Temporary pointer (ST)                                                                              |
 |    $0066-$0078 : World draw buffer (ST)                                                                              |
 |                                                                                                                      |

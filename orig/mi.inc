@@ -65,7 +65,7 @@ mi_reset_buffers                    := $8777;
 
 mi_print_player_name                := $8BA1;
 
-mi_j8C5E                            := $8C5E;
+mi_load_ou_module                   := $8C5E;
 
 mi_s85FD                            := $85FD;
 mi_s863C                            := $863C;

@@ -2,6 +2,25 @@
 .include "st.inc"
 
 .export mi_current_attribute
+.export mi_w81C8
+.export mi_s85FD
+.export mi_s863C
+.export mi_s8BCE
+
+.import mi_print_text
+.import mi_print_player_name
+.import mi_reset_buffers
+.import mi_s86C6
+.import s83ED
+
+.import mi_player_food
+.import mi_player_hits
+.import mi_player_money
+
+zp60    := $60
+zp61    := $61
+zp62    := $62
+zp63    := $63
 
         .setcpu "6502"
 
@@ -9,15 +28,23 @@
 
         .byte   $2F,$55,$31,$2E,$50,$4C,$41,$59
         .byte   $45,$52,$2F,$55,$31,$2E,$56,$41
-        .byte   $52,$53,$00,$00,$00,$00
+        .byte   $52,$53,$00,$00,$00
+
+w81C3:  
+        .byte   $00
 
 mi_current_attribute:
         .byte   $00
 
-        .byte   $05,$50,$00,$00,$40,$2F,$3B,$3A
-        .byte   $20,$41,$42,$43,$44,$45,$46,$47
-        .byte   $48,$49,$4B,$4E,$4F,$51,$52,$53
-        .byte   $54,$55,$56,$58,$5A
+        .byte   $05,$50,$00
+
+mi_w81C8:
+        .byte   $00
+        .byte   $40,$2F,$3B,$3A,$20,$41,$42
+        .byte   $43,$44,$45,$46,$47,$48,$49,$4B
+        .byte   $4E,$4F,$51,$52,$53,$54,$55,$56
+        .byte   $58
+        .byte   $5A
 
 
 
@@ -30,32 +57,35 @@ mi_current_attribute:
 
 .segment "CODE_ZZZ3"
 
-        .byte   $A0,$FF,$38,$C8,$E9,$0A,$B0
-        .byte   $FB,$98,$60,$85,$43,$20,$70,$16
-        .byte   $C5,$43,$90,$04,$E5,$43,$B0,$F8
-        .byte   $C9,$00,$85,$43,$60,$20,$73,$16
-        .byte   $A5,$56,$60,$20,$77,$87,$A0,$3D
-        .byte   $8C,$FC,$85,$20,$D5,$1E,$EA,$EA
-        .byte   $EA,$C9,$00,$D0,$08,$20,$A0,$16
-        .byte   $CE,$FC,$85,$D0,$EE,$60,$40,$A2
-        .byte   $18,$DD,$C9,$81,$F0,$10,$CA,$10
-        .byte   $F8,$20,$8E,$84,$48,$75,$68,$3F
-        .byte   $00,$20,$72,$87,$38,$60,$8A,$48
-        .byte   $C9,$04,$B0,$16,$AD,$C8,$81,$F0
-        .byte   $11,$8D,$2C,$86,$AD,$C7,$81,$8D
-        .byte   $2B,$86,$20,$2D,$84,$7F,$79,$4C
-        .byte   $35,$86,$20,$2D,$84,$7F,$79,$68
-        .byte   $0A,$AA,$18,$60,$18,$B0,$38,$8C
-        .byte   $C5,$81,$8D,$C6,$81,$90,$05,$A9
-        .byte   $00,$20,$85,$16,$F8,$38,$AD,$59
-        .byte   $82,$ED,$C5,$81,$8D,$59,$82,$B0
-        .byte   $13,$AD,$5A,$82,$0D,$5B,$82,$F0
-        .byte   $0B,$AD,$5A,$82,$D0,$03,$CE,$5B
-        .byte   $82,$CE,$5A,$82,$18,$AD,$4F,$82
-        .byte   $6D,$C6,$81,$8D,$4F,$82,$B0,$02
-        .byte   $D8,$60,$F8,$38,$A2,$00,$BD,$50
-        .byte   $82,$69,$00,$9D,$50,$82,$E8,$B0
-        .byte   $F5,$D8,$60
+        .byte   $A0,$FF,$38,$C8,$E9,$0A,$B0,$FB
+        .byte   $98,$60,$85,$43,$20,$70,$16,$C5
+        .byte   $43,$90,$04,$E5,$43,$B0,$F8,$C9
+        .byte   $00,$85,$43,$60,$20,$73,$16,$A5
+        .byte   $56,$60,$20,$77,$87,$A0,$3D,$8C
+        .byte   $FC,$85,$20,$D5,$1E,$EA,$EA,$EA
+        .byte   $C9,$00,$D0,$08,$20,$A0,$16,$CE
+        .byte   $FC,$85,$D0,$EE,$60,$40
+mi_s85FD:
+        .byte   $A2,$18,$DD,$C9,$81,$F0,$10,$CA
+        .byte   $10,$F8,$20,$8E,$84,$48,$75,$68
+        .byte   $3F,$00,$20,$72,$87,$38,$60,$8A
+        .byte   $48,$C9,$04,$B0,$16,$AD,$C8,$81
+        .byte   $F0,$11,$8D,$2C,$86,$AD,$C7,$81
+        .byte   $8D,$2B,$86,$20,$2D,$84,$7F,$79
+        .byte   $4C,$35,$86,$20,$2D,$84,$7F,$79
+        .byte   $68,$0A,$AA,$18,$60,$18,$B0
+mi_s863C:
+        .byte   $38,$8C,$C5,$81,$8D,$C6,$81,$90
+        .byte   $05,$A9,$00,$20,$85,$16,$F8,$38
+        .byte   $AD,$59,$82,$ED,$C5,$81,$8D,$59
+        .byte   $82,$B0,$13,$AD,$5A,$82,$0D,$5B
+        .byte   $82,$F0,$0B,$AD,$5A,$82,$D0,$03
+        .byte   $CE,$5B,$82,$CE,$5A,$82,$18,$AD
+        .byte   $4F,$82,$6D,$C6,$81,$8D,$4F,$82
+        .byte   $B0,$02,$D8,$60,$F8,$38,$A2,$00
+        .byte   $BD,$50,$82,$69,$00,$9D,$50,$82
+        .byte   $E8,$B0,$F5,$D8
+        .byte   $60
 
 
 
@@ -214,22 +244,65 @@ mi_current_attribute:
         .byte   $60,$20,$8E,$84,$20,$6F,$66,$66
         .byte   $00,$60,$AD,$38,$16,$49,$FF,$8D
         .byte   $38,$16,$8D,$E7,$81,$F0,$EA,$20
-        .byte   $8E,$84,$20,$6F,$6E,$00,$60,$20
-        .byte   $ED,$83,$20,$A1,$8B,$20,$8E,$84
-        .byte   $2C,$20,$74,$68,$6F,$75,$20,$61
-        .byte   $72,$74,$20,$64,$65,$61,$64,$2E
-        .byte   $00,$20,$46,$16,$A9,$00,$8D,$49
-        .byte   $82,$8D,$4A,$82,$8D,$5A,$82,$8D
-        .byte   $5B,$82,$8D,$3B,$82,$8D,$3C,$82
-        .byte   $A4,$5D,$8C,$C3,$81,$85,$5D,$20
-        .byte   $C6,$86,$20,$61,$16,$A9,$03,$85
-        .byte   $60,$A9,$74,$85,$61,$A9,$80,$85
-        .byte   $62,$A9,$25,$45,$5C,$85,$63,$A2
-        .byte   $0C,$A0,$47,$B1,$60,$91,$62,$88
-        .byte   $10,$F9,$A5,$60,$18,$69,$48,$85
-        .byte   $60,$A5,$61,$69,$00,$85,$61,$A5
-        .byte   $62,$18,$69,$40,$85,$62,$A5,$63
-        .byte   $69,$01,$85,$63,$CA,$D0,$DA,$A9
-        .byte   $02,$20,$85,$16,$A9,$02,$20,$85
-        .byte   $16,$AD,$C3,$81,$85,$5D,$20,$64
-        .byte   $16,$4C,$77,$87,$20,$CE,$8B
+        .byte   $8E,$84,$20,$6F,$6E,$00,$60
+mi_s8BCE:
+        jsr     s83ED
+        jsr     mi_print_player_name
+        jsr     mi_print_text
+        .byte   ", thou art dead."
+
+        .byte   $00
+        jsr     st_copy_screen_2_to_1
+        lda     #$00
+        sta     mi_player_money
+        sta     mi_player_money + 1
+        sta     mi_player_food
+        sta     mi_player_food + 1
+        sta     mi_player_hits
+        sta     mi_player_hits + 1
+        ldy     BM2_ADDR_MASK
+        sty     w81C3
+        sta     BM2_ADDR_MASK
+        jsr     mi_s86C6
+        jsr     st_clear_main_viewport
+        lda     #$03
+        sta     zp60
+        lda     #$74
+        sta     zp61
+        lda     #$80
+        sta     zp62
+        lda     #$25
+        eor     BM_ADDR_MASK
+        sta     zp63
+        ldx     #$0C
+b8C20:  ldy     #$47
+b8C22:  lda     (zp60),y
+        sta     (zp62),y
+        dey
+        bpl     b8C22
+        lda     zp60
+        clc
+        adc     #$48
+        sta     zp60
+        lda     zp61
+        adc     #$00
+        sta     zp61
+        lda     zp62
+        clc
+        adc     #$40
+        sta     zp62
+        lda     zp63
+        adc     #$01
+        sta     zp63
+        dex
+        bne     b8C20
+        lda     #$02
+        jsr     st_queue_sound
+        lda     #$02
+        jsr     st_queue_sound
+        lda     w81C3
+        sta     BM2_ADDR_MASK
+        jsr     st_swap_bitmaps
+        jmp     mi_reset_buffers
+
+        jsr     mi_s8BCE

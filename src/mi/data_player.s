@@ -22,6 +22,15 @@
 .export mi_player_strength
 .export mi_player_wisdom
 
+.export mi_r81E8
+.export mi_r81E9
+.export mi_w81EE
+.export mi_w81EF
+.export mi_w81F0
+.export mi_w81F1
+.export mi_w81F8
+.export mi_w8213
+
         .setcpu "6502"
 
 .segment "DATA_PLAYER"
@@ -29,15 +38,29 @@
 mi_player_save_data:
         .byte   $CA,$01,$00,$00,$FF
 mi_player_sound_flag:
-        .byte   $FF,$20,$20,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$01,$01,$01,$01,$01
+        .byte   $FF
+mi_r81E8:
+        .byte   $20
+mi_r81E9:
+        .byte   $20,$00,$00,$00,$00
+mi_w81EE:
+        .byte   $00
+mi_w81EF:
+        .byte   $00
+mi_w81F0:
+        .byte   $00
+mi_w81F1:
+        .byte   $00,$01,$01,$01,$01,$01,$01
+mi_w81F8:
         .byte   $01,$01,$01,$01,$01,$01,$01,$01
         .byte   $01,$01,$01,$01,$01,$01,$01,$01
-        .byte   $01,$01,$03,$03,$03,$00,$03,$03
-        .byte   $03,$03,$03,$03,$01,$01,$01,$01
-        .byte   $01,$01,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$FF
-        .byte   $FF,$FF,$FF,$00,$00
+        .byte   $01,$03,$03,$03,$00,$03,$03,$03
+        .byte   $03,$03,$03
+mi_w8213:
+        .byte   $01,$01,$01,$01,$01,$01,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$FF,$FF,$FF,$FF,$00
+        .byte   $00
 mi_player_sex:
         .byte   $01
 mi_player_name:
