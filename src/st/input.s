@@ -16,7 +16,8 @@
 .export bitmap_cia_config
 .export bitmap_vic_config
 
-.import delay_a_squared
+.import st_delay_a_squared
+
 .import do_nothing4
 .import draw_world
 .import print_char
@@ -93,13 +94,13 @@ wait_for_input:
         ldy     #$07                                    ; Check for input seven times
 @done:  jsr     scan_and_buffer_input
 
-        lda     INPUT_BUFFER_SIZE                       ; If the input buffer is not empty, then we're done
+        lda     INPUT_BUFFER_SIZE                       ; If the input buffer is not empty, then we are done
         bne     buffer_input_done
 
         lda     #$4F                                    ; Delay for a bit
-        jsr     delay_a_squared
+        jsr     st_delay_a_squared
 
-        dey                                             ; Keep going until we've checked seven times
+        dey                                             ; Keep going until we have checked seven times
         bne     @done
 
         rts
@@ -138,7 +139,7 @@ get_input:
         lda     INPUT_BUFFER_SIZE                       ; If there is some input in the buffer then retrieve it
         bne     get_input_from_buffer
 
-        beq     restore_registers_and_return            ; Otherwise we're done
+        beq     restore_registers_and_return            ; Otherwise we are done
 
 
 
@@ -155,7 +156,7 @@ draw_world_and_get_input:
 
         jsr     draw_world                              ; Draw the world view
 
-        lda     INPUT_BUFFER_SIZE                       ; If the input buffer is empty then we're done
+        lda     INPUT_BUFFER_SIZE                       ; If the input buffer is empty then we are done
         beq     restore_registers_and_return
 
 get_input_from_buffer:

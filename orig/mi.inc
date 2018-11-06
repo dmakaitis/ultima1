@@ -1,21 +1,31 @@
 ; ---------------------------------------------------------------------------
 ; MI library routines
 
-mi_main             				:= $7400
+mi_main                             := $7400
 
 mi_race_name_table                  := $7763;
 mi_attribute_table                  := $7842;
 mi_class_name_table                 := $7911;
 
 mi_current_attribute                := $81C4;
+mi_w81C8                            := $81C8;
 
 mi_player_save_data                 := $81E2;
 
 mi_player_sound_flag                := $81E7;
+mi_r81E8                            := $81E8;
+mi_r81E9                            := $81E9;
+mi_w81EE                            := $81EE;
+mi_w81EF                            := $81EF;
+mi_w81F0                            := $81F0;
+mi_w81F1                            := $81F1;
+mi_w81F8                            := $81F8;
+mi_w8213                            := $8213;
 
 mi_player_sex                       := $822C;
 mi_player_name                      := $822D;
 mi_player_hits                      := $823B;
+mi_player_hits_hi                   := $823C;
 mi_player_strength                  := $823D;
 mi_player_agility                   := $823F;
 mi_player_stamina                   := $8241;
@@ -23,11 +33,15 @@ mi_player_charisma                  := $8243;
 mi_player_wisdom                    := $8245;
 mi_player_intelligence              := $8247;
 mi_player_money                     := $8249;
+mi_player_money_hi                  := $824A;
 mi_player_race                      := $824B;
 mi_player_class                     := $824D;
 
+
 mi_player_food                      := $825A;
+mi_player_food_hi                   := $825B;
 mi_player_experience                := $825C;
+mi_player_experience_hi             := $825D;
 
 mi_player_random_seed               := $8264;
 
@@ -47,6 +61,13 @@ mi_s8689                            := $8689;
 mi_restore_text_area                := $8701;
 mi_store_text_area                  := $870C;
 mi_play_error_sound_and_read_input  := $8772;
+mi_reset_buffers                    := $8777;
+
 mi_print_player_name                := $8BA1;
 
 mi_j8C5E                            := $8C5E;
+
+mi_s85FD                            := $85FD;
+mi_s863C                            := $863C;
+mi_s86C6                            := $86C6;
+mi_s8BCE                            := $8BCE;

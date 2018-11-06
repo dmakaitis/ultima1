@@ -99,7 +99,6 @@ LABEL   { NAME "to_decimal_a_x";                ADDR $8522; };
 LABEL   { NAME "s85A6";                         ADDR $85A6; };
 LABEL   { NAME "print_long_int";                ADDR $857C; };
 LABEL   { NAME "s86AD";                         ADDR $86AD; };
-LABEL   { NAME "s8777";                         ADDR $8777; };
 LABEL   { NAME "s8B64";                         ADDR $8B64; };
 
 ########################
@@ -170,11 +169,6 @@ LABEL   { NAME "b8C7A";             ADDR $8C7A; };
 
 LABEL   { NAME "text_area_cache";       ADDR $81A7; };
 LABEL   { NAME "w81AD";                 ADDR $81AD; };
-
-LABEL   { NAME "player_hits_hi";        ADDR $823C; };
-LABEL   { NAME "player_money_hi";       ADDR $824A; };
-LABEL   { NAME "player_food_hi";        ADDR $825B; };
-LABEL   { NAME "player_experience_hi";  ADDR $825D; };
 
 LABEL   { NAME "rts_ptr_lo";            ADDR $83B5; };
 LABEL   { NAME "rts_ptr_hi";            ADDR $83B6; };

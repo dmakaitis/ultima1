@@ -12,6 +12,7 @@ mi_print_string_entry_x
 mi_print_text
 mi_print_text_at_x_y
 mi_print_x_chars
+mi_reset_buffers
 mi_restore_text_area
 mi_store_text_area
 
@@ -34,3 +35,8 @@ mi_player_wisdom
 
 mi_current_attribute
 mi_number_padding
+
+mi_s85FD
+mi_s863C
+mi_s86C6
+mi_s8BCE

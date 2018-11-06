@@ -15,6 +15,8 @@ BM_ADDR_MASK
 BM2_ADDR_MASK
 
 st_sound_enabled_flag
+st_w1632
+st_w1637
 
 st_init_snd_gfx
 st_do_nothing
@@ -52,3 +54,4 @@ st_s1694
 st_do_nothing4
 st_do_nothing5
 st_wait_for_raster
+st_delay_a_squared

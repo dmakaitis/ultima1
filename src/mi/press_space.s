@@ -12,8 +12,7 @@
 
 .import mi_print_text
 .import mi_store_text_area
-
-.import reset_buffers
+.import mi_reset_buffers
 
         .setcpu "6502"
 
@@ -31,7 +30,7 @@ press_space_to_continue:
 
         .byte   "}Press Space to continue: ",$00
 
-        jsr     reset_buffers                           ; Make sure we do not have any buffered input before waiting
+        jsr     mi_reset_buffers                        ; Make sure we do not have any buffered input before waiting
 
 @loop:  jsr     st_read_input
 
@@ -47,5 +46,5 @@ b8B94:  jsr     st_clear_current_text_row               ; Remove "Press Space...
         inc     CUR_X                                   ; Put the cursor back to where it was
         dec     CUR_Y
 
-        jsr     reset_buffers                           ; Make sure we have no buffered input left before continuing
+        jsr     mi_reset_buffers                        ; Make sure we have no buffered input left before continuing
         jmp     mi_store_text_area

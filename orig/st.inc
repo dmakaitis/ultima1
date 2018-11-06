@@ -14,6 +14,9 @@ BM2_ADDR_MASK                       := $5D;
 
 st_sound_enabled_flag               := $1638;
 
+st_w1632                            := $1632;
+st_w1637                            := $1637;
+
 st_init_snd_gfx                     := $163A;
 st_do_nothing                       := $163D;
 st_do_nothing2                      := $1640;
@@ -50,3 +53,5 @@ st_s1694                            := $1694;
 st_do_nothing4                      := $1697;
 st_do_nothing5                      := $169A;
 st_wait_for_raster                  := $169D;
+st_delay_a_squared                  := $16A0;
+

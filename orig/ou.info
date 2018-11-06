@@ -1,0 +1,70 @@
+GLOBAL {
+    INPUTNAME   "build/orig/prg/ou.prg";
+    OUTPUTNAME  "build/orig/src/ou.s";
+    STARTADDR   $8C9C;
+    PAGELENGTH  0;
+    CPU         "6502";
+};
+
+ASMINC  { FILE "orig/c64.inc"; };
+ASMINC  { FILE "include/kernel.inc"; };
+ASMINC  { FILE "orig/hello.inc"; };
+ASMINC  { FILE "orig/mi.inc"; };
+ASMINC  { FILE "orig/st.inc"; };
+
+SEGMENT { START $8C9C;  END $8C9D;  NAME "LOADADDR"; };
+SEGMENT { START $8C9E;  END $FFFF;  NAME "code"; };
+
+RANGE   { START $8C9C;  END $8C9D;  TYPE AddrTable; };
+
+RANGE   { START $8C9E;  END $8D00;  TYPE Code; };
+RANGE   { START $8D01;  END $8D03;  TYPE TextTable; };
+RANGE   { START $8D04;  END $8D85;  TYPE Code; };
+RANGE   { START $8D86;  END $8D9F;  TYPE TextTable; };
+
+RANGE   { START $8DA0;  END $8DC4;  TYPE Code; };
+RANGE   { START $8DC5;  END $9E28;  TYPE ByteTable; };
+
+RANGE   { START $9E29;  END $FFFF;  TYPE ByteTable; };  # JSR addresses start here...
+
+########################
+# Subroutines
+
+LABEL   { NAME "s8DC5";             ADDR $8DC5; };
+LABEL   { NAME "s8DD0";             ADDR $8DD0; };
+LABEL   { NAME "s97E0";             ADDR $97E0; };
+LABEL   { NAME "s9840";             ADDR $9840; };
+LABEL   { NAME "s9A10";             ADDR $9A10; };
+LABEL   { NAME "s9A2F";             ADDR $9A2F; };
+LABEL   { NAME "s9E0B";             ADDR $9E0B; };
+
+########################
+# Jump targets
+
+########################
+# Branch targets
+
+LABEL   { NAME "b8CB4";             ADDR $8CB4; };
+LABEL   { NAME "b8CF0";             ADDR $8CF0; };
+LABEL   { NAME "b8CFB";             ADDR $8CFB; };
+LABEL   { NAME "b8D07";             ADDR $8D07; };
+LABEL   { NAME "b8D31";             ADDR $8D31; };
+LABEL   { NAME "b8D45";             ADDR $8D45; };
+LABEL   { NAME "b8D4B";             ADDR $8D4B; };
+LABEL   { NAME "b8D4E";             ADDR $8D4E; };
+LABEL   { NAME "b8D50";             ADDR $8D50; };
+LABEL   { NAME "b8D72";             ADDR $8D72; };
+LABEL   { NAME "b8D74";             ADDR $8D74; };
+LABEL   { NAME "b8DA0";             ADDR $8DA0; };
+LABEL   { NAME "b8DAD";             ADDR $8DAD; };
+
+########################
+# Data
+
+LABEL   { NAME "w8D43";             ADDR $8D43; };
+LABEL   { NAME "w8D44";             ADDR $8D44; };
+LABEL   { NAME "r9E29";             ADDR $9E29; };
+LABEL   { NAME "r9E2A";             ADDR $9E2A; };
+
+########################
+# Zero Page

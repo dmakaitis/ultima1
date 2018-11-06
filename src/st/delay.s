@@ -6,14 +6,14 @@
 ;
 ;-------------------------------------------------------------------------------
 
-.export delay_a_squared
+.export st_delay_a_squared
 
         .setcpu "6502"
 
 .segment "CODE_DELAY"
 
 ;-----------------------------------------------------------
-;                      delay_a_squared
+;                    st_delay_a_squared
 ;
 ; Pauses for a period of time based on the value in the
 ; accumulator when the method is called. The delay will be
@@ -21,7 +21,7 @@
 ; accumulator squared.
 ;-----------------------------------------------------------
 
-delay_a_squared:
+st_delay_a_squared:
         sec
 @loop_outer:
         pha

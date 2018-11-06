@@ -9,9 +9,6 @@
 
 .include "c64.inc"
 
-.import get_random_number
-.import delay_a_squared
-
 .export st_sound_enabled_flag
 
 .export INPUT_BUFFER_SIZE
@@ -23,6 +20,10 @@
 
 .export w1C7E
 .export sid_amp_cfg
+
+.import st_delay_a_squared
+
+.import get_random_number
 
 zp2A                    := $2A
 zp2B                    := $2B
@@ -162,7 +163,7 @@ queue_sound:
         ldx     SOUND_BUFFER_SIZE                       ; If the sound buffer is empty then skip ahead and add it
         beq     @done
 
-        ldy     SOUND_BUFFER - 1,x                      ; If the last sound in the buffer is sound 0 (step), then pretend there's one fewer sounds in the buffer and overwrite it
+        ldy     SOUND_BUFFER - 1,x                      ; If the last sound in the buffer is sound 0 (step), then pretend there is one fewer sounds in the buffer and overwrite it
         bne     @skip
         dex
 
@@ -187,7 +188,7 @@ case_0E:
         lda     #$30
 
 b1BA6:  pha
-        jsr     delay_a_squared
+        jsr     st_delay_a_squared
         jsr     toggle_voice_3
         pla
         dey

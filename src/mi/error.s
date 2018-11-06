@@ -10,8 +10,7 @@
 .include "st.inc"
 
 .export mi_play_error_sound_and_reset_buffers
-
-.export reset_buffers
+.export mi_reset_buffers
 
         .setcpu "6502"
 
@@ -28,13 +27,24 @@ mi_play_error_sound_and_reset_buffers:
         lda     #$10                                    ; Play the error sound
         jsr     st_play_sound_a
 
-reset_buffers:
+        ; Continued in mi_reset_buffers
+
+
+
+;-----------------------------------------------------------
+;                     mi_reset_buffers
+;
+; Resets all buffers to clear out any user input or sounds
+; that may not have been processed yet.
+;-----------------------------------------------------------
+
+mi_reset_buffers:
         nop                                             ; Wait until the user is not pressing anything
         nop
         nop
         jsr     KERNEL_GETIN
         cmp     #$00
-        bne     reset_buffers
+        bne     mi_reset_buffers
 
         lda     #$00                                    ; Clear out the input and sound buffers
         sta     SOUND_BUFFER_SIZE
