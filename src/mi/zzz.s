@@ -5,22 +5,8 @@
 .export mi_w81C8
 .export mi_s85FD
 .export mi_s863C
-.export mi_s8BCE
 
-.import mi_print_text
-.import mi_print_player_name
-.import mi_reset_buffers
-.import mi_s86C6
-.import s83ED
-
-.import mi_player_food
-.import mi_player_hits
-.import mi_player_money
-
-zp60    := $60
-zp61    := $61
-zp62    := $62
-zp63    := $63
+.export bm_addr_mask_cache
 
         .setcpu "6502"
 
@@ -30,7 +16,7 @@ zp63    := $63
         .byte   $45,$52,$2F,$55,$31,$2E,$56,$41
         .byte   $52,$53,$00,$00,$00
 
-w81C3:  
+bm_addr_mask_cache:  
         .byte   $00
 
 mi_current_attribute:
@@ -245,64 +231,3 @@ mi_s863C:
         .byte   $00,$60,$AD,$38,$16,$49,$FF,$8D
         .byte   $38,$16,$8D,$E7,$81,$F0,$EA,$20
         .byte   $8E,$84,$20,$6F,$6E,$00,$60
-mi_s8BCE:
-        jsr     s83ED
-        jsr     mi_print_player_name
-        jsr     mi_print_text
-        .byte   ", thou art dead."
-
-        .byte   $00
-        jsr     st_copy_screen_2_to_1
-        lda     #$00
-        sta     mi_player_money
-        sta     mi_player_money + 1
-        sta     mi_player_food
-        sta     mi_player_food + 1
-        sta     mi_player_hits
-        sta     mi_player_hits + 1
-        ldy     BM2_ADDR_MASK
-        sty     w81C3
-        sta     BM2_ADDR_MASK
-        jsr     mi_s86C6
-        jsr     st_clear_main_viewport
-        lda     #$03
-        sta     zp60
-        lda     #$74
-        sta     zp61
-        lda     #$80
-        sta     zp62
-        lda     #$25
-        eor     BM_ADDR_MASK
-        sta     zp63
-        ldx     #$0C
-b8C20:  ldy     #$47
-b8C22:  lda     (zp60),y
-        sta     (zp62),y
-        dey
-        bpl     b8C22
-        lda     zp60
-        clc
-        adc     #$48
-        sta     zp60
-        lda     zp61
-        adc     #$00
-        sta     zp61
-        lda     zp62
-        clc
-        adc     #$40
-        sta     zp62
-        lda     zp63
-        adc     #$01
-        sta     zp63
-        dex
-        bne     b8C20
-        lda     #$02
-        jsr     st_queue_sound
-        lda     #$02
-        jsr     st_queue_sound
-        lda     w81C3
-        sta     BM2_ADDR_MASK
-        jsr     st_swap_bitmaps
-        jmp     mi_reset_buffers
-
-        jsr     mi_s8BCE

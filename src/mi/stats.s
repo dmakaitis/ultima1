@@ -9,7 +9,7 @@
 .include "st.inc"
 
 .export mi_display_stats
-.export mi_s86C6
+.export mi_update_stats
 
 .import mi_print_text
 .import mi_store_text_area
@@ -78,9 +78,14 @@ print_stat_value_low_rev:
 
 
 ;-----------------------------------------------------------
+;                     mi_update_stats
+;
+; Displays the primary stats for the player in the stats
+; area of the screen, but does not write the labels for the
+; stats.
 ;-----------------------------------------------------------
 
-mi_s86C6:
+mi_update_stats:
         jsr     mi_store_text_area
 
 

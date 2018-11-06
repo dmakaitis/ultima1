@@ -58,16 +58,15 @@ mi_print_x_chars                    := $84B9;
 mi_s84C0                            := $84C0;
 mi_print_short_int                  := $8582;
 mi_s8689                            := $8689;
+mi_update_stats                     := $86C6;
 mi_restore_text_area                := $8701;
 mi_store_text_area                  := $870C;
 mi_play_error_sound_and_read_input  := $8772;
 mi_reset_buffers                    := $8777;
 
 mi_print_player_name                := $8BA1;
-
+mi_player_died                      := $8BCE;
 mi_load_ou_module                   := $8C5E;
 
 mi_s85FD                            := $85FD;
 mi_s863C                            := $863C;
-mi_s86C6                            := $86C6;
-mi_s8BCE                            := $8BCE;

@@ -10,116 +10,13 @@
 .export mi_class_name_table
 .export mi_race_name_table
 
+.export death_image
+
 .data
 
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$03
-        .byte   $00,$00,$00,$07,$1F,$7F,$FF,$FF
-        .byte   $07,$3F,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $80,$F0,$FC,$FF,$FF,$FF,$FF,$FF
-        .byte   $00,$00,$00,$80,$C0,$F0,$FC,$FF
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $03,$0F,$0F,$1F,$3F,$7F,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $80,$C0,$E0,$F0,$F0,$FC,$FE,$FE
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $01,$01,$02,$03,$07,$07,$07,$0F
-        .byte   $7F,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FE,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $00,$80,$80,$C0,$C0,$C0,$C0,$C0
-        .byte   $0F,$0F,$0F,$0F,$0F,$1F,$1F,$1F
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $E0,$E0,$E0,$E0,$E0,$E0,$C0,$C0
-        .byte   $1F,$1F,$1F,$0F,$0F,$0F,$0F,$0F
-        .byte   $FF,$FF,$FF,$FF,$FE,$F8,$F0,$F0
-        .byte   $FF,$FF,$F8,$80,$00,$00,$00,$00
-        .byte   $FF,$FF,$7F,$3F,$1F,$17,$0F,$0F
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FC,$F0,$E0,$E0,$E0,$E0,$C0
-        .byte   $FF,$7F,$01,$00,$00,$00,$00,$00
-        .byte   $FF,$FF,$FF,$7F,$7F,$1F,$1F,$1F
-        .byte   $C0,$C0,$C0,$80,$80,$80,$80,$80
-        .byte   $07,$07,$07,$07,$07,$03,$03,$03
-        .byte   $F0,$E0,$E0,$E0,$E0,$E0,$F0,$F0
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $03,$07,$07,$07,$0F,$1F,$7F,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $C0,$C0,$C0,$C0,$C0,$E0,$F0,$F8
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $1F,$1F,$1F,$1F,$1F,$1F,$3F,$3F
-        .byte   $80,$80,$80,$C0,$C0,$C0,$C0,$C0
-        .byte   $03,$03,$03,$03,$03,$03,$03,$03
-        .byte   $F0,$F8,$FC,$FE,$FF,$FF,$FF,$FF
-        .byte   $01,$07,$0F,$1F,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FE,$FE,$FC,$FC,$F8
-        .byte   $B7,$83,$03,$01,$01,$00,$00,$00
-        .byte   $FE,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $00,$80,$E0,$FF,$FF,$FF,$FF,$FF
-        .byte   $3F,$7F,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $C0,$C0,$C0,$C0,$C0,$C0,$C0,$80
-        .byte   $03,$03,$01,$01,$01,$00,$00,$00
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$7F,$7F
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $F8,$F8,$F0,$F0,$F8,$F8,$FF,$FF
-        .byte   $00,$00,$00,$00,$00,$A1,$FF,$FF
-        .byte   $7F,$7F,$7F,$7F,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FE,$FE,$FC,$78
-        .byte   $80,$80,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $3F,$3F,$1E,$1F,$0F,$0F,$0F,$07
-        .byte   $FF,$F7,$CF,$CF,$CF,$C7,$C7,$CF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FB
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $EF,$E1,$F1,$F1,$F3,$F3,$F3,$F7
-        .byte   $F8,$F0,$F0,$E0,$E0,$E0,$E0,$E0
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $07,$07,$07,$07,$07,$03,$03,$03
-        .byte   $FF,$FB,$EB,$FB,$FF,$FD,$FA,$FA
-        .byte   $EF,$52,$52,$52,$E2,$7E,$E7,$A4
-        .byte   $79,$79,$11,$11,$11,$17,$FC,$92
-        .byte   $FF,$35,$01,$05,$15,$7F,$CD,$4D
-        .byte   $FF,$9F,$AF,$BF,$BF,$FF,$EF,$5F
-        .byte   $E0,$E0,$E0,$E0,$C0,$C0,$C0,$C0
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $03,$01,$01,$00,$00,$00,$00,$00
-        .byte   $FF,$FF,$FF,$FF,$7F,$7F,$3F,$1F
-        .byte   $A4,$EC,$FF,$FF,$FF,$FF,$FF,$FF
-        .byte   $96,$96,$97,$EF,$FF,$FF,$FF,$FF
-        .byte   $49,$CB,$CF,$7F,$FF,$FF,$FF,$FF
-        .byte   $7F,$FF,$FF,$FF,$FE,$FC,$F8,$F0
-        .byte   $80,$80,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $0F,$07,$03,$00,$00,$00,$00,$00
-        .byte   $FF,$FF,$FF,$FF,$3F,$0F,$00,$00
-        .byte   $FF,$FF,$FF,$FF,$FF,$FF,$00,$00
-        .byte   $FF,$FF,$FF,$FE,$FC,$F0,$00,$00
-        .byte   $E0,$C0,$80,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+death_image:
+
+        .incbin "skull.bin"
 
 
 mi_race_name_table:

@@ -18,7 +18,7 @@
 .export mi_print_text_at_x_y
 .export mi_print_x_chars
 
-.export s83ED
+.export indent
 
 .export clear_to_end_then_print_lfcr
 .export print_digit
@@ -94,7 +94,16 @@ print_char_or_esc:
         cmp     #$7D
         bne     done                                    ; Handle code $7D
 
-s83ED:  lda     CUR_X                                   ; Handle code $7F
+        ; Continued in indent
+
+;-----------------------------------------------------------
+;                          indent
+;
+; Indents the cursor position as if the $7F escape character
+; was printed.
+;-----------------------------------------------------------
+
+indent: lda     CUR_X                                   ; Handle code $7F
         cmp     #$02
         bcc     mi_cursor_to_col_1
 

@@ -6,11 +6,10 @@
 .import scrmem_y_offset_hi
 .import scrmem_y_offset_lo
 
+.export do_s168B
 .export do_s168E
 .export do_s1691
 .export do_s1694
-
-.export do_s168B
 
 .export w1786
 .export w1788

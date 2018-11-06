@@ -72,11 +72,7 @@ RANGE   { START $8B82;  END $8BAE;  TYPE Code; };
 RANGE   { START $8BAF;  END $8BCD;  TYPE ByteTable; };
 RANGE   { START $8BCE;  END $8BD6;  TYPE Code; };
 RANGE   { START $8BD7;  END $8BE7;  TYPE TextTable; };
-
-RANGE   { START $8BE8;  END $8C5D;  TYPE Code; };
-# RANGE   { START $8C50;  END $8C5D;  TYPE ByteTable; };
-
-RANGE   { START $8C5E;  END $8C73;  TYPE Code; };
+RANGE   { START $8BE8;  END $8C73;  TYPE Code; };
 RANGE   { START $8C97;  END $8C9D;  TYPE ByteTable; };
 RANGE   { START $8C9E;  END $8CCC;  TYPE Code; };
 RANGE   { START $8CCD;  END $8CCD;  TYPE ByteTable; };

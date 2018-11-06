@@ -39,7 +39,8 @@ build/u1.d64: u1files
 		-write build/prg/st.prg st \
 		-write build/prg/lo.prg lo \
 		-write build/prg/ge.prg ge \
-		-write build/prg/in.prg in
+		-write build/prg/in.prg in \
+		-write build/prg/mi.prg mi
 
 u1_obj = $(addprefix $(PRG_OBJ)/u1/, $(addsuffix .o, $(basename $(notdir $(wildcard src/u1/*.s)))))
 $(u1_obj): $(INC_OUT)/hello.inc
@@ -116,10 +117,12 @@ in_assets = intro_studio intro_title intro_horse0 intro_horse1 intro_horse2 \
 			intro_bird_body2 intro_bird_body3 intro_bird_head0 intro_bird_head1 \
 			intro_bird_head2 intro_bird_head3
 st_assets = tiles
+mi_assets = skull
 
 $(PRG_OBJ)/lo/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(lo_assets)))
 $(PRG_OBJ)/in/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(in_assets)))
 $(PRG_OBJ)/st/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(st_assets)))
+$(PRG_OBJ)/mi/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(mi_assets)))
 
 $(PRG_OBJ)/%.o: src/%.s
 	@mkdir -p $(@D)
@@ -187,7 +190,7 @@ pngassets =	font osibig intro_studio intro_title intro_horse0 intro_horse1 \
 			intro_backdrop intro_car intro_knight0 intro_knight1 intro_sword \
 			intro_sword_mask intro_hand intro_bird_body0 intro_bird_body1 \
 			intro_bird_body2 intro_bird_body3 intro_bird_head0 intro_bird_head1 \
-			intro_bird_head2 intro_bird_head3 tiles
+			intro_bird_head2 intro_bird_head3 tiles skull
 
 assets: $(addprefix assets/, $(addsuffix .png, $(pngassets)))
 
@@ -275,6 +278,9 @@ assets/intro_bird_head3.png: $(ORIG_PRG_OUT)/in.prg $(DIMAGE)
 assets/tiles.png: $(ORIG_PRG_OUT)/st.prg $(DIMAGE)
 	$(DIMAGE) -q -i $< -o $@ -w 128 -h 96 -s 2 -n 1536 -B
 
+assets/skull.png: $(ORIG_PRG_OUT)/mi.prg $(DIMAGE)
+	$(DIMAGE) -q -i $< -o $@ -w 72 -h 96 -s 5 -n 864 -b
+
 ###########################################################
 # The following rules compile assets for inclusion in
 # game files.
@@ -340,3 +346,7 @@ $(ASSETS_OUT)/intro_bird_head%.bin: assets/intro_bird_head%.png $(CIMAGE)
 $(ASSETS_OUT)/tiles.bin: assets/tiles.png $(CIMAGE)
 	@mkdir -p $(@D)
 	$(CIMAGE) -qB -i $< -o $@
+
+$(ASSETS_OUT)/skull.bin: assets/skull.png $(CIMAGE)
+	@mkdir -p $(@D)
+	$(CIMAGE) -qb -i $< -o $@
