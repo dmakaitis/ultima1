@@ -1,38 +1,11 @@
 .include "kernel.inc"
 .include "st.inc"
 
-.export mi_play_error_sound_and_reset_buffers
-.export mi_restore_text_area
-.export mi_store_text_area
-
-.export mi_display_stats
-
 .export mi_current_attribute
-
-.export reset_buffers
-
-.import mi_print_char
-.import mi_print_text
-
-.import clear_to_end_then_print_lfcr
-.import print_digit
-.import print_long_int
-
-.import mi_player_experience
-.import mi_player_food
-.import mi_player_hits
-.import mi_player_money
-
-.import mi_number_padding
 
         .setcpu "6502"
 
 .segment "CODE_ZZZ"
-
-text_area_cache:
-        .byte   $00,$28,$00,$18,$00,$00
-
-.segment "CODE_ZZZ2"
 
         .byte   $2F,$55,$31,$2E,$50,$4C,$41,$59
         .byte   $45,$52,$2F,$55,$31,$2E,$56,$41
@@ -48,16 +21,14 @@ mi_current_attribute:
 
 
 
-.segment "CODE_ZZZ3"
+.segment "CODE_ZZZ2"
 
         .byte   $48,$4A,$4A,$4A,$4A,$20,$CD,$83
         .byte   $68
 
 
 
-.segment "CODE_ZZZ4"
-
-;-----------------------------------------------------------
+.segment "CODE_ZZZ3"
 
         .byte   $A0,$FF,$38,$C8,$E9,$0A,$B0
         .byte   $FB,$98,$60,$85,$43,$20,$70,$16
@@ -88,85 +59,7 @@ mi_current_attribute:
 
 
 
-;-----------------------------------------------------------
-;
-;-----------------------------------------------------------
-
-mi_display_stats:
-        jsr     mi_store_text_area
-        jsr     st_set_text_window_stats
-        jsr     mi_print_text
-
-        .byte   "Hits |Food |Exp. |Coin ",$00
-
-        jmp     j86C9
-
-
-
-s86AD:  cmp     #$01
-        bcs     b86BB
-        cpx     #$64
-        bcs     b86BB
-        pha
-        lda     #$FF
-        sta     CHAR_REV
-        pla
-b86BB:  jsr     print_long_int
-        jsr     clear_to_end_then_print_lfcr
-        lda     #$00
-        sta     CHAR_REV
-        rts
-
-
-        jsr     mi_store_text_area
-
-
-
-j86C9:  jsr     st_set_text_window_stats
-
-        sta     mi_number_padding
-
-        lda     #$24
-        sta     CUR_X_OFF
-        lda     #$04
-        sta     CUR_X_MAX
-        lda     mi_player_hits + 1
-        ldx     mi_player_hits
-        jsr     s86AD
-        lda     mi_player_food + 1
-        ldx     mi_player_food
-        jsr     s86AD
-        lda     mi_player_experience + 1
-        ldx     mi_player_experience
-        jsr     print_long_int
-        jsr     clear_to_end_then_print_lfcr
-        lda     mi_player_money + 1
-        ldx     mi_player_money
-        jsr     print_long_int
-        jsr     st_clear_to_end_of_text_row_a
-mi_restore_text_area:
-        ldx     #$05
-b8703:  lda     text_area_cache,x
-        sta     CUR_X_OFF,x
-        dex
-        bpl     b8703
-        rts
-
-
-
-;-----------------------------------------------------------
-;
-;-----------------------------------------------------------
-
-mi_store_text_area:
-        ldx     #$05
-b870E:  lda     CUR_X_OFF,x
-        sta     text_area_cache,x
-        dex
-        bpl     b870E
-        rts
-
-
+.segment "CODE_ZZZ4"
 
 ;-----------------------------------------------------------
 
@@ -185,26 +78,7 @@ b870E:  lda     CUR_X_OFF,x
 
 
 
-;-----------------------------------------------------------
-;
-;-----------------------------------------------------------
-
-mi_play_error_sound_and_reset_buffers:
-        lda     #$10
-        jsr     st_play_sound_a
-reset_buffers:
-        nop
-        nop
-        nop
-        jsr     KERNEL_GETIN
-        cmp     #$00
-        bne     reset_buffers
-        lda     #$00
-        sta     SOUND_BUFFER_SIZE
-        sta     INPUT_BUFFER_SIZE
-        rts
-
-
+.segment "CODE_ZZZ5"
 
 ;-----------------------------------------------------------
 
@@ -335,7 +209,7 @@ reset_buffers:
 
 
 
-.segment "UNKNOWN"
+.segment "CODE_ZZZ6"
 
         .byte   $60,$20,$8E,$84,$20,$6F,$66,$66
         .byte   $00,$60,$AD,$38,$16,$49,$FF,$8D
