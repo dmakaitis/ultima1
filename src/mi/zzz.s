@@ -8,28 +8,42 @@
 
 .export bm_addr_mask_cache
 
+.import mi_play_error_sound_and_reset_buffers
+.import mi_player_food
+.import mi_print_text
+
+.import print_string_entry_x
+
+.import r797F
+
+.import w824F
+.import w8250
+.import w8259
+
         .setcpu "6502"
 
-.segment "CODE_ZZZ"
+.segment        "CODE_ZZZ": absolute
 
         .byte   $2F,$55,$31,$2E,$50,$4C,$41,$59
         .byte   $45,$52,$2F,$55,$31,$2E,$56,$41
         .byte   $52,$53,$00,$00,$00
 
-bm_addr_mask_cache:  
+bm_addr_mask_cache:
         .byte   $00
 
 mi_current_attribute:
         .byte   $00
 
-        .byte   $05,$50,$00
+w81C5:  .byte   $05
+w81C6:  .byte   $50
+w81C7:  .byte   $00
 
 mi_w81C8:
         .byte   $00
-        .byte   $40,$2F,$3B,$3A,$20,$41,$42
-        .byte   $43,$44,$45,$46,$47,$48,$49,$4B
-        .byte   $4E,$4F,$51,$52,$53,$54,$55,$56
-        .byte   $58
+        
+w81C9:  .byte   $40,$2F,$3B,$3A,$20,$41,$42,$43
+        .byte   $44,$45,$46,$47,$48,$49,$4B,$4E
+        .byte   $4F,$51,$52,$53,$54,$55,$56,$58
         .byte   $5A
 
 
@@ -41,7 +55,7 @@ mi_w81C8:
 
 
 
-.segment "CODE_ZZZ3"
+.segment        "CODE_ZZZ3": absolute
 
         .byte   $A0,$FF,$38,$C8,$E9,$0A,$B0,$FB
         .byte   $98,$60,$85,$43,$20,$70,$16,$C5
@@ -52,26 +66,80 @@ mi_w81C8:
         .byte   $C9,$00,$D0,$08,$20,$A0,$16,$CE
         .byte   $FC,$85,$D0,$EE,$60,$40
 mi_s85FD:
-        .byte   $A2,$18,$DD,$C9,$81,$F0,$10,$CA
-        .byte   $10,$F8,$20,$8E,$84,$48,$75,$68
-        .byte   $3F,$00,$20,$72,$87,$38,$60,$8A
-        .byte   $48,$C9,$04,$B0,$16,$AD,$C8,$81
-        .byte   $F0,$11,$8D,$2C,$86,$AD,$C7,$81
-        .byte   $8D,$2B,$86,$20,$2D,$84,$7F,$79
-        .byte   $4C,$35,$86,$20,$2D,$84,$7F,$79
-        .byte   $68,$0A,$AA,$18,$60,$18,$B0
+        ldx     #$18
+b85FF:  cmp     w81C9,x
+        beq     b8614
+        dex
+        bpl     b85FF
+        jsr     mi_print_text
+        .byte   "Huh?"
+        .byte   $00
+        jsr     mi_play_error_sound_and_reset_buffers
+        sec
+        rts
+
+b8614:  txa
+        pha
+        cmp     #$04
+        bcs     b8630
+        lda     mi_w81C8
+        beq     b8630
+        sta     w862C
+        lda     w81C7
+        sta     w862B
+        jsr     print_string_entry_x
+w862B:
+w862C           := * + 1
+        .addr   r797F
+        jmp     j8635
+
+b8630:  jsr     print_string_entry_x
+        .addr   r797F
+j8635:  pla
+        asl     a
+        tax
+        clc
+        rts
+
+        .byte   $18,$B0
 mi_s863C:
-        .byte   $38,$8C,$C5,$81,$8D,$C6,$81,$90
-        .byte   $05,$A9,$00,$20,$85,$16,$F8,$38
-        .byte   $AD,$59,$82,$ED,$C5,$81,$8D,$59
-        .byte   $82,$B0,$13,$AD,$5A,$82,$0D,$5B
-        .byte   $82,$F0,$0B,$AD,$5A,$82,$D0,$03
-        .byte   $CE,$5B,$82,$CE,$5A,$82,$18,$AD
-        .byte   $4F,$82,$6D,$C6,$81,$8D,$4F,$82
-        .byte   $B0,$02,$D8,$60,$F8,$38,$A2,$00
-        .byte   $BD,$50,$82,$69,$00,$9D,$50,$82
-        .byte   $E8,$B0,$F5,$D8
-        .byte   $60
+        sec
+        sty     w81C5
+        sta     w81C6
+        bcc     b864A
+        lda     #$00
+        jsr     st_queue_sound
+b864A:  sed
+        sec
+        lda     w8259
+        sbc     w81C5
+        sta     w8259
+        bcs     b866A
+        lda     mi_player_food
+        ora     mi_player_food + 1
+        beq     b866A
+        lda     mi_player_food
+        bne     b8667
+        dec     mi_player_food + 1
+b8667:  dec     mi_player_food
+b866A:  clc
+        lda     w824F
+        adc     w81C6
+        sta     w824F
+        bcs     b8678
+        cld
+        rts
+
+b8678:  sed
+        sec
+        ldx     #$00
+b867C:  lda     w8250,x
+        adc     #$00
+        sta     w8250,x
+        inx
+        bcs     b867C
+        cld
+        rts
 
 
 

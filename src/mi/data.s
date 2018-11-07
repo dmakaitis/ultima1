@@ -12,6 +12,8 @@
 
 .export death_image
 
+.export r797F
+
 .data
 
 death_image:
@@ -114,6 +116,7 @@ mi_class_name_table:
         .byte   "battle bas",$E5
         .byte   "time machin",$E5
 
+r797F:
         .byte   "Nort",$E8
         .byte   "Sout",$E8
         .byte   "Eas",$F4

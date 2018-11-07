@@ -18,6 +18,8 @@
 .export mi_print_text_at_x_y
 .export mi_print_x_chars
 
+.export print_string_entry_x
+
 .export indent
 
 .export clear_to_end_then_print_lfcr
@@ -215,6 +217,12 @@ mi_print_string_entry_x:
 
         bit     a:zpA2
 
+        ; continued in print_string_entry_x
+
+;-----------------------------------------------------------
+;-----------------------------------------------------------
+
+print_string_entry_x:
         pla                                             ; Pull the return address from the stack into rts_ptr 
         sta     rts_ptr
         pla

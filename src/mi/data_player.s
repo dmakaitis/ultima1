@@ -31,6 +31,10 @@
 .export mi_w81F8
 .export mi_w8213
 
+.export w824F
+.export w8250
+.export w8259
+
         .setcpu "6502"
 
 .segment "DATA_PLAYER"
@@ -85,8 +89,11 @@ mi_player_money:
 mi_player_race:
         .byte   $02,$00
 mi_player_class:
-        .byte   $02,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$95
+        .byte   $02,$00
+w824F:  .byte   $00
+w8250:  .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00
+w8259:  .byte   $95
 mi_player_food:
         .byte   $59,$00
 mi_player_experience:
@@ -133,5 +140,5 @@ mi_player_random_seed:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-
+        .byte   $00,$00,$00,$00,$00,$00,$00
+        .byte   $00
