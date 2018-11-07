@@ -25,8 +25,8 @@
 ;
 ; Decodes the input that is in the accumulator and if it is
 ; a valid command, prints it to the output and returns the
-; command ID * 2 in the x register. Returns 0 in the x
-; register if the input is not a valid command.
+; command ID * 2 in the x register. Carry flag will be set
+; if the input is not a valid command.
 ;-----------------------------------------------------------
 
 mi_decode_and_print_command_a:

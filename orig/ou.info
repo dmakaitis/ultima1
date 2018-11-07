@@ -25,18 +25,38 @@ RANGE   { START $8D86;  END $8D9F;  TYPE TextTable; };
 RANGE   { START $8DA0;  END $8DC4;  TYPE Code; };
 RANGE   { START $8DC5;  END $9E28;  TYPE ByteTable; };
 
-RANGE   { START $9E29;  END $FFFF;  TYPE ByteTable; };  # JSR addresses start here...
+RANGE   { START $9E29;  END $9E5A;  TYPE AddrTable; };  # JSR addresses start here...
+RANGE   { START $9E5B;  END $FFFF;  TYPE ByteTable; };
 
 ########################
 # Subroutines
 
-LABEL   { NAME "s8DC5";             ADDR $8DC5; };
-LABEL   { NAME "s8DD0";             ADDR $8DD0; };
-LABEL   { NAME "s97E0";             ADDR $97E0; };
-LABEL   { NAME "s9840";             ADDR $9840; };
-LABEL   { NAME "s9A10";             ADDR $9A10; };
-LABEL   { NAME "s9A2F";             ADDR $9A2F; };
-LABEL   { NAME "s9E0B";             ADDR $9E0B; };
+LABEL   { NAME "s8DC5";                     ADDR $8DC5; };
+LABEL   { NAME "s8DD0";                     ADDR $8DD0; };
+
+LABEL   { NAME "cmd_north";                 ADDR $96D6; };
+LABEL   { NAME "cmd_south";                 ADDR $96DC; };
+LABEL   { NAME "cmd_east";                  ADDR $96E2; };
+LABEL   { NAME "cmd_west";                  ADDR $96E8; };
+LABEL   { NAME "cmd_pass";                  ADDR $8DDC; };
+LABEL   { NAME "cmd_attack";                ADDR $8E99; };
+LABEL   { NAME "cmd_board";                 ADDR $9053; };
+LABEL   { NAME "cmd_cast";                  ADDR $9299; };
+LABEL   { NAME "cmd_invalid";               ADDR $876A; };
+LABEL   { NAME "cmd_enter";                 ADDR $9442; };
+LABEL   { NAME "cmd_fire";                  ADDR $95CE; };
+LABEL   { NAME "cmd_inform_search";         ADDR $9D82; };
+LABEL   { NAME "cmd_noise";                 ADDR $8BB9; };
+LABEL   { NAME "cmd_quit_save";             ADDR $964E; };
+LABEL   { NAME "cmd_ready";                 ADDR $9671; };
+LABEL   { NAME "cmd_xit";                   ADDR $9677; };
+LABEL   { NAME "cmd_ztats";                 ADDR $890C; };
+
+LABEL   { NAME "s97E0";                     ADDR $97E0; };
+LABEL   { NAME "s9840";                     ADDR $9840; };
+LABEL   { NAME "s9A10";                     ADDR $9A10; };
+LABEL   { NAME "s9A2F";                     ADDR $9A2F; };
+LABEL   { NAME "s9E0B";                     ADDR $9E0B; };
 
 ########################
 # Jump targets
@@ -44,27 +64,27 @@ LABEL   { NAME "s9E0B";             ADDR $9E0B; };
 ########################
 # Branch targets
 
-LABEL   { NAME "b8CB4";             ADDR $8CB4; };
-LABEL   { NAME "b8CF0";             ADDR $8CF0; };
-LABEL   { NAME "b8CFB";             ADDR $8CFB; };
-LABEL   { NAME "b8D07";             ADDR $8D07; };
-LABEL   { NAME "b8D31";             ADDR $8D31; };
-LABEL   { NAME "b8D45";             ADDR $8D45; };
-LABEL   { NAME "b8D4B";             ADDR $8D4B; };
-LABEL   { NAME "b8D4E";             ADDR $8D4E; };
-LABEL   { NAME "b8D50";             ADDR $8D50; };
-LABEL   { NAME "b8D72";             ADDR $8D72; };
-LABEL   { NAME "b8D74";             ADDR $8D74; };
-LABEL   { NAME "b8DA0";             ADDR $8DA0; };
-LABEL   { NAME "b8DAD";             ADDR $8DAD; };
+LABEL   { NAME "b8CB4";                     ADDR $8CB4; };
+LABEL   { NAME "b8CF0";                     ADDR $8CF0; };
+LABEL   { NAME "b8CFB";                     ADDR $8CFB; };
+LABEL   { NAME "b8D07";                     ADDR $8D07; };
+LABEL   { NAME "b8D31";                     ADDR $8D31; };
+LABEL   { NAME "b8D45";                     ADDR $8D45; };
+LABEL   { NAME "b8D4B";                     ADDR $8D4B; };
+LABEL   { NAME "b8D4E";                     ADDR $8D4E; };
+LABEL   { NAME "b8D50";                     ADDR $8D50; };
+LABEL   { NAME "b8D72";                     ADDR $8D72; };
+LABEL   { NAME "b8D74";                     ADDR $8D74; };
+LABEL   { NAME "b8DA0";                     ADDR $8DA0; };
+LABEL   { NAME "b8DAD";                     ADDR $8DAD; };
 
 ########################
 # Data
 
-LABEL   { NAME "w8D43";             ADDR $8D43; };
-LABEL   { NAME "w8D44";             ADDR $8D44; };
-LABEL   { NAME "r9E29";             ADDR $9E29; };
-LABEL   { NAME "r9E2A";             ADDR $9E2A; };
+LABEL   { NAME "w8D43";                     ADDR $8D43; };
+LABEL   { NAME "w8D44";                     ADDR $8D44; };
+LABEL   { NAME "command_routine_table";     ADDR $9E29; };
+LABEL   { NAME "command_routine_table_hi";  ADDR $9E2A; };
 
 ########################
 # Zero Page
