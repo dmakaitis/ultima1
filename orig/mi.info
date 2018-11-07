@@ -189,15 +189,14 @@ LABEL   { NAME "b8C7A";             ADDR $8C7A; };
 
 LABEL   { NAME "death_image";           ADDR $7403; };
 
-LABEL   { NAME "r797F";                 ADDR $797F; };
+LABEL   { NAME "command_table";         ADDR $797F; };
 
 LABEL   { NAME "text_area_cache";       ADDR $81A7; };
 LABEL   { NAME "w81AD";                 ADDR $81AD; };
 LABEL   { NAME "bm_addr_mask_cache";    ADDR $81C3; };
 LABEL   { NAME "w81C5";                 ADDR $81C5; };
 LABEL   { NAME "w81C6";                 ADDR $81C6; };
-LABEL   { NAME "w81C7";                 ADDR $81C7; };
-LABEL   { NAME "w81C9";                 ADDR $81C9; };
+LABEL   { NAME "command_decode_table";	ADDR $81C9; };
 
 LABEL   { NAME "w824F";                 ADDR $824F; };
 LABEL   { NAME "w8250";                 ADDR $8250; };

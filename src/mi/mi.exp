@@ -36,12 +36,12 @@ mi_player_wisdom
 mi_current_attribute
 mi_number_padding
 
-mi_s85FD
+mi_decode_and_print_command_a
 mi_s863C
 mi_update_stats
 mi_player_died
 
-mi_w81C8
+mi_command_table_override
 mi_r81E8
 mi_r81E9
 mi_w81EE

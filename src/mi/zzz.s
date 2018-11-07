@@ -1,20 +1,14 @@
 .include "kernel.inc"
 .include "st.inc"
 
+.export mi_command_table_override
 .export mi_current_attribute
-.export mi_w81C8
-.export mi_s85FD
 .export mi_s863C
 
 .export bm_addr_mask_cache
+.export command_decode_table
 
-.import mi_play_error_sound_and_reset_buffers
 .import mi_player_food
-.import mi_print_text
-
-.import print_string_entry_x
-
-.import r797F
 
 .import w824F
 .import w8250
@@ -36,12 +30,12 @@ mi_current_attribute:
 
 w81C5:  .byte   $05
 w81C6:  .byte   $50
-w81C7:  .byte   $00
 
-mi_w81C8:
-        .byte   $00
-        
-w81C9:  .byte   $40,$2F,$3B,$3A,$20,$41,$42,$43
+mi_command_table_override:
+        .byte   $00,$00
+
+command_decode_table:
+        .byte   $40,$2F,$3B,$3A,$20,$41,$42,$43         ; 25 bytes
         .byte   $44,$45,$46,$47,$48,$49,$4B,$4E
         .byte   $4F,$51,$52,$53,$54,$55,$56,$58
         .byte   $5A
@@ -55,7 +49,7 @@ w81C9:  .byte   $40,$2F,$3B,$3A,$20,$41,$42,$43
 
 
 
-.segment        "CODE_ZZZ3": absolute
+.segment "CODE_ZZZ3"
 
         .byte   $A0,$FF,$38,$C8,$E9,$0A,$B0,$FB
         .byte   $98,$60,$85,$43,$20,$70,$16,$C5
@@ -65,85 +59,81 @@ w81C9:  .byte   $40,$2F,$3B,$3A,$20,$41,$42,$43
         .byte   $FC,$85,$20,$D5,$1E,$EA,$EA,$EA
         .byte   $C9,$00,$D0,$08,$20,$A0,$16,$CE
         .byte   $FC,$85,$D0,$EE,$60,$40
-mi_s85FD:
-        ldx     #$18
-b85FF:  cmp     w81C9,x
-        beq     b8614
-        dex
-        bpl     b85FF
-        jsr     mi_print_text
-        .byte   "Huh?"
-        .byte   $00
-        jsr     mi_play_error_sound_and_reset_buffers
-        sec
-        rts
-
-b8614:  txa
-        pha
-        cmp     #$04
-        bcs     b8630
-        lda     mi_w81C8
-        beq     b8630
-        sta     w862C
-        lda     w81C7
-        sta     w862B
-        jsr     print_string_entry_x
-w862B:
-w862C           := * + 1
-        .addr   r797F
-        jmp     j8635
-
-b8630:  jsr     print_string_entry_x
-        .addr   r797F
-j8635:  pla
-        asl     a
-        tax
-        clc
-        rts
-
-        .byte   $18,$B0
-mi_s863C:
-        sec
-        sty     w81C5
-        sta     w81C6
-        bcc     b864A
-        lda     #$00
-        jsr     st_queue_sound
-b864A:  sed
-        sec
-        lda     w8259
-        sbc     w81C5
-        sta     w8259
-        bcs     b866A
-        lda     mi_player_food
-        ora     mi_player_food + 1
-        beq     b866A
-        lda     mi_player_food
-        bne     b8667
-        dec     mi_player_food + 1
-b8667:  dec     mi_player_food
-b866A:  clc
-        lda     w824F
-        adc     w81C6
-        sta     w824F
-        bcs     b8678
-        cld
-        rts
-
-b8678:  sed
-        sec
-        ldx     #$00
-b867C:  lda     w8250,x
-        adc     #$00
-        sta     w8250,x
-        inx
-        bcs     b867C
-        cld
-        rts
 
 
 
 .segment "CODE_ZZZ4"
+
+        .byte   $18,$B0
+
+
+
+;-----------------------------------------------------------
+;                           mi_s863C
+;
+; Seems to handle reducing food periodically, as well as
+; increasing something else related to the player.
+;-----------------------------------------------------------
+
+mi_s863C:
+        sec                                             ; Set carry flag
+
+        sty     w81C5
+        sta     w81C6
+
+        bcc     @check_food_timer                                   ; If carry flag is clear...
+        lda     #$00                                    ; ...play "step" sound
+        jsr     st_queue_sound
+
+@check_food_timer:
+        sed                                             ; Put CPU in decimal mode
+
+        sec
+        lda     w8259
+        sbc     w81C5
+        sta     w8259
+        bcs     @increase_something
+
+        lda     mi_player_food                          ; If there is no food left...
+        ora     mi_player_food + 1
+        beq     @increase_something                     ; ...then do not decrease the food supply
+
+        lda     mi_player_food                          ; Otherwise, decrease food
+        bne     @decrease_food_low
+        dec     mi_player_food + 1
+@decrease_food_low:
+        dec     mi_player_food
+
+@increase_something:
+        clc
+        lda     w824F
+        adc     w81C6
+        sta     w824F
+        bcs     @increase_high_bytes
+
+        cld                                             ; Put CPU back in binary mode
+
+        rts
+
+
+@increase_high_bytes:
+        sed
+        sec
+        ldx     #$00
+@loop_increase:
+        lda     w8250,x
+        adc     #$00
+        sta     w8250,x
+        inx
+        bcs     @loop_increase
+
+        cld                                             ; Put CPU back in binary mode
+
+        rts
+
+
+
+.segment "CODE_ZZZ5"
 
 ;-----------------------------------------------------------
 
@@ -162,7 +152,7 @@ b867C:  lda     w8250,x
 
 
 
-.segment "CODE_ZZZ5"
+.segment "CODE_ZZZ6"
 
 ;-----------------------------------------------------------
 
@@ -293,7 +283,7 @@ b867C:  lda     w8250,x
 
 
 
-.segment "CODE_ZZZ6"
+.segment "CODE_ZZZ7"
 
         .byte   $60,$20,$8E,$84,$20,$6F,$66,$66
         .byte   $00,$60,$AD,$38,$16,$49,$FF,$8D
