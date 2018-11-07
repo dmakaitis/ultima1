@@ -6,10 +6,10 @@
 ;
 ;-------------------------------------------------------------------------------
 
-.export bitmap_x_offset_hi
-.export bitmap_x_offset_lo
-.export bitmap_y_offset_hi
-.export bitmap_y_offset_lo
+.export st_bitmap_x_offset_hi
+.export st_bitmap_x_offset_lo
+.export st_bitmap_y_offset_hi
+.export st_bitmap_y_offset_lo
 
 .export scrmem_y_offset_hi
 .export scrmem_y_offset_lo
@@ -30,7 +30,7 @@
 
 .segment "DATA_BITMAP_Y_OFFSETS"
 
-bitmap_y_offset_lo:
+st_bitmap_y_offset_lo:
         .byte   $00,$01,$02,$03,$04,$05,$06,$07
         .byte   $40,$41,$42,$43,$44,$45,$46,$47
         .byte   $80,$81,$82,$83,$84,$85,$86,$87
@@ -56,7 +56,7 @@ bitmap_y_offset_lo:
         .byte   $80,$81,$82,$83,$84,$85,$86,$87
         .byte   $C0,$C1,$C2,$C3,$C4,$C5,$C6,$C7
 
-bitmap_y_offset_hi:
+st_bitmap_y_offset_hi:
         .byte   $20,$20,$20,$20,$20,$20,$20,$20
         .byte   $21,$21,$21,$21,$21,$21,$21,$21
         .byte   $22,$22,$22,$22,$22,$22,$22,$22
@@ -86,14 +86,14 @@ bitmap_y_offset_hi:
 
 .segment "DATA_BITMAP_X_OFFSETS"
 
-bitmap_x_offset_lo:
+st_bitmap_x_offset_lo:
         .byte   $00,$08,$10,$18,$20,$28,$30,$38
         .byte   $40,$48,$50,$58,$60,$68,$70,$78
         .byte   $80,$88,$90,$98,$A0,$A8,$B0,$B8
         .byte   $C0,$C8,$D0,$D8,$E0,$E8,$F0,$F8
         .byte   $00,$08,$10,$18,$20,$28,$30,$38
 
-bitmap_x_offset_hi:
+st_bitmap_x_offset_hi:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00

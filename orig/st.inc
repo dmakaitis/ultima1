@@ -12,6 +12,11 @@ CUR_Y                               := $33;
 BM_ADDR_MASK                        := $5C;
 BM2_ADDR_MASK                       := $5D;
 
+st_bitmap_y_offset_lo               := $1200;
+st_bitmap_y_offset_hi               := $12C0;
+st_bitmap_x_offset_lo               := $15B0;
+st_bitmap_x_offset_hi               := $15D8;
+
 st_sound_enabled_flag               := $1638;
 
 st_w1632                            := $1632;

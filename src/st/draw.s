@@ -15,8 +15,8 @@
 .import scan_input
 .import swap_bitmaps
 
-.import bitmap_y_offset_hi
-.import bitmap_y_offset_lo
+.import st_bitmap_y_offset_hi
+.import st_bitmap_y_offset_lo
 
 .import scrmem_y_offset_hi
 .import scrmem_y_offset_lo
@@ -173,11 +173,11 @@ draw_world:
 
 @draw_world_row:
         ldx     SCREEN_Y                                ; BITMAP_PTR_HI := memory location of top left corner of last tile in the current row
-        lda     bitmap_y_offset_lo,x
+        lda     st_bitmap_y_offset_lo,x
         clc
         adc     #$28
         sta     BITMAP_PTR_HI
-        lda     bitmap_y_offset_hi,x
+        lda     st_bitmap_y_offset_hi,x
         adc     #$01
         eor     BM_ADDR_MASK
         sta     BITMAP_PTR_HI + 1

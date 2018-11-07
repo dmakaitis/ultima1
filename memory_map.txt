@@ -20,6 +20,7 @@
 |          $0032 : Text cursor X coordinate (zero is at left edge of window) (ST)                                      |
 |          $0033 : Text cursor Y coordinate (zero is at top of screen) (ST)                                            |
 |    $0034-$0035 : Temporary pointer (ST)                                                                              |
+|    $0036-$0037 : Temporary pointer (MI)                                                                              |
 |                                                                                                                      |
 |          $003A : sound/zzz??? (ST)                                                                                   |
 |          $003B : sound/zzz??? (ST)                                                                                   |

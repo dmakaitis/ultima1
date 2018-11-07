@@ -9,12 +9,31 @@
 .include "kernel.inc"
 .include "st.inc"
 
+.export mi_cmd_invalid
 .export mi_play_error_sound_and_reset_buffers
 .export mi_reset_buffers
+
+.import move_cursor_back_to_last_character
 
         .setcpu "6502"
 
 .segment "CODE_ERROR"
+
+;-----------------------------------------------------------
+;                      mi_cmd_invalid
+;
+; Routine called if the user enters an invalid command.
+;-----------------------------------------------------------
+
+mi_cmd_invalid:
+        jsr     move_cursor_back_to_last_character
+
+        lda     #'?'
+        jsr     st_print_char
+
+        ; continued in mi_play_error_sound_and_reset_buffers
+
+
 
 ;-----------------------------------------------------------
 ;          mi_play_error_sound_and_reset_buffers

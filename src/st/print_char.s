@@ -8,10 +8,10 @@
 
 .include "lo.inc"
 
-.import bitmap_x_offset_hi
-.import bitmap_x_offset_lo
-.import bitmap_y_offset_hi
-.import bitmap_y_offset_lo
+.import st_bitmap_x_offset_hi
+.import st_bitmap_x_offset_lo
+.import st_bitmap_y_offset_hi
+.import st_bitmap_y_offset_lo
 
 .import scrmem_y_offset_hi
 .import scrmem_y_offset_lo
@@ -72,14 +72,14 @@ print_char:
         adc     CUR_X
         tay
 
-        lda     bitmap_y_offset_lo,x
+        lda     st_bitmap_y_offset_lo,x
         clc
-        adc     bitmap_x_offset_lo,y
+        adc     st_bitmap_x_offset_lo,y
         sta     @bitmap_addr
         sta     @bitmap2_addr
 
-        lda     bitmap_y_offset_hi,x
-        adc     bitmap_x_offset_hi,y
+        lda     st_bitmap_y_offset_hi,x
+        adc     st_bitmap_x_offset_hi,y
         eor     BM_ADDR_MASK
         sta     @bitmap_addr + 1
         eor     BM2_ADDR_MASK

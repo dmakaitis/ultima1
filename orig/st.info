@@ -278,17 +278,13 @@ LABEL   { NAME "ship_flag_l_lo";    ADDR $0D83; };
 LABEL   { NAME "ship_flag_r_hi";    ADDR $0D8A; };
 LABEL   { NAME "ship_flag_r_lo";    ADDR $0D8B; };
 
-LABEL   { NAME "bitmap_y_offset_lo";    ADDR $1200; };
 LABEL   { NAME "bitmap_y_offset_lo_16"; ADDR $1210; };
-LABEL   { NAME "bitmap_y_offset_hi";    ADDR $12C0; };
 LABEL   { NAME "bitmap_y_offset_hi_16"; ADDR $12D0; };
 LABEL   { NAME "r1380";                 ADDR $1380; };
 LABEL   { NAME "r1480";                 ADDR $1480; };
 LABEL   { NAME "r14C0";                 ADDR $14C0; };
 LABEL   { NAME "r1500";                 ADDR $1500; };
 LABEL   { NAME "char_colors";           ADDR $1530; };
-LABEL   { NAME "bitmap_x_offset_lo";    ADDR $15B0; };
-LABEL   { NAME "bitmap_x_offset_hi";    ADDR $15D8; };
 LABEL   { NAME "scrmem_y_offset_lo";    ADDR $1600; };
 LABEL   { NAME "scrmem_y_offset_lo_02"; ADDR $1602; };
 LABEL   { NAME "scrmem_y_offset_hi";    ADDR $1619; };

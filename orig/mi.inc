@@ -62,10 +62,13 @@ mi_s8689                                := $8689;
 mi_update_stats                         := $86C6;
 mi_restore_text_area                    := $8701;
 mi_store_text_area                      := $870C;
+mi_cmd_invalid                          := $876A;
 mi_play_error_sound_and_reset_buffers   := $8772;
 mi_reset_buffers                        := $8777;
+mi_cmd_ztats                            := $890C;
 
 mi_print_player_name                    := $8BA1;
+mi_cmd_noise                            := $8BB9;
 mi_player_died                          := $8BCE;
 mi_load_ou_module                       := $8C5E;
 

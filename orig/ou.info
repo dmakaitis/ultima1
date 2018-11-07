@@ -21,10 +21,8 @@ RANGE   { START $8C9E;  END $8D00;  TYPE Code; };
 RANGE   { START $8D01;  END $8D03;  TYPE TextTable; };
 RANGE   { START $8D04;  END $8D85;  TYPE Code; };
 RANGE   { START $8D86;  END $8D9F;  TYPE TextTable; };
-
 RANGE   { START $8DA0;  END $8DC4;  TYPE Code; };
 RANGE   { START $8DC5;  END $9E28;  TYPE ByteTable; };
-
 RANGE   { START $9E29;  END $9E5A;  TYPE AddrTable; };  # JSR addresses start here...
 RANGE   { START $9E5B;  END $FFFF;  TYPE ByteTable; };
 
@@ -42,15 +40,12 @@ LABEL   { NAME "cmd_pass";                  ADDR $8DDC; };
 LABEL   { NAME "cmd_attack";                ADDR $8E99; };
 LABEL   { NAME "cmd_board";                 ADDR $9053; };
 LABEL   { NAME "cmd_cast";                  ADDR $9299; };
-LABEL   { NAME "cmd_invalid";               ADDR $876A; };
 LABEL   { NAME "cmd_enter";                 ADDR $9442; };
 LABEL   { NAME "cmd_fire";                  ADDR $95CE; };
 LABEL   { NAME "cmd_inform_search";         ADDR $9D82; };
-LABEL   { NAME "cmd_noise";                 ADDR $8BB9; };
 LABEL   { NAME "cmd_quit_save";             ADDR $964E; };
 LABEL   { NAME "cmd_ready";                 ADDR $9671; };
 LABEL   { NAME "cmd_xit";                   ADDR $9677; };
-LABEL   { NAME "cmd_ztats";                 ADDR $890C; };
 
 LABEL   { NAME "s97E0";                     ADDR $97E0; };
 LABEL   { NAME "s9840";                     ADDR $9840; };

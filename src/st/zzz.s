@@ -1,7 +1,7 @@
-.import bitmap_x_offset_hi
-.import bitmap_x_offset_lo
-.import bitmap_y_offset_hi
-.import bitmap_y_offset_lo
+.import st_bitmap_x_offset_hi
+.import st_bitmap_x_offset_lo
+.import st_bitmap_y_offset_hi
+.import st_bitmap_y_offset_lo
 
 .import scrmem_y_offset_hi
 .import scrmem_y_offset_lo
@@ -90,10 +90,10 @@ do_s168E:
 
         ldx     zp26                                    ; x := xp26
 
-        lda     bitmap_y_offset_hi + $10,y              ; BITMAP_ROW_PTR := address in memory of row (y + 16) of the screen bitmap
+        lda     st_bitmap_y_offset_hi + $10,y           ; BITMAP_ROW_PTR := address in memory of row (y + 16) of the screen bitmap
         eor     BM_ADDR_MASK
         sta     BITMAP_ROW_PTR + 1
-        lda     bitmap_y_offset_lo + $10,y
+        lda     st_bitmap_y_offset_lo + $10,y
         sta     BITMAP_ROW_PTR
 
 s17FF:  sty     TMP_5E                                  ; TMP_5E := y
@@ -129,10 +129,10 @@ s17FF:  sty     TMP_5E                                  ; TMP_5E := y
 
         lda     BITMAP_ROW_PTR                          ; BITMAP_PTR := BITMAP_ROW_PTR + bitmap_x_offset[y]
         clc
-        adc     bitmap_x_offset_lo,y
+        adc     st_bitmap_x_offset_lo,y
         sta     BITMAP_PTR
         lda     BITMAP_ROW_PTR + 1
-        adc     bitmap_x_offset_hi,y
+        adc     st_bitmap_x_offset_hi,y
         sta     BITMAP_PTR + 1
 
         ldy     #$00                                    ; y := 0
@@ -275,9 +275,9 @@ j18F0:  sta     zp3B
         sta     zp27
         tay
         bmi     b190B
-        lda     bitmap_y_offset_lo + $10,y
+        lda     st_bitmap_y_offset_lo + $10,y
         sta     BITMAP_ROW_PTR
-        lda     bitmap_y_offset_hi + $10,y
+        lda     st_bitmap_y_offset_hi + $10,y
         eor     BM_ADDR_MASK
         sta     BITMAP_ROW_PTR + 1
 b1908:  jsr     s17FF

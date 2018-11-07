@@ -15,10 +15,10 @@
 
 .import scan_and_buffer_input
 
-.import bitmap_x_offset_hi
-.import bitmap_x_offset_lo
-.import bitmap_y_offset_hi
-.import bitmap_y_offset_lo
+.import st_bitmap_x_offset_hi
+.import st_bitmap_x_offset_lo
+.import st_bitmap_y_offset_hi
+.import st_bitmap_y_offset_lo
 
 CUR_X_OFF                           := $2E;
 CUR_X_MAX                           := $2F;
@@ -77,15 +77,15 @@ scroll_text_area_up:
         sta     SCRN_MEM2 + $0370
 
 @row_loop:
-        lda     bitmap_y_offset_lo,x                    ; Get bitmap address for first text column of the current row of pixels
+        lda     st_bitmap_y_offset_lo,x                 ; Get bitmap address for first text column of the current row of pixels
         ldy     CUR_X_OFF
         clc
-        adc     bitmap_x_offset_lo,y
+        adc     st_bitmap_x_offset_lo,y
         sta     @bitmap_dest
         sta     @bitmap2_dest
 
-        lda     bitmap_y_offset_hi,x
-        adc     bitmap_x_offset_hi,y
+        lda     st_bitmap_y_offset_hi,x
+        adc     st_bitmap_x_offset_hi,y
         sta     @bitmap_dest + 1
         eor     BM2_ADDR_MASK
         sta     @bitmap2_dest + 1
@@ -110,7 +110,7 @@ scroll_text_area_up:
         ora     #$07
         tay
         sta     BYTES_TO_COPY
-        lda     MORE_TO_COPY_IND                        ; if CUR_X_MAX >= 33, then we'll only copy 256 bytes (32 text columns), and get the rest later
+        lda     MORE_TO_COPY_IND                        ; if CUR_X_MAX >= 33, then we will only copy 256 bytes (32 text columns), and get the rest later
         beq     @loop
         ldy     #$FF
 
@@ -210,13 +210,13 @@ do_clear_text_row:
         adc     CUR_X
         tay
 
-        lda     bitmap_y_offset_lo,x                    ; Calculate starting bitmap addresses
+        lda     st_bitmap_y_offset_lo,x                 ; Calculate starting bitmap addresses
         clc
-        adc     bitmap_x_offset_lo,y
+        adc     st_bitmap_x_offset_lo,y
         sta     @bitmap_addr
         sta     @bitmap2_addr
-        lda     bitmap_y_offset_hi,x
-        adc     bitmap_x_offset_hi,y
+        lda     st_bitmap_y_offset_hi,x
+        adc     st_bitmap_x_offset_hi,y
         eor     BM_ADDR_MASK
         sta     @bitmap_addr + 1
         eor     BM2_ADDR_MASK

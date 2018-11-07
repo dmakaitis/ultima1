@@ -6,6 +6,8 @@
 ;
 ;-------------------------------------------------------------------------------
 
+.export mi_decode_and_print_command_a
+
 .import mi_play_error_sound_and_reset_buffers
 .import mi_print_text
 

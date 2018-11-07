@@ -41,6 +41,9 @@ mi_s863C
 mi_update_stats
 mi_player_died
 
+mi_cmd_invalid
+mi_cmd_ztats
+
 mi_command_table_override
 mi_r81E8
 mi_r81E9
