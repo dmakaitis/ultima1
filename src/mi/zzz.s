@@ -11,13 +11,61 @@
 
 .export move_cursor_back_to_last_character
 
+.import mi_cursor_to_col_0
 .import mi_player_food
+.import mi_print_char
+.import mi_print_player_name
+.import mi_print_short_int
+.import mi_print_string_entry_x
+.import mi_print_text
+.import mi_print_text_at_x_y
+.import mi_print_x_chars
+.import mi_restore_text_area
+.import mi_store_text_area
 
+.import draw_border
+.import print_digit
+.import print_long_int
+.import print_string_entry_x
+.import to_decimal_a_x
+
+.import s8416
+
+.import armor_table
+.import gem_table
+.import mi_attribute_table
+.import mi_class_name_table
+.import mi_number_padding
+.import mi_player_class
+.import mi_player_experience
+.import mi_player_hits
+.import mi_player_money
+.import mi_player_race
+.import mi_player_sex
+.import mi_race_name_table
+.import spell_table
+.import transport_table
+.import weapon_table
+
+.import r81EA
+.import mi_w81EE
+.import mi_w81EF
+.import mi_w81F0
+.import mi_w81F1
+.import r81F2
+.import mi_w81F8
+.import r8208
+.import mi_w8213
+.import r822B
 .import w824F
 .import w8250
 .import w8259
 
 BITMAP_PTR      := $36
+
+dec_lo          := $3C
+dec_mid         := $3D
+zp46            := $46
 
         .setcpu "6502"
 
@@ -49,7 +97,7 @@ command_decode_table:
 
 .segment "CODE_ZZZ2"
 
-        .byte   $48,$4A,$4A,$4A,$4A,$20,$CD,$83
+s83C4:  .byte   $48,$4A,$4A,$4A,$4A,$20,$CD,$83
         .byte   $68
 
 
@@ -245,82 +293,259 @@ move_cursor_back_to_last_character:
         .byte   $46,$98,$AA,$48,$20,$26,$84,$00
         .byte   $00,$68,$60,$0A
 mi_cmd_ztats:
-        .byte   $20,$61,$16,$20,$0C,$87,$20,$5E
-        .byte   $16,$20,$16,$84,$A2,$0C,$A0,$00
-        .byte   $8C,$BE,$85,$A5,$5D,$8D,$C3,$81
-        .byte   $84,$5D,$20,$8A,$84,$0E,$20,$49
-        .byte   $6E,$76,$65,$6E,$74,$6F,$72,$79
-        .byte   $20,$18,$7C,$7C,$50,$6C,$61,$79
-        .byte   $65,$72,$3A,$20,$00,$20,$A1,$8B
-        .byte   $20,$8E,$84,$7C,$41,$20,$6C,$65
-        .byte   $76,$65,$6C,$20,$00,$AE,$5C,$82
-        .byte   $AD,$5D,$82,$20,$22,$85,$A5,$3D
-        .byte   $4A,$4A,$4A,$4A,$18,$69,$01,$20
-        .byte   $82,$85,$E6,$32,$AD,$2C,$82,$F0
-        .byte   $06,$20,$8E,$84,$66,$65,$00,$20
-        .byte   $8E,$84,$6D,$61,$6C,$65,$20,$00
-        .byte   $AE,$4B,$82,$20,$2D,$84,$63,$77
-        .byte   $E6,$32,$AE,$4D,$82,$20,$2D,$84
-        .byte   $11,$79,$20,$10,$8B,$C6,$33,$A2
-        .byte   $00,$8E,$C4,$81,$86,$46,$8A,$0A
-        .byte   $A8,$BE,$3B,$82,$B9,$3C,$82,$D0
-        .byte   $04,$E0,$00,$F0,$05,$20,$25,$8B
-        .byte   $42,$78,$A6,$46,$E8,$E0,$07,$90
-        .byte   $E3,$AE,$49,$82,$AD,$4A,$82,$20
-        .byte   $22,$85,$A5,$3C,$29,$0F,$F0,$1C
-        .byte   $20,$DC,$8A,$20,$8E,$84,$43,$6F
-        .byte   $70,$70,$65,$72,$20,$70,$65,$6E
-        .byte   $63,$65,$2E,$2E,$2E,$2E,$00,$A5
-        .byte   $3C,$20,$CD,$83,$A5,$3C,$4A,$4A
-        .byte   $4A,$4A,$F0,$1C,$48,$20,$DC,$8A
-        .byte   $20,$8E,$84,$53,$69,$6C,$76,$65
-        .byte   $72,$20,$70,$69,$65,$63,$65,$73
-        .byte   $2E,$2E,$2E,$00,$68,$20,$CD,$83
-        .byte   $A5,$3D,$F0,$39,$20,$DC,$8A,$20
-        .byte   $8E,$84,$47,$6F,$6C,$64,$20,$43
-        .byte   $72,$6F,$77,$6E,$73,$2E,$2E,$2E
-        .byte   $2E,$00,$A5,$3D,$C9,$10,$B0,$1A
-        .byte   $A9,$2E,$20,$D7,$83,$A5,$3D,$20
-        .byte   $CD,$83,$4C,$41,$8A,$45,$6E,$65
-        .byte   $6D,$79,$20,$76,$65,$73,$73,$65
-        .byte   $6C,$F3,$20,$C4,$83,$AD,$2B,$82
-        .byte   $F0,$09,$A2,$00,$86,$46,$20,$22
-        .byte   $8B,$31,$8A,$AD,$F0,$81,$8D,$C4
-        .byte   $81,$A2,$01,$86,$46,$BD,$F2,$81
-        .byte   $F0,$05,$20,$22,$8B,$D4,$78,$A6
-        .byte   $46,$E8,$E0,$06,$90,$ED,$AD,$F1
-        .byte   $81,$8D,$C4,$81,$A2,$01,$86,$46
-        .byte   $BD,$13,$82,$F0,$05,$20,$22,$8B
-        .byte   $30,$79,$A6,$46,$E8,$E0,$0B,$90
-        .byte   $ED,$A2,$00,$8E,$C4,$81,$86,$46
-        .byte   $BD,$EA,$81,$F0,$05,$20,$22,$8B
-        .byte   $30,$7A,$A6,$46,$E8,$E0,$04,$90
-        .byte   $ED,$AD,$EF,$81,$8D,$C4,$81,$A2
-        .byte   $01,$86,$46,$BD,$F8,$81,$F0,$05
-        .byte   $20,$22,$8B,$7C,$77,$A6,$46,$E8
-        .byte   $E0,$10,$90,$ED,$AD,$EE,$81,$8D
-        .byte   $C4,$81,$A2,$01,$86,$46,$BD,$08
-        .byte   $82,$F0,$05,$20,$22,$8B,$88,$78
-        .byte   $A6,$46,$E8,$E0,$0B,$90,$ED,$20
-        .byte   $56,$8B,$20,$C6,$84,$4C,$01,$87
-        .byte   $A2,$00,$86,$32,$A4,$33,$C8,$C0
-        .byte   $12,$90,$0E,$A4,$30,$A9,$12,$85
-        .byte   $2F,$65,$2E,$C9,$26,$B0,$05,$85
-        .byte   $2E,$84,$33,$60,$A2,$0D,$A0,$12
-        .byte   $20,$8A,$84,$6D,$6F,$72,$65,$00
-        .byte   $20,$56,$8B,$A9,$00,$85,$5D,$E6
-        .byte   $32,$20,$0C,$87,$A9,$05,$85,$30
-        .byte   $4A,$85,$2E,$A9,$24,$85,$2F,$A9
-        .byte   $13,$85,$31,$4C,$52,$16,$AA,$A9
-        .byte   $00,$48,$8A,$48,$20,$DC,$8A,$A9
-        .byte   $03,$85,$32,$A2,$09,$A9,$2E,$8D
-        .byte   $BE,$85,$20,$B9,$84,$68,$AA,$68
-        .byte   $20,$7C,$85,$20,$11,$84,$A6,$46
-        .byte   $AD,$C4,$81,$F0,$0A,$EC,$C4,$81
-        .byte   $D0,$05,$A9,$1B,$20,$D7,$83,$4C
-        .byte   $26,$84,$AD,$C3,$81,$85,$5D,$20
-        .byte   $64,$16,$20,$46,$16,$20,$01
-        .byte   $87
+        jsr     st_clear_main_viewport
+        jsr     mi_store_text_area
+        jsr     st_set_text_window_main
+        jsr     s8416
+        ldx     #$0C
+        ldy     #$00
+        sty     mi_number_padding
+        lda     BM2_ADDR_MASK
+        sta     bm_addr_mask_cache
+        sty     BM2_ADDR_MASK
+        jsr     mi_print_text_at_x_y
+        .byte   $0E
+        .byte   " Inventory "
+
+        .byte   $18
+        .byte   "||Player: "
+
+        .byte   $00
+        jsr     mi_print_player_name
+        jsr     mi_print_text
+        .byte   "|A level "
+
+        .byte   $00
+        ldx     mi_player_experience
+        lda     mi_player_experience + 1
+        jsr     to_decimal_a_x
+        lda     dec_mid
+        lsr     a
+        lsr     a
+        lsr     a
+        lsr     a
+        clc
+        adc     #$01
+        jsr     mi_print_short_int
+        inc     CUR_X
+        lda     mi_player_sex
+        beq     b8973
+        jsr     mi_print_text
+        .byte   "fe"
+        .byte   $00
+b8973:  jsr     mi_print_text
+        .byte   "male "
+        .byte   $00
+        ldx     mi_player_race
+        jsr     print_string_entry_x
+        .addr   mi_race_name_table
+        inc     CUR_X
+        ldx     mi_player_class
+        jsr     print_string_entry_x
+        .addr   mi_class_name_table
+        jsr     s8B10
+        dec     CUR_Y
+        ldx     #$00
+        stx     mi_current_attribute
+b8998:  stx     zp46
+        txa
+        asl     a
+        tay
+        ldx     mi_player_hits,y
+        lda     mi_player_hits + 1,y
+        bne     b89A9
+        cpx     #$00
+        beq     b89AE
+b89A9:  jsr     s8B25
+        .addr   mi_attribute_table
+b89AE:  ldx     zp46
+        inx
+        cpx     #$07
+        bcc     b8998
+        ldx     mi_player_money
+        lda     mi_player_money + 1
+        jsr     to_decimal_a_x
+        lda     dec_lo
+        and     #$0F
+        beq     b89E0
+        jsr     s8ADC
+        jsr     mi_print_text
+        .byte   "Copper pence...."
+
+        .byte   $00
+        lda     dec_lo
+        jsr     print_digit
+b89E0:  lda     dec_lo
+        lsr     a
+        lsr     a
+        lsr     a
+        lsr     a
+        beq     b8A04
+        pha
+        jsr     s8ADC
+        jsr     mi_print_text
+        .byte   "Silver pieces..."
+
+        .byte   $00
+        pla
+        jsr     print_digit
+b8A04:  lda     dec_mid
+        beq     b8A41
+        jsr     s8ADC
+        jsr     mi_print_text
+        .byte   "Gold Crowns...."
+
+        .byte   $00
+        lda     dec_mid
+        cmp     #$10
+        bcs     b8A3E
+        lda     #$2E
+        jsr     mi_print_char
+        lda     dec_mid
+        jsr     print_digit
+        jmp     b8A41
+
+enemy_vessels_str:
+        .byte   "Enemy vessel"
+
+        .byte   $F3
+b8A3E:  jsr     s83C4
+b8A41:  lda     r822B
+        beq     b8A4F
+        ldx     #$00
+        stx     zp46
+        jsr     s8B22
+        .addr   enemy_vessels_str
+b8A4F:  lda     mi_w81F0
+        sta     mi_current_attribute
+        ldx     #$01
+b8A57:  stx     zp46
+        lda     r81F2,x
+        beq     b8A63
+        jsr     s8B22
+        .addr   armor_table
+b8A63:  ldx     zp46
+        inx
+        cpx     #$06
+        bcc     b8A57
+        lda     mi_w81F1
+        sta     mi_current_attribute
+        ldx     #$01
+b8A72:  stx     zp46
+        lda     mi_w8213,x
+        beq     b8A7E
+        jsr     s8B22
+        .addr   transport_table
+b8A7E:  ldx     zp46
+        inx
+        cpx     #$0B
+        bcc     b8A72
+        ldx     #$00
+        stx     mi_current_attribute
+b8A8A:  stx     zp46
+        lda     r81EA,x
+        beq     b8A96
+        jsr     s8B22
+        .addr   gem_table
+b8A96:  ldx     zp46
+        inx
+        cpx     #$04
+        bcc     b8A8A
+        lda     mi_w81EF
+        sta     mi_current_attribute
+        ldx     #$01
+b8AA5:  stx     zp46
+        lda     mi_w81F8,x
+        beq     b8AB1
+        jsr     s8B22
+        .addr   weapon_table
+b8AB1:  ldx     zp46
+        inx
+        cpx     #$10
+        bcc     b8AA5
+        lda     mi_w81EE
+        sta     mi_current_attribute
+        ldx     #$01
+b8AC0:  stx     zp46
+        lda     r8208,x
+        beq     b8ACC
+        jsr     s8B22
+        .addr   spell_table
+b8ACC:  ldx     zp46
+        inx
+        cpx     #$0B
+        bcc     b8AC0
+        jsr     s8B56
+        jsr     draw_border
+        jmp     mi_restore_text_area
+
+s8ADC:  ldx     #$00
+        stx     CUR_X
+        ldy     CUR_Y
+        iny
+        cpy     #$12
+        bcc     b8AF5
+        ldy     CUR_Y_MIN
+        lda     #$12
+        sta     CUR_X_MAX
+        adc     CUR_X_OFF
+        cmp     #$26
+        bcs     b8AF8
+        sta     CUR_X_OFF
+b8AF5:  sty     CUR_Y
+        rts
+
+b8AF8:  ldx     #$0D
+        ldy     #$12
+        jsr     mi_print_text_at_x_y
+        .byte   "more"
+        .byte   $00
+        jsr     s8B56
+        lda     #$00
+        sta     BM2_ADDR_MASK
+        inc     CUR_X
+        jsr     mi_store_text_area
+s8B10:  lda     #$05
+        sta     CUR_Y_MIN
+        lsr     a
+        sta     CUR_X_OFF
+        lda     #$24
+        sta     CUR_X_MAX
+        lda     #$13
+        sta     CUR_Y_MAX
+        jmp     st_clear_text_window
+
+s8B22:  tax
+        lda     #$00
+s8B25:  pha
+        txa
+        pha
+        jsr     s8ADC
+        lda     #$03
+        sta     CUR_X
+        ldx     #$09
+        lda     #$2E
+        sta     mi_number_padding
+        jsr     mi_print_x_chars
+        pla
+        tax
+        pla
+        jsr     print_long_int
+        jsr     mi_cursor_to_col_0
+        ldx     zp46
+        lda     mi_current_attribute
+        beq     b8B53
+        cpx     mi_current_attribute
+        bne     b8B53
+        lda     #$1B
+        jsr     mi_print_char
+b8B53:  jmp     mi_print_string_entry_x
+
+s8B56:  lda     bm_addr_mask_cache
+        sta     BM2_ADDR_MASK
+        jsr     st_swap_bitmaps
+        jsr     st_copy_screen_2_to_1
+        jsr     mi_restore_text_area
 
 
 

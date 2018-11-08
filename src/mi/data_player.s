@@ -31,6 +31,10 @@
 .export mi_w81F8
 .export mi_w8213
 
+.export r81EA
+.export r81F2
+.export r8208
+.export r822B
 .export w824F
 .export w8250
 .export w8259
@@ -46,7 +50,9 @@ mi_player_sound_flag:
 mi_r81E8:
         .byte   $20
 mi_r81E9:
-        .byte   $20,$00,$00,$00,$00
+        .byte   $20
+r81EA:
+        .byte   $00,$00,$00,$00
 mi_w81EE:
         .byte   $00
 mi_w81EF:
@@ -54,16 +60,20 @@ mi_w81EF:
 mi_w81F0:
         .byte   $00
 mi_w81F1:
-        .byte   $00,$01,$01,$01,$01,$01,$01
+        .byte   $00
+r81F2:
+        .byte   $01,$01,$01,$01,$01,$01
 mi_w81F8:
         .byte   $01,$01,$01,$01,$01,$01,$01,$01
         .byte   $01,$01,$01,$01,$01,$01,$01,$01
+r8208:
         .byte   $01,$03,$03,$03,$00,$03,$03,$03
         .byte   $03,$03,$03
 mi_w8213:
         .byte   $01,$01,$01,$01,$01,$01,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$FF,$FF,$FF,$FF,$00
+r822B:
         .byte   $00
 mi_player_sex:
         .byte   $01

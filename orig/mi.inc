@@ -46,7 +46,7 @@ mi_player_experience_hi                 := $825D;
 
 mi_player_random_seed                   := $8264;
 
-mi_w85BE                                := $85BE;
+mi_number_padding                       := $85BE;
 
 mi_print_char                           := $83D7;
 mi_print_crlf_col_1                     := $83F3;

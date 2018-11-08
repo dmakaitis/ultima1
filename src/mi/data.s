@@ -10,9 +10,14 @@
 .export mi_class_name_table
 .export mi_race_name_table
 
-.export death_image
-
+.export armor_table
 .export command_table
+.export gem_table
+.export spell_table
+.export transport_table
+.export weapon_table
+
+.export death_image
 
 .data
 
@@ -28,6 +33,7 @@ mi_race_name_table:
         .byte   "dwar",$E6
         .byte   "bobbi",$F4
 
+weapon_table:
         .byte   "hand",$F3
         .byte   "dagge",$F2
         .byte   "mac",$E5
@@ -77,6 +83,7 @@ mi_attribute_table:
 
         .byte   "Typ",$E5
 
+spell_table:
         .byte   "Praye",$F2
         .byte   "Ope",$EE
         .byte   "Unloc",$EB
@@ -90,6 +97,7 @@ mi_attribute_table:
         .byte   "Destro",$F9
         .byte   "Kil",$EC
 
+armor_table:
         .byte   "ski",$EE
         .byte   "leather armou",$F2
         .byte   "chain mai",$EC
@@ -104,6 +112,7 @@ mi_class_name_table:
         .byte   "wizar",$E4
         .byte   "thie",$E6
 
+transport_table:
         .byte   "foo",$F4
         .byte   "hors",$E5
         .byte   "car",$F4
@@ -143,6 +152,7 @@ command_table:
         .byte   "X-i",$F4
         .byte   "Ztat",$F3
 
+gem_table:
         .byte   "Red Ge",$ED
         .byte   "Green Ge",$ED
         .byte   "Blue Ge",$ED

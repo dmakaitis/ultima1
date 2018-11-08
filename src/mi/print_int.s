@@ -11,6 +11,7 @@
 .export mi_number_padding
 
 .export print_long_int
+.export to_decimal_a_x
 
 .import mi_print_char
 
