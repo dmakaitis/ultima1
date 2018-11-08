@@ -19,7 +19,7 @@
 .export mi_print_x_chars
 
 .export print_string_entry_x
-.export s8416
+.export reduce_text_window_size
 
 .export indent
 
@@ -199,10 +199,26 @@ mi_cursor_to_col_0:
 
 
 ;-----------------------------------------------------------
+;                 reduce_text_window_size
+;
+; Reduces the size of the text window by moving all of the
+; edges inward by one unit. Resets the cursor to the
+; top-left of the new text window.
 ;-----------------------------------------------------------
 
-s8416:  .byte   $E6,$30,$C6,$31,$E6,$2E,$C6,$2F
-        .byte   $C6,$2F,$A5,$30,$85,$33,$D0,$EB
+reduce_text_window_size:
+        inc     CUR_Y_MIN                               ; Shift top border down by one
+
+        dec     CUR_Y_MAX                               ; Shift bottom border up by one
+
+        inc     CUR_X_OFF                               ; Shift window one to the right
+
+        dec     CUR_X_MAX                               ; Reduce window width by two
+        dec     CUR_X_MAX
+
+        lda     CUR_Y_MIN                               ; Move cursor back to top-left corner
+        sta     CUR_Y
+        bne     mi_cursor_to_col_0                      ; (this branch is always taken since CUR_Y_MIN always >= 1)
 
 
 

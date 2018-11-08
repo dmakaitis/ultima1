@@ -81,21 +81,21 @@ mi_player_name:
         .byte   $47,$6C,$69,$6E,$64,$61,$00,$00
         .byte   $00,$00,$00,$00,$00,$00
 mi_player_hits:
-        .byte   $84,$03
+        .word   $0384
 mi_player_strength:
-        .byte   $5A,$00
+        .word   $005A
 mi_player_agility:
-        .byte   $5A,$00
+        .word   $005A
 mi_player_stamina:
-        .byte   $0F,$00
+        .word   $000F
 mi_player_charisma:
-        .byte   $0F,$00
+        .word   $000F
 mi_player_wisdom:
-        .byte   $32,$00
+        .word   $0032
 mi_player_intelligence:
-        .byte   $0F,$00
+        .word   $000F
 mi_player_money:
-        .byte   $38,$08
+        .word   $0838
 mi_player_race:
         .byte   $02,$00
 mi_player_class:
@@ -105,12 +105,13 @@ w8250:  .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00
 w8259:  .byte   $95
 mi_player_food:
-        .byte   $59,$00
+        .word   $0059
 mi_player_experience:
-        .byte   $37,$02
+        .word   $0237
         .byte   $E8,$03,$E8,$03,$00,$FF
 mi_player_random_seed:
-        .byte   $EF,$BE,$00,$00,$00,$00,$00,$00
+        .word   $BEEF
+        .byte   $00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00

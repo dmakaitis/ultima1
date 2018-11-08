@@ -29,7 +29,7 @@
 .import print_string_entry_x
 .import to_decimal_a_x
 
-.import s8416
+.import reduce_text_window_size
 
 .import armor_table
 .import gem_table
@@ -292,31 +292,42 @@ move_cursor_back_to_last_character:
         .byte   $D0,$05,$A8,$B1,$41,$D0,$02,$A4
         .byte   $46,$98,$AA,$48,$20,$26,$84,$00
         .byte   $00,$68,$60,$0A
+
+
+
+;-----------------------------------------------------------
+;                       mi_cmd_ztats
+;
+; Display full information about the player character.
+;-----------------------------------------------------------
+
 mi_cmd_ztats:
-        jsr     st_clear_main_viewport
-        jsr     mi_store_text_area
-        jsr     st_set_text_window_main
-        jsr     s8416
+        jsr     st_clear_main_viewport                  ; Clear the screen
+
+        jsr     mi_store_text_area                      ; Cache the view area so we can tweak it
+
+        jsr     st_set_text_window_main                 ; Make the main viewport the text window, but indent all sides by one
+        jsr     reduce_text_window_size
+
         ldx     #$0C
-        ldy     #$00
+
+        ldy     #$00                                    ; Disable number padding
         sty     mi_number_padding
-        lda     BM2_ADDR_MASK
+
+        lda     BM2_ADDR_MASK                           ; Disable screen paging
         sta     bm_addr_mask_cache
         sty     BM2_ADDR_MASK
-        jsr     mi_print_text_at_x_y
-        .byte   $0E
-        .byte   " Inventory "
 
-        .byte   $18
-        .byte   "||Player: "
+        jsr     mi_print_text_at_x_y                    ; Display player name
+        .byte   $0E," Inventory ",$18
+        .asciiz "||Player: "
 
-        .byte   $00
         jsr     mi_print_player_name
-        jsr     mi_print_text
-        .byte   "|A level "
 
-        .byte   $00
-        ldx     mi_player_experience
+        jsr     mi_print_text                           ; Display character level
+        .asciiz "|A level "
+
+        ldx     mi_player_experience                    ; Level = floor(experience / 1000) + 1
         lda     mi_player_experience + 1
         jsr     to_decimal_a_x
         lda     dec_mid
@@ -327,75 +338,92 @@ mi_cmd_ztats:
         clc
         adc     #$01
         jsr     mi_print_short_int
-        inc     CUR_X
+
+        inc     CUR_X                                   ; Display character sex
         lda     mi_player_sex
-        beq     b8973
+        beq     @male
         jsr     mi_print_text
-        .byte   "fe"
-        .byte   $00
-b8973:  jsr     mi_print_text
-        .byte   "male "
-        .byte   $00
-        ldx     mi_player_race
+        .asciiz "fe"
+
+@male:  jsr     mi_print_text
+        .asciiz "male "
+
+        ldx     mi_player_race                          ; Display character race
         jsr     print_string_entry_x
         .addr   mi_race_name_table
-        inc     CUR_X
+
+        inc     CUR_X                                   ; Display character class
         ldx     mi_player_class
         jsr     print_string_entry_x
         .addr   mi_class_name_table
-        jsr     s8B10
-        dec     CUR_Y
-        ldx     #$00
+
+        jsr     set_text_window_ztats                   ; Clear the display for page 1 of the ztats
+
+        dec     CUR_Y                                   ; Display attribute names
+        ldx     #$00                                    ; (hits, str, agi, sta, chr, wis, and int)
         stx     mi_current_attribute
-b8998:  stx     zp46
-        txa
+@loop_attribute_names:
+        stx     zp46
+
+        txa                                             ; y := x * 2
         asl     a
         tay
+
         ldx     mi_player_hits,y
         lda     mi_player_hits + 1,y
-        bne     b89A9
+
+        bne     @print_attribute_name                   ; Do not display the attribute name if its value is zero
         cpx     #$00
-        beq     b89AE
-b89A9:  jsr     s8B25
+        beq     @skip_attribute
+
+@print_attribute_name:
+        jsr     s8B25
         .addr   mi_attribute_table
-b89AE:  ldx     zp46
+
+@skip_attribute:
+        ldx     zp46                                    ; Loop through all seven attributes
         inx
         cpx     #$07
-        bcc     b8998
-        ldx     mi_player_money
+        bcc     @loop_attribute_names
+
+        ldx     mi_player_money                         ; Convert money to decimal
         lda     mi_player_money + 1
         jsr     to_decimal_a_x
-        lda     dec_lo
+
+        lda     dec_lo                                  ; Display the ones digit as copper coins
         and     #$0F
-        beq     b89E0
+        beq     @no_copper                              ; Skip if the ones digit is zero
+
         jsr     s8ADC
         jsr     mi_print_text
-        .byte   "Copper pence...."
+        .asciiz "Copper pence...."
 
-        .byte   $00
         lda     dec_lo
         jsr     print_digit
-b89E0:  lda     dec_lo
+
+@no_copper:
+        lda     dec_lo                                  ; Display the tens digit as silver coins
         lsr     a
         lsr     a
         lsr     a
         lsr     a
-        beq     b8A04
+        beq     @no_silver                              ; Skip if the ones digit is zero
+
         pha
         jsr     s8ADC
         jsr     mi_print_text
-        .byte   "Silver pieces..."
+        .asciiz "Silver pieces..."
 
-        .byte   $00
         pla
         jsr     print_digit
-b8A04:  lda     dec_mid
+
+@no_silver:
+        lda     dec_mid                                 ; Display hundreds and thousands digits as gold crowns
         beq     b8A41
         jsr     s8ADC
         jsr     mi_print_text
-        .byte   "Gold Crowns...."
+        .asciiz "Gold Crowns...."
 
-        .byte   $00
         lda     dec_mid
         cmp     #$10
         bcs     b8A3E
@@ -406,9 +434,8 @@ b8A04:  lda     dec_mid
         jmp     b8A41
 
 enemy_vessels_str:
-        .byte   "Enemy vessel"
+        .byte   "Enemy vessel",$F3
 
-        .byte   $F3
 b8A3E:  jsr     s83C4
 b8A41:  lda     r822B
         beq     b8A4F
@@ -479,6 +506,11 @@ b8ACC:  ldx     zp46
         jsr     draw_border
         jmp     mi_restore_text_area
 
+
+
+;-----------------------------------------------------------
+;-----------------------------------------------------------
+
 s8ADC:  ldx     #$00
         stx     CUR_X
         ldy     CUR_Y
@@ -505,7 +537,18 @@ b8AF8:  ldx     #$0D
         sta     BM2_ADDR_MASK
         inc     CUR_X
         jsr     mi_store_text_area
-s8B10:  lda     #$05
+
+
+
+;-----------------------------------------------------------
+;                  set_text_window_ztats
+;
+; Sets the text window so the top-left corner is at (2, 5)
+; and make the width 36 x 14. Then, clears the text window.
+;-----------------------------------------------------------
+
+set_text_window_ztats:
+        lda     #$05
         sta     CUR_Y_MIN
         lsr     a
         sta     CUR_X_OFF
@@ -514,6 +557,11 @@ s8B10:  lda     #$05
         lda     #$13
         sta     CUR_Y_MAX
         jmp     st_clear_text_window
+
+
+
+;-----------------------------------------------------------
+;-----------------------------------------------------------
 
 s8B22:  tax
         lda     #$00

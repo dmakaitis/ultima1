@@ -55,7 +55,9 @@ RANGE   { START $81A7;  END $83AB;  TYPE ByteTable; };
 RANGE   { START $83AC;  END $83C3;  TYPE Code; };
 RANGE   { START $83C4;  END $83CC;  TYPE ByteTable; };
 RANGE   { START $83CD;  END $8415;  TYPE Code; };
-RANGE   { START $8416;  END $8425;  TYPE ByteTable; };
+
+RANGE   { START $8416;  END $8425;  TYPE Code; };
+
 RANGE   { START $8426;  END $8578;  TYPE Code; };
 RANGE   { START $8579;  END $857B;  TYPE ByteTable; };
 RANGE   { START $857C;  END $85BC;  TYPE Code; };
