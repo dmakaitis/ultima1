@@ -9,14 +9,36 @@
 .include "st.inc"
 
 .export press_space_to_continue
+.export swap_screens_and_press_space
 
 .import mi_print_text
 .import mi_store_text_area
 .import mi_reset_buffers
+.import mi_restore_text_area
+
+.import bm_addr_mask_cache
 
         .setcpu "6502"
 
 .segment "CODE_PRESS_SPACE"
+
+;-----------------------------------------------------------
+;               swap_screens_and_press_space
+;
+; Swaps the bitmap screens, then waits for the user to
+; press space to continue.
+;-----------------------------------------------------------
+
+swap_screens_and_press_space:
+        lda     bm_addr_mask_cache
+        sta     BM2_ADDR_MASK
+        jsr     st_swap_bitmaps
+        jsr     st_copy_screen_2_to_1
+        jsr     mi_restore_text_area
+
+        ; continued in press_space_to_continue
+
+
 
 ;-----------------------------------------------------------
 ;                  press_space_to_continue

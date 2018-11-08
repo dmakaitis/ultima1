@@ -9,10 +9,20 @@
 .export mi_player_save_data
 .export mi_player_agility
 .export mi_player_class
+.export mi_player_current_vehicle
+.export mi_player_enemy_vessels
+.export mi_player_equipped_armor
+.export mi_player_equipped_spell
+.export mi_player_equipped_weapon
 .export mi_player_experience
 .export mi_player_food
+.export mi_player_gems
 .export mi_player_hits
 .export mi_player_intelligence
+.export mi_player_inventory_armor
+.export mi_player_inventory_spells
+.export mi_player_inventory_vehicles
+.export mi_player_inventory_weapons
 .export mi_player_money
 .export mi_player_name
 .export mi_player_race
@@ -24,17 +34,7 @@
 
 .export mi_r81E8
 .export mi_r81E9
-.export mi_w81EE
-.export mi_w81EF
-.export mi_w81F0
-.export mi_w81F1
-.export mi_w81F8
-.export mi_w8213
 
-.export r81EA
-.export r81F2
-.export r8208
-.export r822B
 .export w824F
 .export w8250
 .export w8259
@@ -51,29 +51,27 @@ mi_r81E8:
         .byte   $20
 mi_r81E9:
         .byte   $20
-r81EA:
+mi_player_gems:
         .byte   $00,$00,$00,$00
-mi_w81EE:
+mi_player_equipped_spell:
         .byte   $00
-mi_w81EF:
+mi_player_equipped_weapon:
         .byte   $00
-mi_w81F0:
+mi_player_equipped_armor:
         .byte   $00
-mi_w81F1:
+mi_player_current_vehicle:
         .byte   $00
-r81F2:
+mi_player_inventory_armor:
         .byte   $01,$01,$01,$01,$01,$01
-mi_w81F8:
-        .byte   $01,$01,$01,$01,$01,$01,$01,$01
-        .byte   $01,$01,$01,$01,$01,$01,$01,$01
-r8208:
-        .byte   $01,$03,$03,$03,$00,$03,$03,$03
-        .byte   $03,$03,$03
-mi_w8213:
-        .byte   $01,$01,$01,$01,$01,$01,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+mi_player_inventory_weapons:
+        .byte   $01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01
+mi_player_inventory_spells:
+        .byte   $01,$03,$03,$03,$00,$03,$03,$03,$03,$03,$03
+mi_player_inventory_vehicles:
+        .byte   $01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00
         .byte   $00,$00,$00,$FF,$FF,$FF,$FF,$00
-r822B:
+mi_player_enemy_vessels:
         .byte   $00
 mi_player_sex:
         .byte   $01

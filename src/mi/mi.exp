@@ -33,7 +33,7 @@ mi_player_sound_flag
 mi_player_strength
 mi_player_wisdom
 
-mi_current_attribute
+mi_selected_item
 mi_number_padding
 
 mi_decode_and_print_command_a

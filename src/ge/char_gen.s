@@ -504,7 +504,7 @@ name_character:
 display_attributes:
         lda     #$00
         sta     mi_number_padding
-        sta     mi_current_attribute
+        sta     mi_selected_item
 
         ldx     #$05                                    ; Move the cursor to (5, 3)
         stx     CUR_X
@@ -528,7 +528,7 @@ display_attributes:
 
         jsr     mi_print_crlf_col_1                     ; Advance to the next line
 
-@loop:  inc     mi_current_attribute
+@loop:  inc     mi_selected_item
 
         inc     CUR_Y                                   ; Advance to the next line
 
@@ -536,7 +536,7 @@ display_attributes:
         stx     CUR_X
 
         lda     #$20                                    ; Print the '>' next to the currently selected attribute
-        ldx     mi_current_attribute
+        ldx     mi_selected_item
         cpx     selected_attribute
         bne     @print_prefix
 
@@ -555,14 +555,14 @@ display_attributes:
         cpx     #$1A
         bcc     @loop_periods
 
-        lda     mi_current_attribute                    ; Print the value for the attribute
+        lda     mi_selected_item                        ; Print the value for the attribute
         asl     a
         tax
         lda     mi_player_hits,x
         jsr     mi_print_short_int
 
         lda     #$20                                    ; Print the '<' after the currently selected attribute
-        ldx     mi_current_attribute
+        ldx     mi_selected_item
         cpx     selected_attribute
         bne     @print_suffix
         lda     #$18

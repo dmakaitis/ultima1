@@ -14,7 +14,7 @@
 .export command_table
 .export gem_table
 .export spell_table
-.export transport_table
+.export vehicle_table
 .export weapon_table
 
 .export death_image
@@ -112,7 +112,7 @@ mi_class_name_table:
         .byte   "wizar",$E4
         .byte   "thie",$E6
 
-transport_table:
+vehicle_table:
         .byte   "foo",$F4
         .byte   "hors",$E5
         .byte   "car",$F4

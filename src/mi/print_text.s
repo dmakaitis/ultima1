@@ -25,12 +25,41 @@
 
 .export clear_to_end_then_print_lfcr
 .export print_digit
+.export print_2_digits
+
+.import next_row_or_column
+.import print_long_int
+
+.import mi_number_padding
+.import mi_selected_item
+
+string_entry    := $46
 
 zpA2            := $A2
 
         .setcpu "6502"
 
 .segment "CODE_PRINT_TEXT"
+
+;-----------------------------------------------------------
+;                       print_2_digits
+;
+; Prints the two digits stored in the accumulator to the
+; screen at the current cursor position, then advances the
+; cursor by two. The digit in the high nibble will be
+; printed first.
+;-----------------------------------------------------------
+
+print_2_digits:
+        pha
+        lsr     a
+        lsr     a
+        lsr     a
+        lsr     a
+        jsr     print_digit
+        pla
+
+
 
 ;-----------------------------------------------------------
 ;                        print_digit
