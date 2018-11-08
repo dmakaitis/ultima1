@@ -53,7 +53,9 @@ RANGE   { START $817A;  END $8186;  TYPE TextTable; };
 RANGE   { START $8187;  END $81A6;  TYPE Code; };
 RANGE   { START $81A7;  END $83AB;  TYPE ByteTable; };
 RANGE   { START $83AC;  END $83C3;  TYPE Code; };
-RANGE   { START $83C4;  END $83CC;  TYPE ByteTable; };
+
+RANGE   { START $83C4;  END $83CC;  TYPE Code; };
+
 RANGE   { START $83CD;  END $8415;  TYPE Code; };
 
 RANGE   { START $8416;  END $8425;  TYPE Code; };
@@ -133,7 +135,7 @@ LABEL   { NAME "check_drive_status";            ADDR $8175; };
 LABEL   { NAME "reset_screen_swapping";         ADDR $818F; };
 LABEL   { NAME "inc_then_read_ptr";             ADDR $83AC; };
 LABEL   { NAME "read_then_inc_ptr";             ADDR $83B8; };
-LABEL   { NAME "s83C4";                         ADDR $83C4; };
+LABEL   { NAME "print_2_digits";                ADDR $83C4; };
 LABEL   { NAME "print_char_or_esc";             ADDR $83DD; };
 LABEL   { NAME "s83ED";                         ADDR $83ED; };
 LABEL   { NAME "clear_to_end_then_print_lfcr";  ADDR $83FB; };

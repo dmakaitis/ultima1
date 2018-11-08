@@ -65,7 +65,7 @@ BITMAP_PTR      := $36
 
 dec_lo          := $3C
 dec_mid         := $3D
-zp46            := $46
+string_entry    := $46
 
         .setcpu "6502"
 
@@ -97,8 +97,14 @@ command_decode_table:
 
 .segment "CODE_ZZZ2"
 
-s83C4:  .byte   $48,$4A,$4A,$4A,$4A,$20,$CD,$83
-        .byte   $68
+print_2_digits:
+        pha
+        lsr     a
+        lsr     a
+        lsr     a
+        lsr     a
+        jsr     print_digit
+        pla
 
 
 
@@ -362,8 +368,8 @@ mi_cmd_ztats:
         dec     CUR_Y                                   ; Display attribute names
         ldx     #$00                                    ; (hits, str, agi, sta, chr, wis, and int)
         stx     mi_current_attribute
-@loop_attribute_names:
-        stx     zp46
+@loop_attributes:
+        stx     string_entry
 
         txa                                             ; y := x * 2
         asl     a
@@ -372,19 +378,19 @@ mi_cmd_ztats:
         ldx     mi_player_hits,y
         lda     mi_player_hits + 1,y
 
-        bne     @print_attribute_name                   ; Do not display the attribute name if its value is zero
+        bne     @print_attribute_name                   ; Do not display the attribute if its value is zero
         cpx     #$00
         beq     @skip_attribute
 
 @print_attribute_name:
-        jsr     s8B25
+        jsr     print_string_entry_and_long_ax          ; Display the attribute name and value
         .addr   mi_attribute_table
 
 @skip_attribute:
-        ldx     zp46                                    ; Loop through all seven attributes
+        ldx     string_entry                            ; Loop through all seven attributes
         inx
         cpx     #$07
-        bcc     @loop_attribute_names
+        bcc     @loop_attributes
 
         ldx     mi_player_money                         ; Convert money to decimal
         lda     mi_player_money + 1
@@ -394,7 +400,7 @@ mi_cmd_ztats:
         and     #$0F
         beq     @no_copper                              ; Skip if the ones digit is zero
 
-        jsr     s8ADC
+        jsr     next_row_or_column
         jsr     mi_print_text
         .asciiz "Copper pence...."
 
@@ -410,7 +416,7 @@ mi_cmd_ztats:
         beq     @no_silver                              ; Skip if the ones digit is zero
 
         pha
-        jsr     s8ADC
+        jsr     next_row_or_column
         jsr     mi_print_text
         .asciiz "Silver pieces..."
 
@@ -419,124 +425,145 @@ mi_cmd_ztats:
 
 @no_silver:
         lda     dec_mid                                 ; Display hundreds and thousands digits as gold crowns
-        beq     b8A41
-        jsr     s8ADC
+        beq     @no_gold
+
+        jsr     next_row_or_column
         jsr     mi_print_text
         .asciiz "Gold Crowns...."
 
-        lda     dec_mid
+        lda     dec_mid                                 ; If there are more than 10 gold crowns...
         cmp     #$10
-        bcs     b8A3E
-        lda     #$2E
-        jsr     mi_print_char
-        lda     dec_mid
-        jsr     print_digit
-        jmp     b8A41
+        bcs     @print_2_digit_gold                     ; ...then print a two digit value
 
-enemy_vessels_str:
+        lda     #'.'                                    ; Otherwise, add an extra pad character...
+        jsr     mi_print_char
+        lda     dec_mid                                 ; ...and print a one digit value
+        jsr     print_digit
+        jmp     @no_gold
+
+@enemy_vessels_str:
         .byte   "Enemy vessel",$F3
 
-b8A3E:  jsr     s83C4
-b8A41:  lda     r822B
+@print_2_digit_gold:
+        jsr     print_2_digits
+
+@no_gold:
+        lda     r822B
         beq     b8A4F
         ldx     #$00
-        stx     zp46
-        jsr     s8B22
-        .addr   enemy_vessels_str
+        stx     string_entry
+        jsr     print_string_entry_and_short_a
+        .addr   @enemy_vessels_str
 b8A4F:  lda     mi_w81F0
         sta     mi_current_attribute
         ldx     #$01
-b8A57:  stx     zp46
+b8A57:  stx     string_entry
         lda     r81F2,x
         beq     b8A63
-        jsr     s8B22
+        jsr     print_string_entry_and_short_a
         .addr   armor_table
-b8A63:  ldx     zp46
+b8A63:  ldx     string_entry
         inx
         cpx     #$06
         bcc     b8A57
         lda     mi_w81F1
         sta     mi_current_attribute
         ldx     #$01
-b8A72:  stx     zp46
+b8A72:  stx     string_entry
         lda     mi_w8213,x
         beq     b8A7E
-        jsr     s8B22
+        jsr     print_string_entry_and_short_a
         .addr   transport_table
-b8A7E:  ldx     zp46
+b8A7E:  ldx     string_entry
         inx
         cpx     #$0B
         bcc     b8A72
         ldx     #$00
         stx     mi_current_attribute
-b8A8A:  stx     zp46
+b8A8A:  stx     string_entry
         lda     r81EA,x
         beq     b8A96
-        jsr     s8B22
+        jsr     print_string_entry_and_short_a
         .addr   gem_table
-b8A96:  ldx     zp46
+b8A96:  ldx     string_entry
         inx
         cpx     #$04
         bcc     b8A8A
         lda     mi_w81EF
         sta     mi_current_attribute
         ldx     #$01
-b8AA5:  stx     zp46
+b8AA5:  stx     string_entry
         lda     mi_w81F8,x
         beq     b8AB1
-        jsr     s8B22
+        jsr     print_string_entry_and_short_a
         .addr   weapon_table
-b8AB1:  ldx     zp46
+b8AB1:  ldx     string_entry
         inx
         cpx     #$10
         bcc     b8AA5
         lda     mi_w81EE
         sta     mi_current_attribute
         ldx     #$01
-b8AC0:  stx     zp46
+b8AC0:  stx     string_entry
         lda     r8208,x
         beq     b8ACC
-        jsr     s8B22
+        jsr     print_string_entry_and_short_a
         .addr   spell_table
-b8ACC:  ldx     zp46
+b8ACC:  ldx     string_entry
         inx
         cpx     #$0B
         bcc     b8AC0
-        jsr     s8B56
+        jsr     swap_screens_and_press_space
         jsr     draw_border
         jmp     mi_restore_text_area
 
 
 
 ;-----------------------------------------------------------
+;                   next_row_or_column
+;
+; Advance the cursor to the next row or column. If the
+; cursor is already at the end of the second column, wait
+; for the user to press space, then clear the screen and
+; move the cursor to the top-left.
 ;-----------------------------------------------------------
 
-s8ADC:  ldx     #$00
+next_row_or_column:
+        ldx     #$00                                    ; Advance to the start of the next line
         stx     CUR_X
         ldy     CUR_Y
         iny
-        cpy     #$12
-        bcc     b8AF5
-        ldy     CUR_Y_MIN
+
+        cpy     #$12                                    ; If we have passed row 18...
+        bcc     @done
+
+        ldy     CUR_Y_MIN                               ; ...advance to the next column
+
         lda     #$12
         sta     CUR_X_MAX
         adc     CUR_X_OFF
-        cmp     #$26
-        bcs     b8AF8
+
+        cmp     #$26                                    ; If we were already on the second column...
+        bcs     b8AF8                                   ; ...wait for the user, then start a new screen
+
         sta     CUR_X_OFF
-b8AF5:  sty     CUR_Y
+@done:  sty     CUR_Y
         rts
 
-b8AF8:  ldx     #$0D
+b8AF8:  ldx     #$0D                                    ; Print "more" at the bottom of the screen
         ldy     #$12
         jsr     mi_print_text_at_x_y
-        .byte   "more"
-        .byte   $00
-        jsr     s8B56
-        lda     #$00
+        .asciiz "more"
+
+        jsr     swap_screens_and_press_space            ; Update the screen, then wait for the user
+
+        lda     #$00                                    ; Reset screen swapping
         sta     BM2_ADDR_MASK
-        inc     CUR_X
+
+        inc     CUR_X                                   ; Cache the text window
         jsr     mi_store_text_area
+
+        ; continued in set_text_window_ztats
 
 
 
@@ -561,14 +588,37 @@ set_text_window_ztats:
 
 
 ;-----------------------------------------------------------
+;             print_string_entry_and_short_a
+;
+; Prints a string entry, followed by padding and a short
+; integer value. The address of the string table should
+; immediately follow the call to this method. The entry
+; to print should be stored in the 'string_entry' variable
+; in zero page, and the value should be in the accumulator.
 ;-----------------------------------------------------------
 
-s8B22:  tax
+print_string_entry_and_short_a:
+        tax
         lda     #$00
-s8B25:  pha
+
+
+
+;-----------------------------------------------------------
+;             print_string_entry_and_long_ax
+;
+; Prints a string entry, followed by padding and a long
+; integer value. The address of the string table should
+; immediately follow the call to this method. The entry
+; to print should be stored in the 'string_entry' variable
+; in zero page, the high byte of the value should be in the
+; accumulator, and the low byte in the x register.
+;-----------------------------------------------------------
+
+print_string_entry_and_long_ax:
+        pha
         txa
         pha
-        jsr     s8ADC
+        jsr     next_row_or_column
         lda     #$03
         sta     CUR_X
         ldx     #$09
@@ -580,7 +630,7 @@ s8B25:  pha
         pla
         jsr     print_long_int
         jsr     mi_cursor_to_col_0
-        ldx     zp46
+        ldx     string_entry
         lda     mi_current_attribute
         beq     b8B53
         cpx     mi_current_attribute
@@ -589,11 +639,23 @@ s8B25:  pha
         jsr     mi_print_char
 b8B53:  jmp     mi_print_string_entry_x
 
-s8B56:  lda     bm_addr_mask_cache
+
+
+;-----------------------------------------------------------
+;               swap_screens_and_press_space
+;
+; Swaps the bitmap screens, then waits for the user to
+; press space to continue.
+;-----------------------------------------------------------
+
+swap_screens_and_press_space:
+        lda     bm_addr_mask_cache
         sta     BM2_ADDR_MASK
         jsr     st_swap_bitmaps
         jsr     st_copy_screen_2_to_1
         jsr     mi_restore_text_area
+
+        ; continued in press_space_to_continue
 
 
 
