@@ -8,15 +8,11 @@
 .export bm_addr_mask_cache
 .export command_decode_table
 
-.export move_cursor_back_to_last_character
-
 .import mi_player_food
 
 .import w824F
 .import w8250
 .import w8259
-
-BITMAP_PTR      := $36
 
         .setcpu "6502"
 
@@ -46,7 +42,7 @@ command_decode_table:
 
 
 
-.segment "CODE_ZZZ3"
+.segment "CODE_ZZZ2"
 
         .byte   $A0,$FF,$38,$C8,$E9,$0A,$B0,$FB
         .byte   $98,$60,$85,$43,$20,$70,$16,$C5
@@ -59,7 +55,7 @@ command_decode_table:
 
 
 
-.segment "CODE_ZZZ4"
+.segment "CODE_ZZZ3"
 
         .byte   $18,$B0
 
@@ -78,7 +74,7 @@ mi_s863C:
         sty     w81C5
         sta     w81C6
 
-        bcc     @check_food_timer                                   ; If carry flag is clear...
+        bcc     @check_food_timer                       ; If carry flag is clear...
         lda     #$00                                    ; ...play "step" sound
         jsr     st_queue_sound
 
@@ -130,50 +126,18 @@ mi_s863C:
 
 
 
-.segment "CODE_ZZZ5"
+.segment "CODE_ZZZ4"
 
 ;-----------------------------------------------------------
 
         .byte   $AE,$EE,$81,$20,$2D,$84,$88,$78
         .byte   $60
 
-move_cursor_back_to_last_character:
-        lda     CUR_Y                                   ; x := 8 * cursor Y coordinate
-        asl     a
-        asl     a
-        asl     a
-        tax
 
-@loop_left:
-        ldy     CUR_X                                   ; y := cursor X coordinate
 
-        beq     @done                                   ; if y != 0 then we are done.
+.segment "CODE_ZZZ5"
 
-        dey                                             ; y -= 1
-
-        lda     st_bitmap_y_offset_lo,x                 ; Get bitmap memory address of (CUR_X - 1, CUR_Y)
-        clc
-        adc     st_bitmap_x_offset_lo,y
-        sta     BITMAP_PTR
-        lda     st_bitmap_y_offset_hi,x
-        eor     BM_ADDR_MASK
-        adc     st_bitmap_x_offset_hi,y
-        sta     BITMAP_PTR + 1
-
-        ldy     #$07                                    ; See if any text is currently being displayed at CUR_X, CUR_Y
-        lda     #$00
-
-@loop_character:
-        ora     (BITMAP_PTR),y
-        bne     @done                                   ; If something is there, then we are done
-
-        dey
-        bpl     @loop_character
-
-        dec     CUR_X                                   ; Move cursor left one and...
-        bne     @loop_left                              ; ...if we are not at the left edge keep going
-
-@done:  rts
+;-----------------------------------------------------------
 
         .byte   $20,$8E,$84,$7D,$48,$6D,$6D,$6D
         .byte   $6D,$2E,$2E,$2E,$20,$6E,$6F,$20
