@@ -205,7 +205,6 @@ LABEL   { NAME "b8630";             ADDR $8630; };
 LABEL   { NAME "b864A";             ADDR $864A; };
 LABEL   { NAME "b8667";             ADDR $8667; };
 LABEL   { NAME "b866A";             ADDR $866A; };
-LABEL   { NAME "b8678";             ADDR $8678; };
 LABEL   { NAME "b867C";             ADDR $867C; };
 
 LABEL   { NAME "b86BB";             ADDR $86BB; };
@@ -266,7 +265,6 @@ LABEL   { NAME "death_image";           ADDR $7403; };
 LABEL   { NAME "weapon_table";          ADDR $777C; };
 LABEL   { NAME "spell_table";           ADDR $7888; };
 LABEL   { NAME "armor_table";           ADDR $78D4; };
-LABEL   { NAME "transport_table";       ADDR $7930; };
 LABEL   { NAME "command_table";         ADDR $797F; };
 LABEL   { NAME "gem_table";             ADDR $7A30; };
 
