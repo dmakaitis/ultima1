@@ -12,7 +12,8 @@
 |          $0029 : zzz??? (ST)                                                                                         |
 |          $002A : sound/zzz??? (ST)                                                                                   |
 |          $002B : sound/zzz??? (ST)                                                                                   |
-|                                                                                                                      |
+|          $002C : ??? (OU)                                                                                            |
+|          $002D : ??? (OU)                                                                                            |
 |          $002E : Text window left edge (ST)                                                                          |
 |          $002F : Text window width (ST)                                                                              |
 |          $0030 : Text window top (ST)                                                                                |

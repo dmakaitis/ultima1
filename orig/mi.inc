@@ -6,6 +6,7 @@ mi_main                                 := $7400
 mi_race_name_table                      := $7763;
 mi_attribute_table                      := $7842;
 mi_class_name_table                     := $7911;
+mi_string_table 						:= $7A7F;
 
 mi_current_attribute                    := $81C4;
 mi_command_table_override               := $81C7;
@@ -36,14 +37,14 @@ mi_player_money                         := $8249;
 mi_player_money_hi                      := $824A;
 mi_player_race                          := $824B;
 mi_player_class                         := $824D;
-
-
 mi_player_food                          := $825A;
 mi_player_food_hi                       := $825B;
 mi_player_experience                    := $825C;
 mi_player_experience_hi                 := $825D;
-
 mi_player_random_seed                   := $8264;
+mi_player_8267							:= $8267;
+mi_player_826b							:= $826B;
+mi_player_830c							:= $830C;
 
 mi_number_padding                       := $85BE;
 
@@ -52,6 +53,7 @@ mi_print_crlf_col_1                     := $83F3;
 mi_cursor_to_col_1                      := $83F6;
 mi_cursor_to_col_0                      := $8411;
 mi_print_string_entry_x                 := $8426;
+mi_print_string_entry_x2                := $842D;
 mi_print_text_at_x_y                    := $848A;
 mi_print_text                           := $848E;
 mi_print_x_chars                        := $84B9;

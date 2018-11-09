@@ -137,7 +137,6 @@ LABEL   { NAME "s83ED";                         ADDR $83ED; };
 LABEL   { NAME "clear_to_end_then_print_lfcr";  ADDR $83FB; };
 LABEL   { NAME "print_lfcr";                    ADDR $83FE; };
 LABEL   { NAME "s8416";                         ADDR $8416; };
-LABEL   { NAME "print_string_entry_x";          ADDR $842D; };
 LABEL   { NAME "draw_border";                   ADDR $84C6; };
 LABEL   { NAME "to_decimal_a_x";                ADDR $8522; };
 LABEL   { NAME "s85A6";                         ADDR $85A6; };
