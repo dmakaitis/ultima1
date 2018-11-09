@@ -3,9 +3,10 @@
 |          $001F : Print inverse bitmap flag (ST)                                                                      |
 |          $0020 : Player X coordinate (ST)                                                                            |
 |          $0021 : Player Y coordinate (ST)                                                                            |
-|                                                                                                                      |
-|          $0024 : zzz??? (ST)                                                                                         |
-|          $0025 : zzz??? (ST)                                                                                         |
+|          $0022 : ??? (OU)                                                                                            |
+|          $0023 : ??? (OU)                                                                                            |
+|          $0024 : zzz??? (ST/OU)                                                                                      |
+|          $0025 : zzz??? (ST/OU)                                                                                      |
 |          $0026 : zzz??? (ST)                                                                                         |
 |          $0027 : zzz??? (ST)                                                                                         |
 |          $0028 : zzz??? (ST)                                                                                         |
@@ -27,7 +28,7 @@
 |          $003B : sound/zzz??? (ST)                                                                                   |
 |    $003C-$0040 : Temporary storage for printing numbers (MI)                                                         |
 |                                                                                                                      |
-|          $0043 : Temporary storage (ST)                                                                              |
+|          $0043 : Temporary storage (ST/OU)                                                                           |
 |                                                                                                                      |
 |          $0045 : View X coordinate (ST)                                                                              |
 |          $0046 : View Y coordinate (ST)                                                                              |
@@ -35,7 +36,7 @@
 |          $0048 : Temporary storage (ST)                                                                              |
 |          $0049 : Temporary storage (ST)                                                                              |
 |                                                                                                                      |
-|    $004C-$004D : Temporary pointer (ST)                                                                              |
+|    $004C-$004D : Temporary pointer (ST/OU)                                                                           |
 |    $004E-$0055 : Input buffer (ST)                                                                                   |
 |          $0056 : Number of characters stored in the input buffer (ST)                                                |
 |    $0057-$005A : Sound buffer (ST)                                                                                   |

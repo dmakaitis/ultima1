@@ -7,11 +7,13 @@ mi_race_name_table                      := $7763;
 mi_attribute_table                      := $7842;
 mi_class_name_table                     := $7911;
 mi_transport_table                      := $7930;
+mi_command_table                        := $797F;
 mi_string_table                         := $7A7F;
 
 mi_current_attribute                    := $81C4;
 mi_command_table_override               := $81C7;
 mi_command_table_override_hi            := $81C8;
+mi_command_decode_table                 := $81C9;
 
 mi_player_save_data                     := $81E2;
 
@@ -59,6 +61,7 @@ mi_print_text_at_x_y                    := $848A;
 mi_print_text                           := $848E;
 mi_print_x_chars                        := $84B9;
 mi_s84C0                                := $84C0;
+mi_to_decimal_a_x                       := $8522;
 mi_print_short_int                      := $8582;
 mi_decode_and_print_command_a           := $85FD;
 mi_s8689                                := $8689;
@@ -75,6 +78,10 @@ mi_player_died                          := $8BCE;
 mi_load_ou_module                       := $8C5E;
 
 mi_r77EC                                := $77EC;
+mi_r7A51                                := $7A51;
+mi_w81C1                                := $81C1;
+mi_s85C9                                := $85C9;
+mi_s842B                                := $842B;
 mi_j863A                                := $863A;
 mi_s863C                                := $863C;
 mi_s8678                                := $8678;

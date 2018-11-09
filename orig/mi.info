@@ -138,7 +138,6 @@ LABEL   { NAME "clear_to_end_then_print_lfcr";  ADDR $83FB; };
 LABEL   { NAME "print_lfcr";                    ADDR $83FE; };
 LABEL   { NAME "s8416";                         ADDR $8416; };
 LABEL   { NAME "draw_border";                   ADDR $84C6; };
-LABEL   { NAME "to_decimal_a_x";                ADDR $8522; };
 LABEL   { NAME "s85A6";                         ADDR $85A6; };
 LABEL   { NAME "print_long_int";                ADDR $857C; };
 LABEL   { NAME "s8720";                         ADDR $8720; };
@@ -265,7 +264,6 @@ LABEL   { NAME "death_image";           ADDR $7403; };
 LABEL   { NAME "weapon_table";          ADDR $777C; };
 LABEL   { NAME "spell_table";           ADDR $7888; };
 LABEL   { NAME "armor_table";           ADDR $78D4; };
-LABEL   { NAME "command_table";         ADDR $797F; };
 LABEL   { NAME "gem_table";             ADDR $7A30; };
 
 LABEL   { NAME "text_area_cache";       ADDR $81A7; };
@@ -273,7 +271,6 @@ LABEL   { NAME "w81AD";                 ADDR $81AD; };
 LABEL   { NAME "bm_addr_mask_cache";    ADDR $81C3; };
 LABEL   { NAME "w81C5";                 ADDR $81C5; };
 LABEL   { NAME "w81C6";                 ADDR $81C6; };
-LABEL   { NAME "command_decode_table";  ADDR $81C9; };
 LABEL   { NAME "r81EA";                 ADDR $81EA; };
 LABEL   { NAME "r81F2";                 ADDR $81F2; };
 
