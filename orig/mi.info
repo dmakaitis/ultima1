@@ -52,15 +52,7 @@ RANGE   { START $8175;  END $8179;  TYPE Code; };
 RANGE   { START $817A;  END $8186;  TYPE TextTable; };
 RANGE   { START $8187;  END $81A6;  TYPE Code; };
 RANGE   { START $81A7;  END $83AB;  TYPE ByteTable; };
-RANGE   { START $83AC;  END $83C3;  TYPE Code; };
-
-RANGE   { START $83C4;  END $83CC;  TYPE Code; };
-
-RANGE   { START $83CD;  END $8415;  TYPE Code; };
-
-RANGE   { START $8416;  END $8425;  TYPE Code; };
-
-RANGE   { START $8426;  END $8578;  TYPE Code; };
+RANGE   { START $83AC;  END $8578;  TYPE Code; };
 RANGE   { START $8579;  END $857B;  TYPE ByteTable; };
 RANGE   { START $857C;  END $85BC;  TYPE Code; };
 RANGE   { START $85BD;  END $85FC;  TYPE ByteTable; };
@@ -119,8 +111,12 @@ RANGE   { START $8AFF;  END $8B03;  TYPE TextTable; };
 RANGE   { START $8B04;  END $8B66;  TYPE Code; };
 RANGE   { START $8B67;  END $8B81;  TYPE TextTable; };
 RANGE   { START $8B82;  END $8BAE;  TYPE Code; };
-RANGE   { START $8BAF;  END $8BCD;  TYPE ByteTable; };
-RANGE   { START $8BCE;  END $8BD6;  TYPE Code; };
+RANGE   { START $8BAF;  END $8BAF;  TYPE ByteTable; };
+RANGE   { START $8BB0;  END $8BB2;  TYPE Code; };
+RANGE   { START $8BB3;  END $8BB7;  TYPE TextTable; };
+RANGE   { START $8BB8;  END $8BC8;  TYPE Code; };
+RANGE   { START $8BC9;  END $8BCC;  TYPE TextTable; };
+RANGE   { START $8BCD;  END $8BD6;  TYPE Code; };
 RANGE   { START $8BD7;  END $8BE7;  TYPE TextTable; };
 RANGE   { START $8BE8;  END $8C73;  TYPE Code; };
 RANGE   { START $8C97;  END $8C9D;  TYPE ByteTable; };
@@ -253,6 +249,8 @@ LABEL   { NAME "b8B94";             ADDR $8B94; };
 
 LABEL   { NAME "b8BA3";             ADDR $8BA3; };
 LABEL   { NAME "b8BAE";             ADDR $8BAE; };
+
+LABEL   { NAME "b8BB0";             ADDR $8BB0; };
 
 LABEL   { NAME "b8C20";             ADDR $8C20; };
 LABEL   { NAME "b8C22";             ADDR $8C22; };

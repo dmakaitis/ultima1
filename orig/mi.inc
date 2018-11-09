@@ -14,15 +14,14 @@ mi_command_table_override_hi            := $81C8;
 mi_player_save_data                     := $81E2;
 
 mi_player_sound_flag                    := $81E7;
-mi_r81E8                                := $81E8;
-mi_r81E9                                := $81E9;
-mi_w81EE                                := $81EE;
-mi_w81EF                                := $81EF;
-mi_w81F0                                := $81F0;
-mi_w81F1                                := $81F1;
-mi_w81F8                                := $81F8;
-mi_w8213                                := $8213;
-
+mi_player_position_x					:= $81E8;
+mi_player_position_y					:= $81E9;
+mi_player_equipped_spell                := $81EE;
+mi_player_equipped_weapon               := $81EF;
+mi_player_equipped_armor                := $81F0;
+mi_player_current_vehicle               := $81F1;
+mi_player_inventory_weapons             := $81F8;
+mi_player_inventory_vehicles            := $8213;
 mi_player_sex                           := $822C;
 mi_player_name                          := $822D;
 mi_player_hits                          := $823B;

@@ -81,5 +81,17 @@ LABEL   { NAME "w8D44";                     ADDR $8D44; };
 LABEL   { NAME "command_routine_table";     ADDR $9E29; };
 LABEL   { NAME "command_routine_table_hi";  ADDR $9E2A; };
 
+LABEL   { NAME "rBD00";                     ADDR $BD00; };
+
 ########################
 # Zero Page
+
+LABEL   { NAME "PROCESSOR_PORT";            ADDR $01; };
+
+LABEL   { NAME "POS_X";                     ADDR $20; };
+LABEL   { NAME "POS_Y";                     ADDR $21; };
+
+LABEL   { NAME "TMP_PTR";                   ADDR $60; };
+LABEL   { NAME "TMP_PTR_HI";                ADDR $61; };
+LABEL   { NAME "TMP_PTR2";                  ADDR $62; };
+LABEL   { NAME "TMP_PTR2_HI";               ADDR $63; };

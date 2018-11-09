@@ -42,11 +42,12 @@ mi_update_stats
 mi_player_died
 
 mi_cmd_invalid
+mi_cmd_noise
 mi_cmd_ztats
 
 mi_command_table_override
-mi_r81E8
-mi_r81E9
+mi_player_position_x
+mi_player_position_y
 mi_w81EE
 mi_w81EF
 mi_w81F0

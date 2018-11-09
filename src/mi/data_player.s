@@ -32,8 +32,8 @@
 .export mi_player_strength
 .export mi_player_wisdom
 
-.export mi_r81E8
-.export mi_r81E9
+.export mi_player_position_x
+.export mi_player_position_y
 
 .export w824F
 .export w8250
@@ -47,9 +47,9 @@ mi_player_save_data:
         .byte   $CA,$01,$00,$00,$FF
 mi_player_sound_flag:
         .byte   $FF
-mi_r81E8:
+mi_player_position_x:
         .byte   $20
-mi_r81E9:
+mi_player_position_y:
         .byte   $20
 mi_player_gems:
         .byte   $00,$00,$00,$00
