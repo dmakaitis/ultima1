@@ -21,8 +21,16 @@ RANGE   { START $8C9E;  END $8D00;  TYPE Code; };
 RANGE   { START $8D01;  END $8D03;  TYPE TextTable; };
 RANGE   { START $8D04;  END $8D85;  TYPE Code; };
 RANGE   { START $8D86;  END $8D9F;  TYPE TextTable; };
-RANGE   { START $8DA0;  END $8DC4;  TYPE Code; };
-RANGE   { START $8DC5;  END $96CF;  TYPE ByteTable; };
+RANGE   { START $8DA0;  END $8DE2;  TYPE Code; };
+RANGE   { START $8DE3;  END $8E98;  TYPE ByteTable; };
+RANGE   { START $8E99;  END $8E9B;  TYPE Code; };
+RANGE   { START $8E9C;  END $8EA1;  TYPE TextTable; };
+RANGE   { START $8EA2;  END $8EA7;  TYPE Code; };
+RANGE   { START $8EA8;  END $8EA9;  TYPE AddrTable; };
+
+RANGE   { START $8EAA;  END $8EBD;  TYPE Code; };
+RANGE   { START $8EBE;  END $96CF;  TYPE ByteTable; };
+
 RANGE   { START $96D0;  END $96FC;  TYPE Code; };
 RANGE   { START $96FD;  END $9712;  TYPE TextTable; };
 RANGE   { START $9713;  END $9748;  TYPE Code; };
@@ -47,6 +55,7 @@ LABEL   { NAME "s8DC5";                     ADDR $8DC5; };
 LABEL   { NAME "s8DD0";                     ADDR $8DD0; };
 
 LABEL   { NAME "cmd_pass";                  ADDR $8DDC; };
+LABEL   { NAME "s8DF6";                     ADDR $8DF6; };
 LABEL   { NAME "cmd_attack";                ADDR $8E99; };
 LABEL   { NAME "cmd_board";                 ADDR $9053; };
 LABEL   { NAME "cmd_cast";                  ADDR $9299; };
@@ -92,6 +101,12 @@ LABEL   { NAME "b8D74";                     ADDR $8D74; };
 LABEL   { NAME "b8DA0";                     ADDR $8DA0; };
 LABEL   { NAME "b8DAD";                     ADDR $8DAD; };
 
+LABEL   { NAME "b8DD2";                     ADDR $8DD2; };
+LABEL   { NAME "b8DDA";                     ADDR $8DDA; };
+
+LABEL   { NAME "b8EB5";                     ADDR $8EB5; };
+LABEL   { NAME "b8EC9";                     ADDR $8EC9; };
+
 LABEL   { NAME "b96EC";                     ADDR $96EC; };
 LABEL   { NAME "b9716";                     ADDR $9716; };
 LABEL   { NAME "b9725";                     ADDR $9725; };
@@ -121,6 +136,8 @@ LABEL   { NAME "r97C7";                     ADDR $97C7; };
 LABEL   { NAME "command_routine_table";     ADDR $9E29; };
 LABEL   { NAME "command_routine_table_hi";  ADDR $9E2A; };
 LABEL   { NAME "r9E95";                     ADDR $9E95; };
+LABEL   { NAME "rA131";                     ADDR $A131; };
+LABEL   { NAME "wA145";                     ADDR $A145; };
 
 LABEL   { NAME "rBD00";                     ADDR $BD00; };
 

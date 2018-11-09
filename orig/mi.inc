@@ -69,12 +69,12 @@ mi_cmd_invalid                          := $876A;
 mi_play_error_sound_and_reset_buffers   := $8772;
 mi_reset_buffers                        := $8777;
 mi_cmd_ztats                            := $890C;
-
 mi_print_player_name                    := $8BA1;
 mi_cmd_noise                            := $8BB9;
 mi_player_died                          := $8BCE;
 mi_load_ou_module                       := $8C5E;
 
+mi_r77EC                                := $77EC;
 mi_j863A                                := $863A;
 mi_s863C                                := $863C;
 mi_s8678                                := $8678;
