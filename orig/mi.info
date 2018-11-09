@@ -152,7 +152,6 @@ LABEL   { NAME "s8B64";                         ADDR $8B64; };
 ########################
 # Jump targets
 
-LABEL   { NAME "print_digit";       ADDR $83CD; };
 LABEL   { NAME "j8496";             ADDR $8496; };
 LABEL   { NAME "j8597";             ADDR $8597; };
 LABEL   { NAME "j8635";             ADDR $8635; };

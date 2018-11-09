@@ -27,9 +27,7 @@ RANGE   { START $8DF6;  END $8DF8;  TYPE Code; };
 RANGE   { START $8DF9;  END $8DFB;  TYPE TextTable; };
 RANGE   { START $8DFC;  END $8E0A;  TYPE Code; };
 RANGE   { START $8E0B;  END $8E0C;  TYPE AddrTable; };
-RANGE   { START $8E0D;  END $8E3E;  TYPE Code; };
-RANGE   { START $8E3F;  END $8E98;  TYPE ByteTable; };
-RANGE   { START $8E99;  END $8E9B;  TYPE Code; };
+RANGE   { START $8E0D;  END $8E9B;  TYPE Code; };
 RANGE   { START $8E9C;  END $8EA1;  TYPE TextTable; };
 RANGE   { START $8EA2;  END $8EA7;  TYPE Code; };
 RANGE   { START $8EA8;  END $8EA9;  TYPE AddrTable; };
@@ -49,10 +47,16 @@ RANGE   { START $8FA0;  END $8FAA;  TYPE Code; };
 RANGE   { START $8FAB;  END $8FB3;  TYPE TextTable; };
 RANGE   { START $8FB4;  END $8FBA;  TYPE Code; };
 RANGE   { START $8FBB;  END $8FC0;  TYPE TextTable; };
+RANGE   { START $8FC1;  END $8FE9;  TYPE Code; };
+RANGE   { START $8FEA;  END $8FEF;  TYPE TextTable; };
+RANGE   { START $8FF0;  END $8FF5;  TYPE Code; };
+RANGE   { START $8FF6;  END $8FF7;  TYPE AddrTable; };
+RANGE   { START $8FF8;  END $8FFA;  TYPE Code; };
+RANGE   { START $8FFB;  END $8FFD;  TYPE TextTable; };
 
-RANGE   { START $8FC1;  END $8FD3;  TYPE Code; };
-RANGE   { START $8FD4;  END $96CF;  TYPE ByteTable; };
+RANGE   { START $8FFE;  END $9052;  TYPE Code; };
 
+RANGE   { START $9053;  END $96CF;  TYPE ByteTable; };
 RANGE   { START $96D0;  END $96FC;  TYPE Code; };
 RANGE   { START $96FD;  END $9712;  TYPE TextTable; };
 RANGE   { START $9713;  END $9748;  TYPE Code; };
@@ -79,11 +83,12 @@ LABEL   { NAME "s8DD0";                     ADDR $8DD0; };
 LABEL   { NAME "cmd_pass";                  ADDR $8DDC; };
 LABEL   { NAME "s8DF6";                     ADDR $8DF6; };
 LABEL   { NAME "s8E3F";                     ADDR $8E3F; };
+LABEL   { NAME "s8E62";                     ADDR $8E62; };
 LABEL   { NAME "cmd_attack";                ADDR $8E99; };
 LABEL   { NAME "s8F4C";                     ADDR $8F4C; };
 LABEL   { NAME "s8FD4_txt";                 ADDR $8FD4; };
 LABEL   { NAME "s8FE7";                     ADDR $8FE7; };
-LABEL   { NAME "s9024";                 ADDR $9024; };
+LABEL   { NAME "s9024";                     ADDR $9024; };
 LABEL   { NAME "cmd_board";                 ADDR $9053; };
 LABEL   { NAME "cmd_cast";                  ADDR $9299; };
 LABEL   { NAME "cmd_enter";                 ADDR $9442; };
@@ -102,6 +107,7 @@ LABEL   { NAME "s9840";                     ADDR $9840; };
 LABEL   { NAME "s9A10";                     ADDR $9A10; };
 LABEL   { NAME "s9A2F";                     ADDR $9A2F; };
 LABEL   { NAME "s9C77";                     ADDR $9C77; };
+LABEL   { NAME "s9C79";                     ADDR $9C79; };
 LABEL   { NAME "s9CFC";                     ADDR $9CFC; };
 LABEL   { NAME "s9D50";                     ADDR $9D50; };
 LABEL   { NAME "cmd_inform_search";         ADDR $9D82; };
@@ -140,6 +146,11 @@ LABEL   { NAME "b8E2F";                     ADDR $8E2F; };
 LABEL   { NAME "b8E32";                     ADDR $8E32; };
 LABEL   { NAME "b8E35";                     ADDR $8E35; };
 
+LABEL   { NAME "b8E61";                     ADDR $8E61; };
+LABEL   { NAME "b8E67";                     ADDR $8E67; };
+LABEL   { NAME "b8E94";                     ADDR $8E94; };
+LABEL   { NAME "b8E97";                     ADDR $8E97; };
+
 LABEL   { NAME "b8EB5";                     ADDR $8EB5; };
 LABEL   { NAME "b8EBE";                     ADDR $8EBE; };
 LABEL   { NAME "b8EC9";                     ADDR $8EC9; };
@@ -153,6 +164,13 @@ LABEL   { NAME "b8FA0";                     ADDR $8FA0; };
 LABEL   { NAME "b8FB4";                     ADDR $8FB4; };
 LABEL   { NAME "b8FC1";                     ADDR $8FC1; };
 LABEL   { NAME "b8FCE";                     ADDR $8FCE; };
+
+LABEL   { NAME "b8FDE";                     ADDR $8FDE; };
+
+LABEL   { NAME "b9022";                     ADDR $9022; };
+
+LABEL   { NAME "b903A";                     ADDR $903A; };
+LABEL   { NAME "b9050";                     ADDR $9050; };
 
 LABEL   { NAME "b96EC";                     ADDR $96EC; };
 LABEL   { NAME "b9716";                     ADDR $9716; };
