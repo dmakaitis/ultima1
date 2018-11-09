@@ -136,7 +136,6 @@ LABEL   { NAME "print_char_or_esc";             ADDR $83DD; };
 LABEL   { NAME "s83ED";                         ADDR $83ED; };
 LABEL   { NAME "clear_to_end_then_print_lfcr";  ADDR $83FB; };
 LABEL   { NAME "print_lfcr";                    ADDR $83FE; };
-LABEL   { NAME "s8416";                         ADDR $8416; };
 LABEL   { NAME "draw_border";                   ADDR $84C6; };
 LABEL   { NAME "s85A6";                         ADDR $85A6; };
 LABEL   { NAME "print_long_int";                ADDR $857C; };
@@ -156,7 +155,6 @@ LABEL   { NAME "j8496";             ADDR $8496; };
 LABEL   { NAME "j8597";             ADDR $8597; };
 LABEL   { NAME "j8635";             ADDR $8635; };
 LABEL   { NAME "j86C9";             ADDR $86C9; };
-LABEL   { NAME "load_module_a";     ADDR $8C60; };
 LABEL   { NAME "do_mi_main";        ADDR $8C9E; };
 
 ########################
@@ -270,7 +268,6 @@ LABEL   { NAME "w81AD";                 ADDR $81AD; };
 LABEL   { NAME "bm_addr_mask_cache";    ADDR $81C3; };
 LABEL   { NAME "w81C5";                 ADDR $81C5; };
 LABEL   { NAME "w81C6";                 ADDR $81C6; };
-LABEL   { NAME "r81EA";                 ADDR $81EA; };
 LABEL   { NAME "r81F2";                 ADDR $81F2; };
 
 LABEL   { NAME "r8208";                 ADDR $8208; };

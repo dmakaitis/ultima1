@@ -53,10 +53,22 @@ RANGE   { START $8FF0;  END $8FF5;  TYPE Code; };
 RANGE   { START $8FF6;  END $8FF7;  TYPE AddrTable; };
 RANGE   { START $8FF8;  END $8FFA;  TYPE Code; };
 RANGE   { START $8FFB;  END $8FFD;  TYPE TextTable; };
+RANGE   { START $8FFE;  END $905D;  TYPE Code; };
+RANGE   { START $905E;  END $9073;  TYPE TextTable; };
+RANGE   { START $9074;  END $9087;  TYPE Code; };
+RANGE   { START $9088;  END $9099;  TYPE TextTable; };
+RANGE   { START $909A;  END $90BC;  TYPE Code; };
+RANGE   { START $90BD;  END $90C3;  TYPE TextTable; };
+RANGE   { START $90C4;  END $9102;  TYPE Code; };
+RANGE   { START $9103;  END $9165;  TYPE TextTable; };
+RANGE   { START $9166;  END $9176;  TYPE Code; };
+RANGE   { START $9177;  END $91BA;  TYPE TextTable; };
+RANGE   { START $91BB;  END $91FD;  TYPE Code; };
+RANGE   { START $91FE;  END $9239;  TYPE TextTable; };
 
-RANGE   { START $8FFE;  END $9052;  TYPE Code; };
+RANGE   { START $923A;  END $9298;  TYPE Code; };
 
-RANGE   { START $9053;  END $96CF;  TYPE ByteTable; };
+RANGE   { START $9299;  END $96CF;  TYPE ByteTable; };
 RANGE   { START $96D0;  END $96FC;  TYPE Code; };
 RANGE   { START $96FD;  END $9712;  TYPE TextTable; };
 RANGE   { START $9713;  END $9748;  TYPE Code; };
@@ -90,6 +102,10 @@ LABEL   { NAME "s8FD4_txt";                 ADDR $8FD4; };
 LABEL   { NAME "s8FE7";                     ADDR $8FE7; };
 LABEL   { NAME "s9024";                     ADDR $9024; };
 LABEL   { NAME "cmd_board";                 ADDR $9053; };
+LABEL   { NAME "s91BB";                     ADDR $91BB; };
+LABEL   { NAME "s923D";                     ADDR $923D; };
+LABEL   { NAME "s924F";                     ADDR $924F; };
+LABEL   { NAME "s9255";                     ADDR $9255; };
 LABEL   { NAME "cmd_cast";                  ADDR $9299; };
 LABEL   { NAME "cmd_enter";                 ADDR $9442; };
 LABEL   { NAME "cmd_fire";                  ADDR $95CE; };
@@ -108,15 +124,19 @@ LABEL   { NAME "s9A10";                     ADDR $9A10; };
 LABEL   { NAME "s9A2F";                     ADDR $9A2F; };
 LABEL   { NAME "s9C77";                     ADDR $9C77; };
 LABEL   { NAME "s9C79";                     ADDR $9C79; };
+LABEL   { NAME "s9CD8";                     ADDR $9CD8; };
 LABEL   { NAME "s9CFC";                     ADDR $9CFC; };
 LABEL   { NAME "s9D50";                     ADDR $9D50; };
+LABEL   { NAME "s9D77";                     ADDR $9D77; };
 LABEL   { NAME "cmd_inform_search";         ADDR $9D82; };
+LABEL   { NAME "s9E02";                     ADDR $9E02; };
 LABEL   { NAME "s9E0B";                     ADDR $9E0B; };
 
 ########################
 # Jump targets
 
 LABEL   { NAME "j8FFF";                     ADDR $8FFF; };
+LABEL   { NAME "j9262";                     ADDR $9262; };
 LABEL   { NAME "j9752";                     ADDR $9752; };
 
 ########################
@@ -172,6 +192,21 @@ LABEL   { NAME "b9022";                     ADDR $9022; };
 LABEL   { NAME "b903A";                     ADDR $903A; };
 LABEL   { NAME "b9050";                     ADDR $9050; };
 
+LABEL   { NAME "b9077";                     ADDR $9077; };
+LABEL   { NAME "b9082";                     ADDR $9082; };
+LABEL   { NAME "b909D";                     ADDR $909D; };
+LABEL   { NAME "b90A5";                     ADDR $90A5; };
+LABEL   { NAME "b90C4";                     ADDR $90C4; };
+LABEL   { NAME "b90D1";                     ADDR $90D1; };
+LABEL   { NAME "b90DB";                     ADDR $90DB; };
+LABEL   { NAME "b90F3";                     ADDR $90F3; };
+LABEL   { NAME "b91CB";                     ADDR $91CB; };
+LABEL   { NAME "b91D7";                     ADDR $91D7; };
+LABEL   { NAME "b91E3";                     ADDR $91E3; };
+LABEL   { NAME "b91EF";                     ADDR $91EF; };
+LABEL   { NAME "b91FB";                     ADDR $91FB; };
+LABEL   { NAME "b9283";                     ADDR $9283; };
+
 LABEL   { NAME "b96EC";                     ADDR $96EC; };
 LABEL   { NAME "b9716";                     ADDR $9716; };
 LABEL   { NAME "b9725";                     ADDR $9725; };
@@ -220,12 +255,16 @@ LABEL   { NAME "zp22";                      ADDR $22; };
 LABEL   { NAME "zp23";                      ADDR $23; };
 LABEL   { NAME "zp24";                      ADDR $24; };
 LABEL   { NAME "zp25";                      ADDR $25; };
+LABEL   { NAME "zp26";                      ADDR $26; };
+LABEL   { NAME "zp27";                      ADDR $27; };
 LABEL   { NAME "zp2C";                      ADDR $2C; };
 LABEL   { NAME "zp2D";                      ADDR $2D; };
 LABEL   { NAME "zp3C";                      ADDR $3C; };
 LABEL   { NAME "zp3D";                      ADDR $3D; };
 LABEL   { NAME "zp43";                      ADDR $43; };
 LABEL   { NAME "zp44";                      ADDR $44; };
+LABEL   { NAME "zp46";                      ADDR $46; };
+LABEL   { NAME "zp47";                      ADDR $47; };
 LABEL   { NAME "zp4C";                      ADDR $4C; };
 
 LABEL   { NAME "TMP_PTR";                   ADDR $60; };
