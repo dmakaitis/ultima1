@@ -33,6 +33,7 @@ mi_player_equipped_armor                := $81F0;
 mi_player_current_vehicle               := $81F1;
 mi_player_inventory_weapons             := $81F8;
 mi_player_8208                          := $8208;
+mi_player_820B                          := $820B;
 mi_player_inventory_vehicles            := $8213;
 mi_player_821D                          := $821D;
 mi_player_821E                          := $821E;

@@ -126,10 +126,8 @@ RANGE   { START $9768;  END $978A;  TYPE Code; };
 RANGE   { START $978B;  END $978C;  TYPE AddrTable; };
 RANGE   { START $978D;  END $97BC;  TYPE Code; };
 RANGE   { START $97BD;  END $97DF;  TYPE ByteTable; };
-
-RANGE   { START $97E0;  END $9915;  TYPE Code; };
-
-RANGE   { START $9916;  END $9A0F;  TYPE ByteTable; };
+RANGE   { START $97E0;  END $9950;  TYPE Code; };
+RANGE   { START $9951;  END $9A0F;  TYPE ByteTable; };
 RANGE   { START $9A10;  END $9A2E;  TYPE Code; };
 RANGE   { START $9A2F;  END $9E28;  TYPE ByteTable; };
 RANGE   { START $9E29;  END $9E5A;  TYPE AddrTable; };  # JSR addresses start here...
@@ -354,6 +352,12 @@ LABEL   { NAME "b98DD";                     ADDR $98DD; };
 LABEL   { NAME "b98F2";                     ADDR $98F2; };
 LABEL   { NAME "b990B";                     ADDR $990B; };
 LABEL   { NAME "b9910";                     ADDR $9910; };
+
+LABEL   { NAME "b991A";                     ADDR $991A; };
+LABEL   { NAME "b992E";                     ADDR $992E; };
+LABEL   { NAME "b9949";                     ADDR $9949; };
+LABEL   { NAME "b994D";                     ADDR $994D; };
+LABEL   { NAME "b9950";                     ADDR $9950; };
 
 LABEL   { NAME "b9A15";                     ADDR $9A15; };
 LABEL   { NAME "b9A24";                     ADDR $9A24; };
