@@ -101,6 +101,7 @@ mi_cmd_invalid                          := $876A;
 mi_play_error_sound_and_reset_buffers   := $8772;
 mi_j8774                                := $8774;
 mi_reset_buffers                        := $8777;
+mi_s8787                                := $8787;
 mi_s87D0                                := $87D0;
 mi_s8788                                := $8788;
 mi_s879F                                := $879F;
