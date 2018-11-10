@@ -72,6 +72,8 @@ mi_player_82Bc                          := $82BC;
 mi_player_830c                          := $830C;
 mi_player_835c                          := $835C;
 
+mi_s83ed                                := $83ED;
+
 mi_number_padding                       := $85BE;
 
 mi_check_drive_status                   := $8175;

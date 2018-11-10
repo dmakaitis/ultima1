@@ -126,14 +126,24 @@ RANGE   { START $9768;  END $978A;  TYPE Code; };
 RANGE   { START $978B;  END $978C;  TYPE AddrTable; };
 RANGE   { START $978D;  END $97BC;  TYPE Code; };
 RANGE   { START $97BD;  END $97DF;  TYPE ByteTable; };
-RANGE   { START $97E0;  END $9950;  TYPE Code; };
-
-RANGE   { START $9951;  END $9A04;  TYPE Code; };
-
+RANGE   { START $97E0;  END $9A04;  TYPE Code; };
 RANGE   { START $9A05;  END $9A0F;  TYPE ByteTable; };
-
 RANGE   { START $9A10;  END $9A4C;  TYPE Code; };
-RANGE   { START $9A4D;  END $9E28;  TYPE ByteTable; };
+RANGE   { START $9A4D;  END $9B2A;  TYPE ByteTable; };
+RANGE   { START $9B2B;  END $9BC4;  TYPE Code; };
+RANGE   { START $9BC5;  END $9BC6;  TYPE AddrTable; };
+RANGE   { START $9BC7;  END $9BC9;  TYPE Code; };
+RANGE   { START $9BCA;  END $9BD4;  TYPE TextTable; };
+RANGE   { START $9BD5;  END $9C0B;  TYPE Code; };
+RANGE   { START $9C0C;  END $9C13;  TYPE TextTable; };
+RANGE   { START $9C14;  END $9C22;  TYPE Code; };
+RANGE   { START $9C23;  END $9C28;  TYPE TextTable; };
+RANGE   { START $9C29;  END $9C47;  TYPE Code; };
+RANGE   { START $9C48;  END $9C4F;  TYPE TextTable; };
+
+RANGE   { START $9C50;  END $9C76;  TYPE Code; };
+
+RANGE   { START $9C77;  END $9E28;  TYPE ByteTable; };
 RANGE   { START $9E29;  END $9E5A;  TYPE AddrTable; };  # JSR addresses start here...
 RANGE   { START $9E5B;  END $FFFF;  TYPE ByteTable; };
 
@@ -178,6 +188,7 @@ LABEL   { NAME "s9916";                     ADDR $9916; };
 LABEL   { NAME "s9951";                     ADDR $9951; };
 LABEL   { NAME "s9A10";                     ADDR $9A10; };
 LABEL   { NAME "s9A2F";                     ADDR $9A2F; };
+LABEL   { NAME "s9B2B";                     ADDR $9B2B; };
 LABEL   { NAME "s9B3E";                     ADDR $9B3E; };
 LABEL   { NAME "s9CA6";                     ADDR $9CA6; };
 LABEL   { NAME "s9C77";                     ADDR $9C77; };
@@ -204,6 +215,8 @@ LABEL   { NAME "j9559";                     ADDR $9559; };
 LABEL   { NAME "j955C";                     ADDR $955C; };
 LABEL   { NAME "j95FC";                     ADDR $95FC; };
 LABEL   { NAME "j9752";                     ADDR $9752; };
+LABEL   { NAME "j9A58";                     ADDR $9A58; };
+LABEL   { NAME "j9C71";                     ADDR $9C71; };
 
 ########################
 # Branch targets
@@ -384,6 +397,21 @@ LABEL   { NAME "b9A37";                     ADDR $9A37; };
 LABEL   { NAME "b9A48";                     ADDR $9A48; };
 LABEL   { NAME "b9A4C";                     ADDR $9A4C; };
 
+LABEL   { NAME "b9B33";                     ADDR $9B33; };
+LABEL   { NAME "b9B3D";                     ADDR $9B3D; };
+
+LABEL   { NAME "b9B6F";                     ADDR $9B6F; };
+LABEL   { NAME "b9B70";                     ADDR $9B70; };
+LABEL   { NAME "b9B8B";                     ADDR $9B8B; };
+LABEL   { NAME "b9B8E";                     ADDR $9B8E; };
+LABEL   { NAME "b9B93";                     ADDR $9B93; };
+LABEL   { NAME "b9BAF";                     ADDR $9BAF; };
+LABEL   { NAME "b9C09";                     ADDR $9C09; };
+LABEL   { NAME "b9C17";                     ADDR $9C17; };
+LABEL   { NAME "b9C20";                     ADDR $9C20; };
+LABEL   { NAME "b9C32";                     ADDR $9C32; };
+LABEL   { NAME "b9C66";                     ADDR $9C66; };
+
 ########################
 # Data
 
@@ -395,6 +423,7 @@ LABEL   { NAME "r9394";                     ADDR $9394; };
 LABEL   { NAME "r97BD";                     ADDR $97BD; };
 LABEL   { NAME "r97C7";                     ADDR $97C7; };
 LABEL   { NAME "r9A05";                     ADDR $9A05; };
+LABEL   { NAME "w9B3C";                     ADDR $9B3C; };
 LABEL   { NAME "command_routine_table";     ADDR $9E29; };
 LABEL   { NAME "command_routine_table_hi";  ADDR $9E2A; };
 LABEL   { NAME "r9E95";                     ADDR $9E95; };
@@ -442,6 +471,8 @@ LABEL   { NAME "zp43";                      ADDR $43; };
 LABEL   { NAME "zp44";                      ADDR $44; };
 LABEL   { NAME "zp46";                      ADDR $46; };
 LABEL   { NAME "zp47";                      ADDR $47; };
+LABEL   { NAME "zp48";                      ADDR $48; };
+LABEL   { NAME "zp49";                      ADDR $49; };
 LABEL   { NAME "zp4C";                      ADDR $4C; };
 
 LABEL   { NAME "TMP_PTR";                   ADDR $60; };

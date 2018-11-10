@@ -132,7 +132,6 @@ LABEL   { NAME "inc_then_read_ptr";             ADDR $83AC; };
 LABEL   { NAME "read_then_inc_ptr";             ADDR $83B8; };
 LABEL   { NAME "print_2_digits";                ADDR $83C4; };
 LABEL   { NAME "print_char_or_esc";             ADDR $83DD; };
-LABEL   { NAME "s83ED";                         ADDR $83ED; };
 LABEL   { NAME "clear_to_end_then_print_lfcr";  ADDR $83FB; };
 LABEL   { NAME "print_lfcr";                    ADDR $83FE; };
 LABEL   { NAME "draw_border";                   ADDR $84C6; };

@@ -18,6 +18,7 @@ st_bitmap_x_offset_lo               := $15B0;
 st_bitmap_x_offset_hi               := $15D8;
 
 st_sound_enabled_flag               := $1638;
+st_w1639                            := $1639;
 
 st_w1632                            := $1632;
 st_w1637                            := $1637;

@@ -289,7 +289,6 @@ LABEL   { NAME "scrmem_y_offset_lo";    ADDR $1600; };
 LABEL   { NAME "scrmem_y_offset_lo_02"; ADDR $1602; };
 LABEL   { NAME "scrmem_y_offset_hi";    ADDR $1619; };
 LABEL   { NAME "scrmem_y_offset_hi_02"; ADDR $161B; };
-LABEL   { NAME "r1639";                 ADDR $1639; };
 
 LABEL   { NAME "w1734";             ADDR $1734; };
 LABEL   { NAME "w1737";             ADDR $1737; };
