@@ -11,6 +11,10 @@ mi_transport_table                      := $7930;
 mi_command_table                        := $797F;
 mi_r7A57                                := $7A57;
 mi_string_table                         := $7A7F;
+mi_string_table2                        := $7BDA;
+mi_r7C18                                := $7C18;
+mi_r7C6C                                := $7C6C;
+mi_string_table3                        := $7CC0;
 
 mi_current_attribute                    := $81C4;
 mi_command_table_override               := $81C7;
@@ -69,10 +73,12 @@ mi_player_8268                          := $8268;
 mi_player_826b                          := $826B;
 mi_player_826c                          := $826C;
 mi_player_826d                          := $826D;
-mi_player_82Bc                          := $82BC;
-mi_player_82Bd                          := $82BD;
+mi_player_82bb                          := $82BB;
+mi_player_82bc                          := $82BC;
+mi_player_82bd                          := $82BD;
 mi_player_830c                          := $830C;
 mi_player_830d                          := $830D;
+mi_player_835b                          := $835B;
 mi_player_835c                          := $835C;
 mi_player_835d                          := $835D;
 

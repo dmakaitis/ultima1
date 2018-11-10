@@ -142,11 +142,21 @@ RANGE   { START $9C23;  END $9C28;  TYPE TextTable; };
 RANGE   { START $9C29;  END $9C47;  TYPE Code; };
 RANGE   { START $9C48;  END $9C4F;  TYPE TextTable; };
 RANGE   { START $9C50;  END $9C98;  TYPE Code; };
-RANGE   { START $9C99;  END $9CA5;  TYPE ByteTable; };
-RANGE   { START $9CA6;  END $9D43;  TYPE Code; };
-RANGE   { START $9D44;  END $9E28;  TYPE ByteTable; };
+RANGE   { START $9C99;  END $9CA5;  TYPE ByteTable; };  # ???
+RANGE   { START $9CA6;  END $9DB9;  TYPE Code; };
+RANGE   { START $9DBA;  END $9DBB;  TYPE AddrTable; };
+RANGE   { START $9DBC;  END $9DC7;  TYPE Code; };
+RANGE   { START $9DC8;  END $9DC9;  TYPE AddrTable; };
+RANGE   { START $9DCA;  END $9DD1;  TYPE Code; };
+RANGE   { START $9DD2;  END $9DDE;  TYPE TextTable; };
+RANGE   { START $9DDF;  END $9DFE;  TYPE Code; };
+RANGE   { START $9DFF;  END $9E00;  TYPE AddrTable; };
+RANGE   { START $9E01;  END $9E07;  TYPE Code; };
+RANGE   { START $9E08;  END $9E09;  TYPE AddrTable; };
+RANGE   { START $9E0A;  END $9E28;  TYPE Code; };
 RANGE   { START $9E29;  END $9E5A;  TYPE AddrTable; };  # JSR addresses start here...
-RANGE   { START $9E5B;  END $A149;  TYPE ByteTable; };
+RANGE   { START $9E5B;  END $9EEB;  TYPE TextTable; };
+RANGE   { START $9EEC;  END $A149;  TYPE ByteTable; };
 
 ########################
 # Subroutines
@@ -202,7 +212,7 @@ LABEL   { NAME "s9D44";                     ADDR $9D44; };
 LABEL   { NAME "s9D50";                     ADDR $9D50; };
 LABEL   { NAME "s9D77";                     ADDR $9D77; };
 LABEL   { NAME "cmd_inform_search";         ADDR $9D82; };
-LABEL   { NAME "s9E02";                     ADDR $9E02; };
+LABEL   { NAME "print_current_vehicle";     ADDR $9E02; };
 LABEL   { NAME "s9E0B";                     ADDR $9E0B; };
 
 ########################
@@ -438,6 +448,22 @@ LABEL   { NAME "b9D0E";                     ADDR $9D0E; };
 LABEL   { NAME "b9D1B";                     ADDR $9D1B; };
 LABEL   { NAME "b9D3A";                     ADDR $9D3A; };
 
+LABEL   { NAME "b9D75";                     ADDR $9D75; };
+
+LABEL   { NAME "b9D98";                     ADDR $9D98; };
+LABEL   { NAME "b9DAA";                     ADDR $9DAA; };
+LABEL   { NAME "b9DAD";                     ADDR $9DAD; };
+LABEL   { NAME "b9DAF";                     ADDR $9DAF; };
+LABEL   { NAME "b9DCA";                     ADDR $9DCA; };
+LABEL   { NAME "b9DCB";                     ADDR $9DCB; };
+LABEL   { NAME "b9DDF";                     ADDR $9DDF; };
+LABEL   { NAME "b9DE6";                     ADDR $9DE6; };
+LABEL   { NAME "b9DF2";                     ADDR $9DF2; };
+LABEL   { NAME "b9DF9";                     ADDR $9DF9; };
+
+LABEL   { NAME "b9E17";                     ADDR $9E17; };
+LABEL   { NAME "b9E22";                     ADDR $9E22; };
+
 ########################
 # Data
 
@@ -451,8 +477,10 @@ LABEL   { NAME "r97C7";                     ADDR $97C7; };
 LABEL   { NAME "r9A05";                     ADDR $9A05; };
 LABEL   { NAME "r9A4D";                     ADDR $9A4D; };
 LABEL   { NAME "w9B3C";                     ADDR $9B3C; };
+LABEL   { NAME "w9D74";                     ADDR $9D74; };
 LABEL   { NAME "command_routine_table";     ADDR $9E29; };
 LABEL   { NAME "command_routine_table_hi";  ADDR $9E2A; };
+LABEL   { NAME "r9E5B_str";                 ADDR $9E5B; };
 LABEL   { NAME "r9E95";                     ADDR $9E95; };
 LABEL   { NAME "r9EEC";                     ADDR $9EEC; };
 LABEL   { NAME "rA119";                     ADDR $A119; };
@@ -460,7 +488,7 @@ LABEL   { NAME "rA121";                     ADDR $A121; };
 LABEL   { NAME "rA129";                     ADDR $A129; };
 LABEL   { NAME "rA131";                     ADDR $A131; };
 LABEL   { NAME "wA141";                     ADDR $A141; };
-LABEL   { NAME "rA142";                     ADDR $A142; };
+LABEL   { NAME "wA142";                     ADDR $A142; };
 LABEL   { NAME "rA143";                     ADDR $A143; };
 LABEL   { NAME "wA144";                     ADDR $A144; };
 LABEL   { NAME "wA145";                     ADDR $A145; };
