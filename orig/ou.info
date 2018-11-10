@@ -127,9 +127,9 @@ RANGE   { START $978B;  END $978C;  TYPE AddrTable; };
 RANGE   { START $978D;  END $97BC;  TYPE Code; };
 RANGE   { START $97BD;  END $97DF;  TYPE ByteTable; };
 
-RANGE   { START $97E0;  END $983F;  TYPE Code; };
+RANGE   { START $97E0;  END $9915;  TYPE Code; };
 
-RANGE   { START $9840;  END $9A0F;  TYPE ByteTable; };
+RANGE   { START $9916;  END $9A0F;  TYPE ByteTable; };
 RANGE   { START $9A10;  END $9A2E;  TYPE Code; };
 RANGE   { START $9A2F;  END $9E28;  TYPE ByteTable; };
 RANGE   { START $9E29;  END $9E5A;  TYPE AddrTable; };  # JSR addresses start here...
@@ -179,6 +179,7 @@ LABEL   { NAME "s9A2F";                     ADDR $9A2F; };
 LABEL   { NAME "s9CA6";                     ADDR $9CA6; };
 LABEL   { NAME "s9C77";                     ADDR $9C77; };
 LABEL   { NAME "s9C79";                     ADDR $9C79; };
+LABEL   { NAME "s9C90";                     ADDR $9C90; };
 LABEL   { NAME "s9CD8";                     ADDR $9CD8; };
 LABEL   { NAME "s9CFC";                     ADDR $9CFC; };
 LABEL   { NAME "s9D44";                     ADDR $9D44; };
@@ -342,6 +343,18 @@ LABEL   { NAME "b9827";                     ADDR $9827; };
 LABEL   { NAME "b9833";                     ADDR $9833; };
 LABEL   { NAME "b983D";                     ADDR $983D; };
 
+LABEL   { NAME "b9862";                     ADDR $9862; };
+LABEL   { NAME "b986F";                     ADDR $986F; };
+LABEL   { NAME "b9877";                     ADDR $9877; };
+LABEL   { NAME "b9882";                     ADDR $9882; };
+LABEL   { NAME "b9890";                     ADDR $9890; };
+LABEL   { NAME "b98A8";                     ADDR $98A8; };
+LABEL   { NAME "b98AB";                     ADDR $98AB; };
+LABEL   { NAME "b98DD";                     ADDR $98DD; };
+LABEL   { NAME "b98F2";                     ADDR $98F2; };
+LABEL   { NAME "b990B";                     ADDR $990B; };
+LABEL   { NAME "b9910";                     ADDR $9910; };
+
 LABEL   { NAME "b9A15";                     ADDR $9A15; };
 LABEL   { NAME "b9A24";                     ADDR $9A24; };
 LABEL   { NAME "b9A27";                     ADDR $9A27; };
@@ -370,6 +383,8 @@ LABEL   { NAME "rA142";                     ADDR $A142; };
 LABEL   { NAME "rA143";                     ADDR $A143; };
 LABEL   { NAME "wA145";                     ADDR $A145; };
 
+LABEL   { NAME "rB000";                     ADDR $B000; };
+LABEL   { NAME "rB001";                     ADDR $B001; };
 LABEL   { NAME "rBD00";                     ADDR $BD00; };
 
 ########################
@@ -387,6 +402,10 @@ LABEL   { NAME "zp26";                      ADDR $26; };
 LABEL   { NAME "zp27";                      ADDR $27; };
 LABEL   { NAME "zp2C";                      ADDR $2C; };
 LABEL   { NAME "zp2D";                      ADDR $2D; };
+LABEL   { NAME "zp36";                      ADDR $36; };
+LABEL   { NAME "zp37";                      ADDR $37; };
+LABEL   { NAME "zp38";                      ADDR $38; };
+LABEL   { NAME "zp39";                      ADDR $39; };
 LABEL   { NAME "zp3C";                      ADDR $3C; };
 LABEL   { NAME "zp3D";                      ADDR $3D; };
 LABEL   { NAME "zp3F";                      ADDR $3F; };

@@ -19,6 +19,7 @@ mi_command_decode_table                 := $81C9;
 mi_player_save_data                     := $81E2;
 
 mi_player_81E4                          := $81E4;
+mi_player_81E5                          := $81E5;
 mi_player_sound_flag                    := $81E7;
 mi_player_position_x                    := $81E8;
 mi_player_position_y                    := $81E9;
@@ -33,11 +34,13 @@ mi_player_current_vehicle               := $81F1;
 mi_player_inventory_weapons             := $81F8;
 mi_player_8208                          := $8208;
 mi_player_inventory_vehicles            := $8213;
+mi_player_821D                          := $821D;
 mi_player_821E                          := $821E;
 mi_player_8226                          := $8226;
 mi_player_8227                          := $8227;
 mi_player_8228                          := $8228;
 mi_player_8229                          := $8229;
+mi_player_822A                          := $822A;
 mi_player_sex                           := $822C;
 mi_player_name                          := $822D;
 mi_player_hits                          := $823B;
@@ -65,6 +68,7 @@ mi_player_826b                          := $826B;
 mi_player_826c                          := $826C;
 mi_player_82Bc                          := $82BC;
 mi_player_830c                          := $830C;
+mi_player_835c                          := $835C;
 
 mi_number_padding                       := $85BE;
 
