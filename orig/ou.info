@@ -114,10 +114,7 @@ RANGE   { START $9677;  END $967E;  TYPE Code; };
 RANGE   { START $967F;  END $9684;  TYPE TextTable; };
 RANGE   { START $9685;  END $9694;  TYPE Code; };
 RANGE   { START $9695;  END $96B2;  TYPE TextTable; };
-
-RANGE   { START $96B3;  END $96CF;  TYPE Code; };
-
-RANGE   { START $96D0;  END $96FC;  TYPE Code; };
+RANGE   { START $96B3;  END $96FC;  TYPE Code; };
 RANGE   { START $96FD;  END $9712;  TYPE TextTable; };
 RANGE   { START $9713;  END $9748;  TYPE Code; };
 RANGE   { START $9749;  END $974A;  TYPE AddrTable; };
@@ -128,7 +125,11 @@ RANGE   { START $975B;  END $9767;  TYPE TextTable; };
 RANGE   { START $9768;  END $978A;  TYPE Code; };
 RANGE   { START $978B;  END $978C;  TYPE AddrTable; };
 RANGE   { START $978D;  END $97BC;  TYPE Code; };
-RANGE   { START $97BD;  END $9A0F;  TYPE ByteTable; };
+RANGE   { START $97BD;  END $97DF;  TYPE ByteTable; };
+
+RANGE   { START $97E0;  END $983F;  TYPE Code; };
+
+RANGE   { START $9840;  END $9A0F;  TYPE ByteTable; };
 RANGE   { START $9A10;  END $9A2E;  TYPE Code; };
 RANGE   { START $9A2F;  END $9E28;  TYPE ByteTable; };
 RANGE   { START $9E29;  END $9E5A;  TYPE AddrTable; };  # JSR addresses start here...
@@ -169,6 +170,7 @@ LABEL   { NAME "cmd_south";                 ADDR $96DC; };
 LABEL   { NAME "cmd_east";                  ADDR $96E2; };
 LABEL   { NAME "cmd_west";                  ADDR $96E8; };
 LABEL   { NAME "s97E0";                     ADDR $97E0; };
+
 LABEL   { NAME "s97F6";                     ADDR $97F6; };
 LABEL   { NAME "s9840";                     ADDR $9840; };
 LABEL   { NAME "s9916";                     ADDR $9916; };
@@ -179,6 +181,7 @@ LABEL   { NAME "s9C77";                     ADDR $9C77; };
 LABEL   { NAME "s9C79";                     ADDR $9C79; };
 LABEL   { NAME "s9CD8";                     ADDR $9CD8; };
 LABEL   { NAME "s9CFC";                     ADDR $9CFC; };
+LABEL   { NAME "s9D44";                     ADDR $9D44; };
 LABEL   { NAME "s9D50";                     ADDR $9D50; };
 LABEL   { NAME "s9D77";                     ADDR $9D77; };
 LABEL   { NAME "cmd_inform_search";         ADDR $9D82; };
@@ -324,7 +327,20 @@ LABEL   { NAME "b9788";                     ADDR $9788; };
 LABEL   { NAME "b9795";                     ADDR $9795; };
 LABEL   { NAME "b97AA";                     ADDR $97AA; };
 LABEL   { NAME "b97BA";                     ADDR $97BA; };
-LABEL   { NAME "b9802";                     ADDR $9802; };
+
+LABEL   { NAME "b97E4";                     ADDR $97E4; };
+LABEL   { NAME "b97F1";                     ADDR $97F1; };
+LABEL   { NAME "b97F5";                     ADDR $97F5; };
+
+LABEL   { NAME "b9800";                     ADDR $9800; };
+LABEL   { NAME "b9806";                     ADDR $9806; };
+LABEL   { NAME "b9815";                     ADDR $9815; };
+LABEL   { NAME "b981E";                     ADDR $981E; };
+LABEL   { NAME "b9810";                     ADDR $9810; };
+LABEL   { NAME "b9814";                     ADDR $9814; };
+LABEL   { NAME "b9827";                     ADDR $9827; };
+LABEL   { NAME "b9833";                     ADDR $9833; };
+LABEL   { NAME "b983D";                     ADDR $983D; };
 
 LABEL   { NAME "b9A15";                     ADDR $9A15; };
 LABEL   { NAME "b9A24";                     ADDR $9A24; };
@@ -373,6 +389,7 @@ LABEL   { NAME "zp2C";                      ADDR $2C; };
 LABEL   { NAME "zp2D";                      ADDR $2D; };
 LABEL   { NAME "zp3C";                      ADDR $3C; };
 LABEL   { NAME "zp3D";                      ADDR $3D; };
+LABEL   { NAME "zp3F";                      ADDR $3F; };
 LABEL   { NAME "zp43";                      ADDR $43; };
 LABEL   { NAME "zp44";                      ADDR $44; };
 LABEL   { NAME "zp46";                      ADDR $46; };

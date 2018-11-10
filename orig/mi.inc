@@ -18,6 +18,7 @@ mi_command_decode_table                 := $81C9;
 
 mi_player_save_data                     := $81E2;
 
+mi_player_81E4                          := $81E4;
 mi_player_sound_flag                    := $81E7;
 mi_player_position_x                    := $81E8;
 mi_player_position_y                    := $81E9;
