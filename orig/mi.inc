@@ -9,6 +9,7 @@ mi_attribute_table                      := $7842;
 mi_class_name_table                     := $7911;
 mi_transport_table                      := $7930;
 mi_command_table                        := $797F;
+mi_r7A57                                := $7A57;
 mi_string_table                         := $7A7F;
 
 mi_current_attribute                    := $81C4;
