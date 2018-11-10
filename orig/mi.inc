@@ -67,6 +67,7 @@ mi_player_830c                          := $830C;
 
 mi_number_padding                       := $85BE;
 
+mi_check_drive_status                   := $8175;
 mi_print_char                           := $83D7;
 mi_print_crlf_col_1                     := $83F3;
 mi_cursor_to_col_1                      := $83F6;

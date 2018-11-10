@@ -105,12 +105,12 @@ RANGE   { START $95EF;  END $95F4;  TYPE Code; };
 RANGE   { START $95F5;  END $95FB;  TYPE TextTable; };
 RANGE   { START $95FC;  END $9604;  TYPE Code; };
 RANGE   { START $9605;  END $960B;  TYPE TextTable; };
-
 RANGE   { START $960C;  END $9633;  TYPE Code; };
 RANGE   { START $9634;  END $963C;  TYPE TextTable; };
-RANGE   { START $963D;  END $964D;  TYPE Code; };
-
-RANGE   { START $964E;  END $96CF;  TYPE ByteTable; };
+RANGE   { START $963D;  END $9665;  TYPE Code; };
+RANGE   { START $9666;  END $966D;  TYPE TextTable; };
+RANGE   { START $966E;  END $9670;  TYPE Code; };
+RANGE   { START $9671;  END $96CF;  TYPE ByteTable; };
 RANGE   { START $96D0;  END $96FC;  TYPE Code; };
 RANGE   { START $96FD;  END $9712;  TYPE TextTable; };
 RANGE   { START $9713;  END $9748;  TYPE Code; };
@@ -296,6 +296,8 @@ LABEL   { NAME "b95F2";                     ADDR $95F2; };
 LABEL   { NAME "b9602";                     ADDR $9602; };
 LABEL   { NAME "b960D";                     ADDR $960D; };
 LABEL   { NAME "b9640";                     ADDR $9640; };
+
+LABEL   { NAME "b965B";                     ADDR $965B; };
 
 LABEL   { NAME "b96EC";                     ADDR $96EC; };
 LABEL   { NAME "b9716";                     ADDR $9716; };

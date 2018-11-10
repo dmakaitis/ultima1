@@ -127,7 +127,6 @@ RANGE   { START $8CCD;  END $8CCD;  TYPE ByteTable; };
 ########################
 # Subroutines
 
-LABEL   { NAME "check_drive_status";            ADDR $8175; };
 LABEL   { NAME "reset_screen_swapping";         ADDR $818F; };
 LABEL   { NAME "inc_then_read_ptr";             ADDR $83AC; };
 LABEL   { NAME "read_then_inc_ptr";             ADDR $83B8; };
