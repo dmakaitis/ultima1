@@ -83,11 +83,7 @@ RANGE   { START $93D1;  END $93E9;  TYPE Code; };
 RANGE   { START $93EA;  END $93F2;  TYPE TextTable; };
 RANGE   { START $93F3;  END $9413;  TYPE Code; };
 RANGE   { START $9414;  END $9425;  TYPE TextTable; };
-RANGE   { START $9426;  END $9429;  TYPE Code; };
-
-RANGE   { START $942A;  END $9441;  TYPE Code; };
-
-RANGE   { START $9442;  END $9459;  TYPE Code; };
+RANGE   { START $9426;  END $9459;  TYPE Code; };
 RANGE   { START $945A;  END $9460;  TYPE TextTable; };
 RANGE   { START $9461;  END $94C9;  TYPE Code; };
 RANGE   { START $94CA;  END $94CB;  TYPE AddrTable; };
@@ -101,8 +97,20 @@ RANGE   { START $9554;  END $9597;  TYPE Code; };
 RANGE   { START $9598;  END $95A8;  TYPE TextTable; };
 RANGE   { START $95A9;  END $95B3;  TYPE Code; };
 RANGE   { START $95B4;  END $95B5;  TYPE AddrTable; };
-RANGE   { START $95B6;  END $95CD;  TYPE Code; };
-RANGE   { START $95CE;  END $96CF;  TYPE ByteTable; };
+RANGE   { START $95B6;  END $95D6;  TYPE Code; };
+RANGE   { START $95D7;  END $95DF;  TYPE TextTable; };
+RANGE   { START $95E0;  END $95E9;  TYPE Code; };
+RANGE   { START $95EA;  END $95EE;  TYPE TextTable; };
+RANGE   { START $95EF;  END $95F4;  TYPE Code; };
+RANGE   { START $95F5;  END $95FB;  TYPE TextTable; };
+RANGE   { START $95FC;  END $9604;  TYPE Code; };
+RANGE   { START $9605;  END $960B;  TYPE TextTable; };
+
+RANGE   { START $960C;  END $9633;  TYPE Code; };
+RANGE   { START $9634;  END $963C;  TYPE TextTable; };
+RANGE   { START $963D;  END $964D;  TYPE Code; };
+
+RANGE   { START $964E;  END $96CF;  TYPE ByteTable; };
 RANGE   { START $96D0;  END $96FC;  TYPE Code; };
 RANGE   { START $96FD;  END $9712;  TYPE TextTable; };
 RANGE   { START $9713;  END $9748;  TYPE Code; };
@@ -143,9 +151,9 @@ LABEL   { NAME "s9255";                     ADDR $9255; };
 LABEL   { NAME "cmd_cast";                  ADDR $9299; };
 LABEL   { NAME "s942A";                     ADDR $942A; };
 LABEL   { NAME "cmd_enter";                 ADDR $9442; };
-LABEL   { NAME "cmd_fire";                  ADDR $95CE; };
 LABEL   { NAME "s95B9";                     ADDR $95B9; };
 LABEL   { NAME "s95C9";                     ADDR $95C9; };
+LABEL   { NAME "cmd_fire";                  ADDR $95CE; };
 LABEL   { NAME "cmd_quit_save";             ADDR $964E; };
 LABEL   { NAME "cmd_ready";                 ADDR $9671; };
 LABEL   { NAME "cmd_xit";                   ADDR $9677; };
@@ -180,6 +188,7 @@ LABEL   { NAME "j933D";                     ADDR $933D; };
 LABEL   { NAME "j93BA";                     ADDR $93BA; };
 LABEL   { NAME "j9559";                     ADDR $9559; };
 LABEL   { NAME "j955C";                     ADDR $955C; };
+LABEL   { NAME "j95FC";                     ADDR $95FC; };
 LABEL   { NAME "j9752";                     ADDR $9752; };
 
 ########################
@@ -281,6 +290,12 @@ LABEL   { NAME "b954B";                     ADDR $954B; };
 LABEL   { NAME "b9565";                     ADDR $9565; };
 LABEL   { NAME "b9568";                     ADDR $9568; };
 LABEL   { NAME "b958C";                     ADDR $958C; };
+
+LABEL   { NAME "b95E3";                     ADDR $95E3; };
+LABEL   { NAME "b95F2";                     ADDR $95F2; };
+LABEL   { NAME "b9602";                     ADDR $9602; };
+LABEL   { NAME "b960D";                     ADDR $960D; };
+LABEL   { NAME "b9640";                     ADDR $9640; };
 
 LABEL   { NAME "b96EC";                     ADDR $96EC; };
 LABEL   { NAME "b9716";                     ADDR $9716; };
