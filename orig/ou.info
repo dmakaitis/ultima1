@@ -13,7 +13,7 @@ ASMINC  { FILE "orig/mi.inc"; };
 ASMINC  { FILE "orig/st.inc"; };
 
 SEGMENT { START $8C9C;  END $8C9D;  NAME "LOADADDR"; };
-SEGMENT { START $8C9E;  END $FFFF;  NAME "code"; };
+SEGMENT { START $8C9E;  END $A14A;  NAME "code"; };
 
 RANGE   { START $8C9C;  END $8C9D;  TYPE AddrTable; };
 
@@ -130,9 +130,7 @@ RANGE   { START $97E0;  END $9A04;  TYPE Code; };
 RANGE   { START $9A05;  END $9A0F;  TYPE ByteTable; };
 RANGE   { START $9A10;  END $9A4C;  TYPE Code; };
 RANGE   { START $9A4D;  END $9A57;  TYPE ByteTable; };
-
 RANGE   { START $9A58;  END $9B2A;  TYPE Code; };
-
 RANGE   { START $9B2B;  END $9BC4;  TYPE Code; };
 RANGE   { START $9BC5;  END $9BC6;  TYPE AddrTable; };
 RANGE   { START $9BC7;  END $9BC9;  TYPE Code; };
@@ -143,10 +141,12 @@ RANGE   { START $9C14;  END $9C22;  TYPE Code; };
 RANGE   { START $9C23;  END $9C28;  TYPE TextTable; };
 RANGE   { START $9C29;  END $9C47;  TYPE Code; };
 RANGE   { START $9C48;  END $9C4F;  TYPE TextTable; };
-RANGE   { START $9C50;  END $9C76;  TYPE Code; };
-RANGE   { START $9C77;  END $9E28;  TYPE ByteTable; };
+RANGE   { START $9C50;  END $9C98;  TYPE Code; };
+RANGE   { START $9C99;  END $9CA5;  TYPE ByteTable; };
+RANGE   { START $9CA6;  END $9D43;  TYPE Code; };
+RANGE   { START $9D44;  END $9E28;  TYPE ByteTable; };
 RANGE   { START $9E29;  END $9E5A;  TYPE AddrTable; };  # JSR addresses start here...
-RANGE   { START $9E5B;  END $FFFF;  TYPE ByteTable; };
+RANGE   { START $9E5B;  END $A149;  TYPE ByteTable; };
 
 ########################
 # Subroutines
@@ -430,6 +430,14 @@ LABEL   { NAME "b9C20";                     ADDR $9C20; };
 LABEL   { NAME "b9C32";                     ADDR $9C32; };
 LABEL   { NAME "b9C66";                     ADDR $9C66; };
 
+LABEL   { NAME "b9CD7";                     ADDR $9CD7; };
+
+LABEL   { NAME "b9CED";                     ADDR $9CED; };
+
+LABEL   { NAME "b9D0E";                     ADDR $9D0E; };
+LABEL   { NAME "b9D1B";                     ADDR $9D1B; };
+LABEL   { NAME "b9D3A";                     ADDR $9D3A; };
+
 ########################
 # Data
 
@@ -460,7 +468,8 @@ LABEL   { NAME "wA145";                     ADDR $A145; };
 LABEL   { NAME "rB000";                     ADDR $B000; };
 LABEL   { NAME "rB001";                     ADDR $B001; };
 LABEL   { NAME "wBCFF";                     ADDR $BCFF; };
-LABEL   { NAME "rBD00";                     ADDR $BD00; };
+LABEL   { NAME "wBD00";                     ADDR $BD00; };
+LABEL   { NAME "rBD01";                     ADDR $BD01; };
 
 ########################
 # Zero Page
@@ -494,6 +503,7 @@ LABEL   { NAME "zp47";                      ADDR $47; };
 LABEL   { NAME "zp48";                      ADDR $48; };
 LABEL   { NAME "zp49";                      ADDR $49; };
 LABEL   { NAME "zp4C";                      ADDR $4C; };
+LABEL   { NAME "zp4D";                      ADDR $4D; };
 
 LABEL   { NAME "TMP_PTR";                   ADDR $60; };
 LABEL   { NAME "TMP_PTR_HI";                ADDR $61; };

@@ -68,9 +68,13 @@ mi_player_8267                          := $8267;
 mi_player_8268                          := $8268;
 mi_player_826b                          := $826B;
 mi_player_826c                          := $826C;
+mi_player_826d                          := $826D;
 mi_player_82Bc                          := $82BC;
+mi_player_82Bd                          := $82BD;
 mi_player_830c                          := $830C;
+mi_player_830d                          := $830D;
 mi_player_835c                          := $835C;
+mi_player_835d                          := $835D;
 
 mi_s83ed                                := $83ED;
 
