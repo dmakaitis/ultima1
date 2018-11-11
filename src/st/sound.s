@@ -330,7 +330,7 @@ toggle_voice_3:
         sta     SID_Amp
 w1C7E           := * + 1
         lda     TMP_5E                                  ; Pretty sure this is a bug - this code gets overwritten by the init code, but
-        rts                                             ; what's already here makes much more sense than what it gets overwritten with...
+        rts                                             ; what is already here makes much more sense than what it gets overwritten with...
 
 
 

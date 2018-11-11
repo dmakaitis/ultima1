@@ -6,6 +6,8 @@
 ;
 ;-------------------------------------------------------------------------------
 
+.export st_avatar_tile
+
 .export draw_world
 
 .export tile_images
@@ -165,7 +167,7 @@ draw_world:
         inc     VIEW_Y
         cmp     PLAYER_Y
         bne     @draw_world_row
-        lda     avatar_tile
+        lda     st_avatar_tile
         lsr     a
         sta     WORLD_BUFFER + 9
 
@@ -367,5 +369,5 @@ tile_colors:
 
 .segment "DATA_AVATAR_TILE"
 
-avatar_tile:
+st_avatar_tile:
         .byte   $10

@@ -18,10 +18,10 @@ st_bitmap_x_offset_lo               := $15B0;
 st_bitmap_x_offset_hi               := $15D8;
 
 st_sound_enabled_flag               := $1638;
-st_w1639                            := $1639;
+st_avatar_tile                      := $1639;
 
-st_w1632                            := $1632;
-st_w1637                            := $1637;
+st_joystick_fire_key_equiv          := $1632;
+st_key_repeat_rate_10ths            := $1637;
 
 st_init_snd_gfx                     := $163A;
 st_do_nothing                       := $163D;

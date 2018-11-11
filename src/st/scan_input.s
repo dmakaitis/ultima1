@@ -9,6 +9,9 @@
 .include "c64.inc"
 .include "kernel.inc"
 
+.export st_joystick_fire_key_equiv
+.export st_key_repeat_rate_10ths
+
 .export scan_input
 
         .setcpu "6502"
@@ -112,7 +115,7 @@ scan_input:
         beq     @done
 
 @check_repeat_timer:
-        ldy     key_repeat_rate_10ths                   ; Disable repeating if the repeat rate is at least 0.4 seconds
+        ldy     st_key_repeat_rate_10ths                ; Disable repeating if the repeat rate is at least 0.4 seconds
         cpy     #$04
         bcs     @do_not_repeat
 
@@ -134,7 +137,7 @@ scan_input:
 
 @check_10ths_timer:
         ldy     CIA1_TOD10                              ; If the 10ths timer is less than the repeat timer, then do not repeat the key
-        cpy     key_repeat_rate_10ths
+        cpy     st_key_repeat_rate_10ths
         bcc     @do_not_repeat
 
 @reset_repeat_timer:
@@ -167,7 +170,8 @@ key_repeating_indicator:
 .segment "DATA_1632"
 
 joystick_commands:
+st_joystick_fire_key_equiv:
         .byte   $A0,$BB,$BA,$AF,$C0         ; fire, right, left, down, up (' ', ';', ':', '/', '@')
 
-key_repeat_rate_10ths:
+st_key_repeat_rate_10ths:
         .byte   $02

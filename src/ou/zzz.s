@@ -16,28 +16,28 @@ zp22            := $22
 zp23            := $23
 zp24            := $24
 zp25            := $25
-zp26            := $0026
-zp27            := $0027
-zp28            := $0028
-zp29            := $0029
-zp2C            := $002C
-zp2D            := $002D
-zp36            := $0036
-zp37            := $0037
-zp38            := $0038
-zp39            := $0039
-zp3A            := $003A
-zp3C            := $003C
-zp3D            := $003D
-zp3F            := $003F
-zp43            := $0043
-zp44            := $0044
-zp46            := $0046
-zp47            := $0047
-zp48            := $0048
-zp49            := $0049
-zp4C            := $004C
-zp4D            := $004D
+zp26            := $26
+zp27            := $27
+zp28            := $28
+zp29            := $29
+zp2C            := $2C
+zp2D            := $2D
+zp36            := $36
+zp37            := $37
+zp38            := $38
+zp39            := $39
+zp3A            := $3A
+zp3C            := $3C
+zp3D            := $3D
+zp3F            := $3F
+zp43            := $43
+zp44            := $44
+zp46            := $46
+zp47            := $47
+zp48            := $48
+zp49            := $49
+zp4C            := $4C
+zp4D            := $4D
 TMP_PTR         := $60
 TMP_PTR2        := $62
 
@@ -65,9 +65,9 @@ b8CB4:  lda     (TMP_PTR),y
         lda     #$36
         sta     PROCESSOR_PORT
         lda     #$C1
-        sta     st_w1632
+        sta     st_joystick_fire_key_equiv
         lda     #$02
-        sta     st_w1637
+        sta     st_key_repeat_rate_10ths
         lda     mi_player_position_x
         sta     POS_X
         lda     mi_player_position_y
@@ -519,7 +519,7 @@ b90C4:  jsr     print_current_vehicle
         rts
 
 b90D1:  lda     #$0F
-        sta     st_w1637
+        sta     st_key_repeat_rate_10ths
         lda     #$05
 L90D8:  jmp     j9262
 
@@ -857,7 +857,7 @@ b9470:  cmp     rA119,x
 b9479:  cmp     #$04
         bne     b9486
         lda     #$01
-        sta     st_w1637
+        sta     st_key_repeat_rate_10ths
         lda     #$04
         bne     b94BB
 b9486:  cmp     #$06
@@ -881,7 +881,7 @@ b9486:  cmp     #$06
         jsr     s942A
         sta     mi_player_8229
         lda     #$01
-        sta     st_w1637
+        sta     st_key_repeat_rate_10ths
         lda     #$03
         bne     b94BB
 b94B9:  lda     #$02
@@ -1714,7 +1714,7 @@ b9BAF:  jsr     mi_print_tab
         lda     #$04
         jsr     st_queue_sound
         lda     #$5E
-        sta     st_w1639
+        sta     st_avatar_tile
         jsr     st_draw_world
         lda     mi_player_stamina
         lsr     a
@@ -1988,7 +1988,7 @@ b9E17:  cmp     #$07
         lda     #$07
 b9E22:  ora     #$08
         asl     a
-        sta     st_w1639
+        sta     st_avatar_tile
         rts
 
 command_routine_table:
