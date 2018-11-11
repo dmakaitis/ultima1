@@ -8,7 +8,7 @@
 #		dd, lo, ge, ou, ro, p0, ca, pr, 
 #		in , dn, mi, tm, sp, p1, p2, p3
 U1FILES = u1 hello st \
-			lo ge \
+			lo ge ou \
 			in mi
 PRG_OBJ = build/prgobj
 PRG_OUT = build/prg
@@ -77,6 +77,13 @@ $(PRG_OUT)/ge.prg $(MAPS_OUT)/ge.map: src/ge/ge.cfg $(ge_obj)
 	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(ge_obj) -o $@ -vm -m $(MAPS_OUT)/ge.map
 
+ou_obj = $(addprefix $(PRG_OBJ)/ou/, $(addsuffix .o, $(basename $(notdir $(wildcard src/ou/*.s)))))
+$(ou_obj): $(INC_OUT)/hello.inc $(INC_OUT)/st.inc $(INC_OUT)/mi.inc
+$(PRG_OUT)/ou.prg $(MAPS_OUT)/ou.map: src/ou/ou.cfg $(ou_obj)
+	@mkdir -p $(@D)
+	@mkdir -p $(MAPS_OUT)
+	$(LD65) -C $< $(ou_obj) -o $@ -vm -m $(MAPS_OUT)/ou.map
+
 in_obj = $(addprefix $(PRG_OBJ)/in/, $(addsuffix .o, $(basename $(notdir $(wildcard src/in/*.s)))))
 $(in_obj): $(INC_OUT)/hello.inc
 $(PRG_OUT)/in.prg $(MAPS_OUT)/in.map: src/in/in.cfg $(in_obj)
@@ -91,6 +98,9 @@ $(PRG_OUT)/mi.prg $(MAPS_OUT)/mi.map: src/mi/mi.cfg $(mi_obj)
 	@mkdir -p $(MAPS_OUT)
 	$(LD65) -C $< $(mi_obj) -o $@ -vm -m $(MAPS_OUT)/mi.map
 
+$(INC_OUT)/mi.inc: src/mi/mi.exp
+$(INC_OUT)/st.inc: src/st/st.exp
+
 $(INC_OUT)/%.inc: $(MAPS_OUT)/%.map $(MAP2INC)
 	@mkdir -p $(@D)
 	$(MAP2INC) -m $< -i src/$*/$*.exp -o $@
@@ -102,6 +112,7 @@ verify: u1files $(addprefix $(ORIG_PRG_OUT)/, $(addsuffix .prg, $(U1FILES)))
 	./chkfile st.prg
 	./chkfile lo.prg
 	./chkfile ge.prg
+	./chkfile ou.prg
 	./chkfile in.prg
 	./chkfile mi.prg	
 

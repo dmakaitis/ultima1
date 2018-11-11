@@ -22,6 +22,7 @@ st_bitmap_x_offset_hi
 st_sound_enabled_flag
 st_w1632
 st_w1637
+st_w1639
 
 st_init_snd_gfx
 st_do_nothing
