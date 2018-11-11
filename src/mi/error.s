@@ -10,6 +10,7 @@
 .include "st.inc"
 
 .export mi_cmd_invalid
+.export mi_do_nothing
 .export mi_play_error_sound_and_reset_buffers
 .export mi_reset_buffers
 
@@ -69,6 +70,7 @@ mi_reset_buffers:
         sta     SOUND_BUFFER_SIZE
         sta     INPUT_BUFFER_SIZE
 
+mi_do_nothing:
         rts
 
 

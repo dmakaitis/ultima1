@@ -8,14 +8,14 @@
 
 .export mi_attribute_table
 .export mi_class_name_table
+.export mi_command_table
 .export mi_race_name_table
+.export mi_weapon_table
 
 .export armor_table
-.export command_table
 .export gem_table
 .export spell_table
 .export vehicle_table
-.export weapon_table
 
 .export death_image
 
@@ -33,7 +33,7 @@ mi_race_name_table:
         .byte   "dwar",$E6
         .byte   "bobbi",$F4
 
-weapon_table:
+mi_weapon_table:
         .byte   "hand",$F3
         .byte   "dagge",$F2
         .byte   "mac",$E5
@@ -125,7 +125,7 @@ vehicle_table:
         .byte   "battle bas",$E5
         .byte   "time machin",$E5
 
-command_table:
+mi_command_table:
         .byte   "Nort",$E8
         .byte   "Sout",$E8
         .byte   "Eas",$F4

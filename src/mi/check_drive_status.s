@@ -8,7 +8,7 @@
 
 .include "st.inc"
 
-.export check_drive_status
+.export mi_check_drive_status
 
 .import mi_print_text
 
@@ -19,7 +19,7 @@
 .segment "CODE_STATUS"
 
 ;-----------------------------------------------------------
-;                    check_drive_status
+;                  mi_check_drive_status
 ;
 ; Check the drive status after loading or saving a file. If
 ; the carry flag is clear, then the disk operation was
@@ -27,7 +27,7 @@
 ; user.
 ;-----------------------------------------------------------
 
-check_drive_status:
+mi_check_drive_status:
         bcc     @no_error
 
         jsr     mi_print_text							; Display error message to the user

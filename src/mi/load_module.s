@@ -12,11 +12,11 @@
 
 .export load_module_a
 
+.import mi_check_drive_status
 .import mi_display_stats
 .import mi_reset_buffers
 .import mi_restore_text_area
 
-.import check_drive_status
 .import draw_border
 .import reset_screen_swapping
 
@@ -80,7 +80,7 @@ load_module_a:
         jsr     mi_reset_buffers                        ; Load the requested module
         ldx     active_swap_module
         jsr     load_file        
-        jsr     check_drive_status
+        jsr     mi_check_drive_status
         bcs     @load_loop
 
         jsr     reset_screen_swapping

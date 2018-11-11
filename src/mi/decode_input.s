@@ -11,12 +11,11 @@
 .import mi_play_error_sound_and_reset_buffers
 .import mi_print_text
 
-.import print_string_entry_x
+.import mi_print_string_entry_x2
 
+.import mi_command_decode_table
+.import mi_command_table
 .import mi_command_table_override
-
-.import command_table
-.import command_decode_table
 
         .setcpu "6502"
 
@@ -33,7 +32,7 @@
 
 mi_decode_and_print_command_a:
         ldx     #$18                                    ; Validate input against the possible command
-@loop:  cmp     command_decode_table,x
+@loop:  cmp     mi_command_decode_table,x
         beq     @command_found
         dex
         bpl     @loop
@@ -59,16 +58,16 @@ mi_decode_and_print_command_a:
         sta     @new_command_table + 1                  ; If so, print the overridden command name
         lda     mi_command_table_override
         sta     @new_command_table
-        jsr     print_string_entry_x
+        jsr     mi_print_string_entry_x2
 @new_command_table:
-        .addr   command_table
+        .addr   mi_command_table
 
         jmp     @done
 
 
 @print_standard_command:
-        jsr     print_string_entry_x
-        .addr   command_table
+        jsr     mi_print_string_entry_x2
+        .addr   mi_command_table
 
 @done:  pla                                             ; x := command ID * 2
         asl     a

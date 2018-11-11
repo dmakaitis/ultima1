@@ -14,12 +14,14 @@
 .export mi_print_char
 .export mi_print_crlf_col_1
 .export mi_print_string_entry_x
+.export mi_print_string_entry_x2
 .export mi_print_text
 .export mi_print_text_at_x_y
 .export mi_print_x_chars
 
-.export print_string_entry_x
+.export inc_then_read_ptr
 .export reduce_text_window_size
+.export rts_ptr
 
 .export indent
 
@@ -266,12 +268,12 @@ mi_print_string_entry_x:
 
         bit     a:zpA2
 
-        ; continued in print_string_entry_x
+        ; continued in mi_print_string_entry_x2
 
 ;-----------------------------------------------------------
 ;-----------------------------------------------------------
 
-print_string_entry_x:
+mi_print_string_entry_x2:
         pla                                             ; Pull the return address from the stack into rts_ptr 
         sta     rts_ptr
         pla

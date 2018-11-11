@@ -8,6 +8,8 @@
 
 .include "st.inc"
 
+.export mi_cmd_noise
+
 .import mi_print_text
 
 .import mi_player_sound_flag

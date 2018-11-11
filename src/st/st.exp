@@ -61,3 +61,5 @@ st_do_nothing4
 st_do_nothing5
 st_wait_for_raster
 st_delay_a_squared
+
+st_scan_input

@@ -1,18 +1,51 @@
 .include "kernel.inc"
 .include "st.inc"
 
+.export mi_command_decode_table
 .export mi_command_table_override
+.export mi_get_item_to_ready
+.export mi_div_a_by_10
 .export mi_selected_item
 .export mi_s863C
 
 .export bm_addr_mask_cache
-.export command_decode_table
+
+.import mi_print_crlf_col_1
+.import mi_print_string_entry_x
+.import mi_print_string_entry_x2
+.import mi_print_text
+.import mi_print_text_at_x_y
+.import mi_reset_buffers
+.import mi_restore_text_area
+.import mi_store_text_area
+.import draw_border_and_restore_text_area
+
+.import inc_then_read_ptr
 
 .import mi_player_food
+
+.import rts_ptr
+
+.import armor_table
+.import spell_table
+.import mi_weapon_table
+.import mi_player_equipped_armor
+.import mi_player_equipped_spell
+.import mi_player_equipped_weapon
+.import mi_player_inventory_armor
+.import mi_player_inventory_spells
+.import mi_player_inventory_weapons
 
 .import w824F
 .import w8250
 .import w8259
+
+zp26            := $26
+zp27            := $27
+zp41            := $41
+zp42            := $42
+zp43            := $43
+zp46            := $46
 
         .setcpu "6502"
 
@@ -34,7 +67,7 @@ w81C6:  .byte   $50
 mi_command_table_override:
         .byte   $00,$00
 
-command_decode_table:
+mi_command_decode_table:
         .byte   $40,$2F,$3B,$3A,$20,$41,$42,$43         ; 25 bytes
         .byte   $44,$45,$46,$47,$48,$49,$4B,$4E
         .byte   $4F,$51,$52,$53,$54,$55,$56,$58
@@ -44,14 +77,58 @@ command_decode_table:
 
 .segment "CODE_ZZZ2"
 
-        .byte   $A0,$FF,$38,$C8,$E9,$0A,$B0,$FB
-        .byte   $98,$60,$85,$43,$20,$70,$16,$C5
-        .byte   $43,$90,$04,$E5,$43,$B0,$F8,$C9
-        .byte   $00,$85,$43,$60,$20,$73,$16,$A5
-        .byte   $56,$60,$20,$77,$87,$A0,$3D,$8C
-        .byte   $FC,$85,$20,$D5,$1E,$EA,$EA,$EA
-        .byte   $C9,$00,$D0,$08,$20,$A0,$16,$CE
-        .byte   $FC,$85,$D0,$EE,$60,$40
+;-----------------------------------------------------------
+;-----------------------------------------------------------
+
+mi_div_a_by_10:
+        ldy     #$FF
+        sec
+b85C2:  iny
+        sbc     #$0A
+        bcs     b85C2
+        tya
+        rts
+
+
+
+;-----------------------------------------------------------
+;-----------------------------------------------------------
+
+mi_get_random_number_a:
+        sta     zp43
+        jsr     st_get_random_number
+b85CE:  cmp     zp43
+        bcc     b85D6
+        sbc     zp43
+        bcs     b85CE
+b85D6:  cmp     #$00
+        sta     zp43
+        rts
+
+        .byte   $20,$73,$16,$A5,$56,$60
+
+
+
+;-----------------------------------------------------------
+;-----------------------------------------------------------
+
+mi_reset_buffers_and_wait_for_input:
+        jsr     mi_reset_buffers
+mi_wait_for_input:
+        ldy     #$3D
+        sty     w85FC
+b85E9:  jsr     st_scan_input
+        nop
+        nop
+        nop
+        cmp     #$00
+        bne     b85FB
+        jsr     st_delay_a_squared
+        dec     w85FC
+        bne     b85E9
+b85FB:  rts
+
+w85FC:  .byte   $40
 
 
 
@@ -150,53 +227,204 @@ mi_s863C:
 .segment "CODE_ZZZ6"
 
 ;-----------------------------------------------------------
+;-----------------------------------------------------------
 
-        .byte   $20,$0C,$87,$A9,$04,$85,$30,$85
-        .byte   $2E,$A9,$10,$85,$31,$A9,$20,$85
-        .byte   $2F,$20,$52,$16,$20,$F3,$83,$A9
-        .byte   $60,$20,$8B,$16,$20,$C9,$87,$A2
-        .byte   $04,$A0,$12,$86,$26,$84,$27,$A2
-        .byte   $FA,$20,$91,$16,$A6,$26,$A0,$6D
-        .byte   $20,$91,$16,$A2,$04,$A4,$27,$20
-        .byte   $91,$16,$A6,$26,$A0,$12,$20,$91
-        .byte   $16,$A5,$5C,$45,$5D,$85,$5C,$60
-        .byte   $48,$A9,$07,$85,$32,$68,$A2,$03
-        .byte   $DD,$F5,$87,$F0,$03,$CA,$D0,$F8
-        .byte   $8A,$0A,$A8,$B9,$FA,$87,$48,$B9
-        .byte   $F9,$87,$48,$20,$2D,$84,$2E,$88
-        .byte   $20,$4F,$16,$E6,$32,$60,$53,$57
-        .byte   $41,$F4,$87,$00,$88,$0F,$88,$1E
-        .byte   $88,$AD,$EE,$81,$20,$49,$88,$0A
-        .byte   $08,$82,$88,$78,$8D,$EE,$81,$60
-        .byte   $AD,$EF,$81,$20,$49,$88,$0F,$F8
-        .byte   $81,$7C,$77,$8D,$EF,$81,$60,$AD
-        .byte   $F0,$81,$20,$49,$88,$05,$F2,$81
-        .byte   $D4,$78,$8D,$F0,$81,$60,$6E,$6F
-        .byte   $74,$68,$69,$6E,$E7,$73,$70,$65
-        .byte   $6C,$6C,$BA,$77,$65,$61,$70,$6F
-        .byte   $6E,$BA,$61,$72,$6D,$6F,$75,$72
-        .byte   $BA,$85,$46,$68,$8D,$B5,$83,$68
-        .byte   $8D,$B6,$83,$20,$AC,$83,$8D,$0B
-        .byte   $89,$20,$AC,$83,$85,$41,$20,$AC
-        .byte   $83,$85,$42,$20,$AC,$83,$8D,$07
-        .byte   $89,$20,$AC,$83,$8D,$08,$89,$AD
-        .byte   $B6,$83,$48,$AD,$B5,$83,$48,$20
-        .byte   $0C,$87,$20,$5E,$16,$A2,$0E,$A0
-        .byte   $00,$A5,$5D,$8D,$C3,$81,$84,$5D
-        .byte   $20,$8A,$84,$0E,$20,$52,$65,$61
-        .byte   $64,$79,$20,$18,$00,$20,$52,$16
-        .byte   $AC,$0B,$89,$A2,$01,$B1,$41,$F0
-        .byte   $01,$E8,$88,$D0,$F8,$86,$43,$38
-        .byte   $A9,$14,$E5,$43,$4A,$85,$33,$A9
-        .byte   $61,$8D,$BF,$88,$A0,$00,$98,$48
-        .byte   $A9,$0D,$85,$32,$20,$8E,$84,$61
-        .byte   $29,$20,$00,$68,$20,$02,$89,$A8
-        .byte   $E6,$33,$CC,$0B,$89,$B0,$0A,$EE
-        .byte   $BF,$88,$C8,$B1,$41,$D0,$DF,$F0
-        .byte   $F1,$20,$01,$87,$AD,$C3,$81,$85
-        .byte   $5D,$20,$64,$16,$20,$76,$16,$48
-        .byte   $20,$D6,$8A,$38,$68,$E9,$41,$F0
-        .byte   $11,$30,$0C,$CD,$0B,$89,$90,$02
-        .byte   $D0,$05,$A8,$B1,$41,$D0,$02,$A4
-        .byte   $46,$98,$AA,$48,$20,$26,$84,$00
-        .byte   $00,$68,$60,$0A
+mi_s8788:
+        jsr     mi_store_text_area
+        lda     #$04
+        sta     CUR_Y_MIN
+        sta     CUR_X_OFF
+        lda     #$10
+        sta     CUR_Y_MAX
+        lda     #$20
+        sta     CUR_X_MAX
+        jsr     st_clear_text_window
+        jsr     mi_print_crlf_col_1
+mi_s879F:
+        lda     #$60
+mi_s87A1:
+        jsr     st_s168B
+        jsr     s87C9
+        ldx     #$04
+        ldy     #$12
+        stx     zp26
+        sty     zp27
+        ldx     #$FA
+        jsr     st_s1691
+        ldx     zp26
+        ldy     #$6D
+        jsr     st_s1691
+        ldx     #$04
+        ldy     zp27
+        jsr     st_s1691
+        ldx     zp26
+        ldy     #$12
+        jsr     st_s1691
+s87C9:  lda     BM_ADDR_MASK
+        eor     BM2_ADDR_MASK
+        sta     BM_ADDR_MASK
+        rts
+
+
+
+;-----------------------------------------------------------
+;-----------------------------------------------------------
+
+mi_get_item_to_ready:
+        pha
+        lda     #$07
+        sta     CUR_X
+        pla
+        ldx     #$03
+b87D8:  cmp     r87F5,x
+        beq     b87E0
+        dex
+        bne     b87D8
+b87E0:  txa
+        asl     a
+        tay
+        lda     r87FA,y
+        pha
+        lda     r87F9,y
+        pha
+        jsr     mi_print_string_entry_x2
+        .addr   r882E
+        jsr     st_clear_to_end_of_text_row_a
+        inc     CUR_X
+r87F5:  rts
+
+        .byte   $53,$57,$41
+r87F9:
+r87FA           := * + 1
+        .word   r87F5-1
+        .word   j8801-1
+        .word   j8810-1
+        .word   j881F-1
+j8801:  lda     mi_player_equipped_spell
+        jsr     s8849
+        .byte   $0A
+        .addr   mi_player_inventory_spells
+        .addr   spell_table
+        sta     mi_player_equipped_spell
+        rts
+
+j8810:  lda     mi_player_equipped_weapon
+        jsr     s8849
+        .byte   $0F
+        .addr   mi_player_inventory_weapons
+        .addr   mi_weapon_table
+        sta     mi_player_equipped_weapon
+        rts
+
+j881F:  lda     mi_player_equipped_armor
+        jsr     s8849
+        .byte   $05
+        .addr   mi_player_inventory_armor
+        .addr   armor_table
+        sta     mi_player_equipped_armor
+        rts
+
+r882E:  .byte   "nothin"
+        .byte   $E7
+        .byte   "spell"
+        .byte   $BA
+        .byte   "weapon"
+        .byte   $BA
+        .byte   "armour"
+        .byte   $BA
+s8849:  sta     zp46
+        pla
+        sta     rts_ptr
+        pla
+        sta     rts_ptr + 1
+        jsr     inc_then_read_ptr
+        sta     max_ready_option
+        jsr     inc_then_read_ptr
+        sta     zp41
+        jsr     inc_then_read_ptr
+        sta     zp42
+        jsr     inc_then_read_ptr
+        sta     w8907
+        jsr     inc_then_read_ptr
+        sta     w8908
+        lda     rts_ptr + 1
+        pha
+        lda     rts_ptr
+        pha
+        jsr     mi_store_text_area
+        jsr     st_set_text_window_main
+        ldx     #$0E
+        ldy     #$00
+        lda     BM2_ADDR_MASK
+        sta     bm_addr_mask_cache
+        sty     BM2_ADDR_MASK
+        jsr     mi_print_text_at_x_y
+        .byte   $0E
+        .byte   " Ready "
+        .byte   $18,$00
+        jsr     st_clear_text_window
+        ldy     max_ready_option
+        ldx     #$01
+b889D:  lda     (zp41),y
+        beq     b88A2
+        inx
+b88A2:  dey
+        bne     b889D
+        stx     zp43
+        sec
+        lda     #$14
+        sbc     zp43
+        lsr     a
+        sta     CUR_Y
+        lda     #$61
+        sta     w88BF
+        ldy     #$00
+b88B6:  tya
+        pha
+        lda     #$0D
+        sta     CUR_X
+        jsr     mi_print_text
+w88BF:  .byte   "a) "
+        .byte   $00
+        pla
+        jsr     s8902
+        tay
+        inc     CUR_Y
+b88CA:  cpy     max_ready_option
+        bcs     b88D9
+        inc     w88BF
+        iny
+        lda     (zp41),y
+        bne     b88B6
+        beq     b88CA
+b88D9:  jsr     mi_restore_text_area
+        lda     bm_addr_mask_cache
+        sta     BM2_ADDR_MASK
+        jsr     st_swap_bitmaps
+        jsr     st_read_input
+        pha
+        jsr     draw_border_and_restore_text_area
+        sec
+        pla
+        sbc     #$41
+        beq     s8902
+        bmi     b88FF
+        cmp     max_ready_option
+        bcc     b88FA
+        bne     b88FF
+b88FA:  tay
+        lda     (zp41),y
+        bne     b8901
+b88FF:  ldy     zp46
+b8901:  tya
+s8902:  tax
+        pha
+        jsr     mi_print_string_entry_x
+w8907:
+w8908           := * + 1
+        .addr   $0000
+        pla
+        rts
+
+max_ready_option:
+        .byte   $0A

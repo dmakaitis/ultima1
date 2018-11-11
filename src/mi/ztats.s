@@ -11,6 +11,7 @@
 .export mi_cmd_ztats
 
 .export next_row_or_column
+.export draw_border_and_restore_text_area
 
 .import mi_cursor_to_col_0
 .import mi_print_char
@@ -27,7 +28,7 @@
 .import print_2_digits
 .import print_digit
 .import print_long_int
-.import print_string_entry_x
+.import mi_print_string_entry_x2
 .import reduce_text_window_size
 .import swap_screens_and_press_space
 .import to_decimal_a_x
@@ -61,7 +62,7 @@
 .import gem_table
 .import spell_table
 .import vehicle_table
-.import weapon_table
+.import mi_weapon_table
 
 dec_lo          := $3C
 dec_mid         := $3D
@@ -125,12 +126,12 @@ mi_cmd_ztats:
         .asciiz "male "
 
         ldx     mi_player_race                          ; Display character race
-        jsr     print_string_entry_x
+        jsr     mi_print_string_entry_x2
         .addr   mi_race_name_table
 
         inc     CUR_X                                   ; Display character class
         ldx     mi_player_class
-        jsr     print_string_entry_x
+        jsr     mi_print_string_entry_x2
         .addr   mi_class_name_table
 
         jsr     set_text_window_ztats                   ; Clear the display for page 1 of the ztats
@@ -279,7 +280,7 @@ mi_cmd_ztats:
         lda     mi_player_inventory_weapons,x
         beq     @no_weapon
         jsr     print_string_entry_and_short_a
-        .addr   weapon_table
+        .addr   mi_weapon_table
 @no_weapon:
         ldx     string_entry
         inx
@@ -303,6 +304,7 @@ mi_cmd_ztats:
 
         jsr     swap_screens_and_press_space            ; Update the screen
 
+draw_border_and_restore_text_area:
         jsr     draw_border                             ; Redraw the border and restore the original text area
         jmp     mi_restore_text_area
 

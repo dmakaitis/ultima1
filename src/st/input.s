@@ -21,7 +21,7 @@
 .import do_nothing4
 .import draw_world
 .import print_char
-.import scan_input
+.import st_scan_input
 
         .setcpu "6502"
 
@@ -37,7 +37,7 @@ INPUT_BUFFER_SIZE       := $56
 ;-----------------------------------------------------------
 
 scan_and_buffer_input:
-        jsr     scan_input                              ; Scan for input
+        jsr     st_scan_input                           ; Scan for input
         bpl     buffer_input_done                       ; If the high bit isn't set, then we're done
 
         ; continued below

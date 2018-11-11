@@ -14,7 +14,7 @@
 
 .import animate_water
 .import buffer_input
-.import scan_input
+.import st_scan_input
 .import swap_bitmaps
 
 .import st_bitmap_y_offset_hi
@@ -87,7 +87,7 @@ draw_world:
         sbc     #$04
         sta     VIEW_Y
 
-@loop:  jsr     scan_input                              ; Scan and buffer any input where the high bit is set
+@loop:  jsr     st_scan_input                           ; Scan and buffer any input where the high bit is set
         bpl     @buffer_world_view_row
         jsr     buffer_input
 

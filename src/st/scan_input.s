@@ -9,10 +9,10 @@
 .include "c64.inc"
 .include "kernel.inc"
 
+.export st_scan_input
+
 .export st_joystick_fire_key_equiv
 .export st_key_repeat_rate_10ths
-
-.export scan_input
 
         .setcpu "6502"
 
@@ -22,14 +22,14 @@ zpC5                    := $C5
 .segment "CODE_SCAN_INPUT"
 
 ;-----------------------------------------------------------
-;                       scan_input
+;                      st_scan_input
 ;
 ; Scans the keyboard and joystick for input. If a key or the
 ; joystick is currently being pressed, the input value is
 ; returned in the accumulator.
 ;-----------------------------------------------------------
 
-scan_input:
+st_scan_input:
         sty     TEMP_Y                                  ; cache the Y register
 
         lda     #$FF                                    ; Disable all keyboard matrix columns
