@@ -5,7 +5,7 @@ mi_main                                 := $7400
 
 mi_race_name_table                      := $7763;
 mi_weapon_table                         := $777C;
-mi_r77EC                                := $77EC;
+mi_weapon_abbr_table                    := $77EC;
 mi_attribute_table                      := $7842;
 mi_class_name_table                     := $7911;
 mi_transport_table                      := $7930;
