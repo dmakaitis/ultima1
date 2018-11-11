@@ -61,3 +61,4 @@ st_do_nothing5                      := $169A;
 st_wait_for_raster                  := $169D;
 st_delay_a_squared                  := $16A0;
 
+st_scan_input                       := $1ED5;

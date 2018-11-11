@@ -67,15 +67,15 @@ sound_vectors:
 ;
 ; Sounds available include the following:
 ;
-; 0 - step
-; 2 - hit
-; 4 - attack 1 (melee?)
-; 6 - attack 2 (ranged?)
-; 8 - spell cast failed
-; 10 - cast spell
-; 12 - fire cannon
-; 14 - movement blocked
-; 16 - invalid command
+; 00 - step
+; 02 - hit
+; 04 - attack 1 (melee?)
+; 06 - attack 2 (ranged?)
+; 08 - spell cast failed
+; 0A - cast spell
+; 0C - fire cannon
+; 0E - movement blocked
+; 10 - invalid command
 ;-----------------------------------------------------------
 
 play_sound_a:

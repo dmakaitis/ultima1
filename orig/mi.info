@@ -22,21 +22,24 @@ SEGMENT { START $81AD;  END $81AD;  NAME "DATA_81AD"; };
 SEGMENT { START $81AE;  END $81E1;  NAME "CODE_ZZZ"; };
 SEGMENT { START $81E2;  END $83AB;  NAME "DATA_PLAYER"; };
 SEGMENT { START $83AC;  END $83C3;  NAME "CODE_READ_NEXT"; };
-SEGMENT { START $83C4;  END $83CC;  NAME "CODE_ZZZ2"; };
-SEGMENT { START $83CD;  END $84BF;  NAME "CODE_PRINT_TEXT"; };
+SEGMENT { START $83C4;  END $84BF;  NAME "CODE_PRINT_TEXT"; };
 SEGMENT { START $84C0;  END $8521;  NAME "CODE_BORDER"; };
 SEGMENT { START $8522;  END $85BE;  NAME "CODE_PRINT_INT"; };
-SEGMENT { START $85BF;  END $85FC;  NAME "CODE_ZZZ3"; };
+SEGMENT { START $85BF;  END $85FC;  NAME "CODE_ZZZ2"; };
 SEGMENT { START $85FD;  END $8639;  NAME "CODE_DECODE"; };
-SEGMENT { START $863A;  END $8688;  NAME "CODE_ZZZ4"; };
+SEGMENT { START $863A;  END $8688;  NAME "CODE_ZZZ3"; };
 SEGMENT { START $8689;  END $8700;  NAME "CODE_STATS"; };
 SEGMENT { START $8701;  END $8716;  NAME "CODE_TEXT_AREA"; };
-SEGMENT { START $8717;  END $8769;  NAME "CODE_ZZZ5"; };
+SEGMENT { START $8717;  END $871F;  NAME "CODE_ZZZ4"; };
+SEGMENT { START $8720;  END $874D;  NAME "CODE_BACK"; };
+SEGMENT { START $874E;  END $8769;  NAME "CODE_ZZZ5"; };
 SEGMENT { START $876A;  END $8787;  NAME "CODE_ERROR"; };
-SEGMENT { START $8788;  END $8B63;  NAME "CODE_ZZZ6"; };
-SEGMENT { START $8B64;  END $8BA0;  NAME "CODE_PRESS_SPACE"; };
+SEGMENT { START $8788;  END $890B;  NAME "CODE_ZZZ6"; };
+SEGMENT { START $890C;  END $8B55;  NAME "CODE_ZTATS"; };
+SEGMENT { START $8B56;  END $8BA0;  NAME "CODE_PRESS_SPACE"; };
 SEGMENT { START $8BA1;  END $8BAE;  NAME "CODE_PLAYER"; };
-SEGMENT { START $8BAF;  END $8C5D;  NAME "CODE_ZZZ7"; };
+SEGMENT { START $8BAF;  END $8BCD;  NAME "CODE_NOISE"; };
+SEGMENT { START $8BCE;  END $8C5D;  NAME "CODE_DEATH"; };
 SEGMENT { START $8C5E;  END $8C9D;  NAME "CODE_MODULE"; };
 SEGMENT { START $8C9E;  END $8CCD;  NAME "CODE_DO_MAIN"; };
 
@@ -52,26 +55,59 @@ RANGE   { START $8175;  END $8179;  TYPE Code; };
 RANGE   { START $817A;  END $8186;  TYPE TextTable; };
 RANGE   { START $8187;  END $81A6;  TYPE Code; };
 RANGE   { START $81A7;  END $83AB;  TYPE ByteTable; };
-RANGE   { START $83AC;  END $8578;  TYPE Code; };
+RANGE   { START $83AC;  END $8429;  TYPE Code; };
+RANGE   { START $842A;  END $842A;  TYPE ByteTable; };
+RANGE   { START $842B;  END $8578;  TYPE Code; };
 RANGE   { START $8579;  END $857B;  TYPE ByteTable; };
 RANGE   { START $857C;  END $85BC;  TYPE Code; };
-RANGE   { START $85BD;  END $85FC;  TYPE ByteTable; };
+RANGE   { START $85BD;  END $85BE;  TYPE ByteTable; };
+RANGE   { START $85BF;  END $85DA;  TYPE Code; };
+RANGE   { START $85DB;  END $85E0;  TYPE ByteTable; };
+RANGE   { START $85E1;  END $85FB;  TYPE Code; };
+RANGE   { START $85FC;  END $85FC;  TYPE ByteTable; };
 RANGE   { START $85FD;  END $8609;  TYPE Code; };
 RANGE   { START $860A;  END $860E;  TYPE TextTable; };
 RANGE   { START $860F;  END $862A;  TYPE Code; };
 RANGE   { START $862B;  END $862C;  TYPE AddrTable; };
 RANGE   { START $862D;  END $8632;  TYPE Code; };
 RANGE   { START $8633;  END $8634;  TYPE AddrTable; };
-RANGE   { START $8635;  END $8639;  TYPE Code; };
-RANGE   { START $863A;  END $863B;  TYPE ByteTable; };
-RANGE   { START $863C;  END $8691;  TYPE Code; };
+RANGE   { START $8635;  END $863A;  TYPE Code; };
+RANGE   { START $863B;  END $863B;  TYPE ByteTable; };
+RANGE   { START $863D;  END $8691;  TYPE Code; };
 RANGE   { START $8692;  END $86A9;  TYPE TextTable; };
-RANGE   { START $86AA;  END $8716;  TYPE Code; };
-RANGE   { START $8717;  END $871F;  TYPE ByteTable; };
-RANGE   { START $8720;  END $874D;  TYPE Code; };
-RANGE   { START $874E;  END $8769;  TYPE ByteTable; };
-RANGE   { START $876A;  END $8787;  TYPE Code; };
-RANGE   { START $8788;  END $890B;  TYPE ByteTable; };
+RANGE   { START $86AA;  END $871C;  TYPE Code; };
+RANGE   { START $871D;  END $871E;  TYPE AddrTable; };
+RANGE   { START $871F;  END $8750;  TYPE Code; };
+RANGE   { START $8751;  END $8765;  TYPE TextTable; };
+
+RANGE   { START $8766;  END $87ED;  TYPE Code; };
+RANGE   { START $87EE;  END $87EF;  TYPE AddrTable; };
+RANGE   { START $87F0;  END $87F5;  TYPE Code; };
+RANGE   { START $87F6;  END $87F8;  TYPE ByteTable; };
+RANGE   { START $87F9;  END $8800;  TYPE RtsTable; };
+
+RANGE   { START $8801;  END $8806;  TYPE Code; };
+RANGE   { START $8807;  END $8807;  TYPE ByteTable; };
+RANGE   { START $8808;  END $880B;  TYPE AddrTable; };
+RANGE   { START $880C;  END $8815;  TYPE Code; };
+RANGE   { START $8816;  END $8816;  TYPE ByteTable; };
+RANGE   { START $8817;  END $881A;  TYPE AddrTable; };
+RANGE   { START $881B;  END $8824;  TYPE Code; };
+RANGE   { START $8825;  END $8825;  TYPE ByteTable; };
+RANGE   { START $8826;  END $8829;  TYPE AddrTable; };
+RANGE   { START $882A;  END $882D;  TYPE Code; };
+RANGE   { START $882E;  END $8848;  TYPE TextTable; };
+RANGE   { START $8849;  END $888A;  TYPE Code; };
+RANGE   { START $888B;  END $8894;  TYPE TextTable; };
+
+RANGE   { START $8895;  END $88BE;  TYPE Code; };
+RANGE   { START $88BF;  END $88C2;  TYPE TextTable; };
+RANGE   { START $88C3;  END $8906;  TYPE Code; };
+
+RANGE   { START $8907;  END $8908;  TYPE AddrTable; };
+RANGE   { START $8909;  END $890A;  TYPE Code; };
+RANGE   { START $890B;  END $890B;  TYPE ByteTable; };
+
 RANGE   { START $890C;  END $8928;  TYPE Code; };
 RANGE   { START $8929;  END $8940;  TYPE TextTable; };
 RANGE   { START $8941;  END $8946;  TYPE Code; };
@@ -127,24 +163,28 @@ RANGE   { START $8CCD;  END $8CCD;  TYPE ByteTable; };
 ########################
 # Subroutines
 
-LABEL   { NAME "reset_screen_swapping";         ADDR $818F; };
-LABEL   { NAME "inc_then_read_ptr";             ADDR $83AC; };
-LABEL   { NAME "read_then_inc_ptr";             ADDR $83B8; };
-LABEL   { NAME "print_2_digits";                ADDR $83C4; };
-LABEL   { NAME "print_char_or_esc";             ADDR $83DD; };
-LABEL   { NAME "clear_to_end_then_print_lfcr";  ADDR $83FB; };
-LABEL   { NAME "print_lfcr";                    ADDR $83FE; };
-LABEL   { NAME "draw_border";                   ADDR $84C6; };
-LABEL   { NAME "s85A6";                         ADDR $85A6; };
-LABEL   { NAME "print_long_int";                ADDR $857C; };
-LABEL   { NAME "s8720";                         ADDR $8720; };
-LABEL   { NAME "s86AD";                         ADDR $86AD; };
-LABEL   { NAME "s8ADC";                         ADDR $8ADC; };
-LABEL   { NAME "s8B10";                         ADDR $8B10; };
-LABEL   { NAME "s8B22";                         ADDR $8B22; };
-LABEL   { NAME "s8B25";                         ADDR $8B25; };
-LABEL   { NAME "s8B56";                         ADDR $8B56; };
-LABEL   { NAME "s8B64";                         ADDR $8B64; };
+LABEL   { NAME "reset_screen_swapping";                 ADDR $818F; };
+LABEL   { NAME "inc_then_read_ptr";                     ADDR $83AC; };
+LABEL   { NAME "read_then_inc_ptr";                     ADDR $83B8; };
+LABEL   { NAME "print_2_digits";                        ADDR $83C4; };
+LABEL   { NAME "print_char_or_esc";                     ADDR $83DD; };
+LABEL   { NAME "clear_to_end_then_print_lfcr";          ADDR $83FB; };
+LABEL   { NAME "print_lfcr";                            ADDR $83FE; };
+LABEL   { NAME "draw_border";                           ADDR $84C6; };
+LABEL   { NAME "s85A6";                                 ADDR $85A6; };
+LABEL   { NAME "print_long_int";                        ADDR $857C; };
+LABEL   { NAME "move_cursor_back_to_last_character";    ADDR $8720; };
+LABEL   { NAME "s86AD";                                 ADDR $86AD; };
+LABEL   { NAME "s87C9";                                 ADDR $87C9; };
+LABEL   { NAME "s8849";                                 ADDR $8849; };
+LABEL   { NAME "s8902";                                 ADDR $8902; };
+LABEL   { NAME "s8AD6";                                 ADDR $8AD6; };
+LABEL   { NAME "s8ADC";                                 ADDR $8ADC; };
+LABEL   { NAME "s8B10";                                 ADDR $8B10; };
+LABEL   { NAME "s8B22";                                 ADDR $8B22; };
+LABEL   { NAME "s8B25";                                 ADDR $8B25; };
+LABEL   { NAME "s8B56";                                 ADDR $8B56; };
+LABEL   { NAME "s8B64";                                 ADDR $8B64; };
 
 ########################
 # Jump targets
@@ -153,6 +193,9 @@ LABEL   { NAME "j8496";             ADDR $8496; };
 LABEL   { NAME "j8597";             ADDR $8597; };
 LABEL   { NAME "j8635";             ADDR $8635; };
 LABEL   { NAME "j86C9";             ADDR $86C9; };
+LABEL   { NAME "j8801";             ADDR $8801; };
+LABEL   { NAME "j8810";             ADDR $8810; };
+LABEL   { NAME "j881F";             ADDR $881F; };
 LABEL   { NAME "do_mi_main";        ADDR $8C9E; };
 
 ########################
@@ -192,6 +235,14 @@ LABEL   { NAME "b85A5";             ADDR $85A5; };
 LABEL   { NAME "b85B7";             ADDR $85B7; };
 LABEL   { NAME "b85BA";             ADDR $85BA; };
 
+LABEL   { NAME "b85C2";             ADDR $85C2; };
+
+LABEL   { NAME "b85CE";             ADDR $85CE; };
+LABEL   { NAME "b85D6";             ADDR $85D6; };
+
+LABEL   { NAME "b85E9";             ADDR $85E9; };
+LABEL   { NAME "b85FB";             ADDR $85FB; };
+
 LABEL   { NAME "b85FF";             ADDR $85FF; };
 LABEL   { NAME "b8614";             ADDR $8614; };
 LABEL   { NAME "b8630";             ADDR $8630; };
@@ -210,6 +261,17 @@ LABEL   { NAME "b870E";             ADDR $870E; };
 LABEL   { NAME "b8726";             ADDR $8726; };
 LABEL   { NAME "b8742";             ADDR $8742; };
 LABEL   { NAME "b874D";             ADDR $874D; };
+
+LABEL   { NAME "b87D8";             ADDR $87D8; };
+LABEL   { NAME "b87E0";             ADDR $87E0; };
+LABEL   { NAME "b889D";             ADDR $889D; };
+LABEL   { NAME "b88A2";             ADDR $88A2; };
+LABEL   { NAME "b88B6";             ADDR $88B6; };
+LABEL   { NAME "b88CA";             ADDR $88CA; };
+LABEL   { NAME "b88D9";             ADDR $88D9; };
+LABEL   { NAME "b88FA";             ADDR $88FA; };
+LABEL   { NAME "b88FF";             ADDR $88FF; };
+LABEL   { NAME "b8901";             ADDR $8901; };
 
 LABEL   { NAME "b8973";             ADDR $8973; };
 LABEL   { NAME "b8998";             ADDR $8998; };
@@ -265,7 +327,6 @@ LABEL   { NAME "w81AD";                 ADDR $81AD; };
 LABEL   { NAME "bm_addr_mask_cache";    ADDR $81C3; };
 LABEL   { NAME "w81C5";                 ADDR $81C5; };
 LABEL   { NAME "w81C6";                 ADDR $81C6; };
-LABEL   { NAME "r81F2";                 ADDR $81F2; };
 
 LABEL   { NAME "r822B";                 ADDR $822B; };
 LABEL   { NAME "w824F";                 ADDR $824F; };
@@ -280,8 +341,17 @@ LABEL   { NAME "dec_cnt_lo";            ADDR $8579; };
 LABEL   { NAME "dec_cnt_mid";           ADDR $857A; };
 LABEL   { NAME "dec_cnt_hi";            ADDR $857B; };
 LABEL   { NAME "w85BD";                 ADDR $85BD; };
+LABEL   { NAME "w85FC";                 ADDR $85FC; };
 LABEL   { NAME "w862B";                 ADDR $862B; };
 LABEL   { NAME "w862C";                 ADDR $862C; };
+LABEL   { NAME "r87F5";                 ADDR $87F5; };
+LABEL   { NAME "r87F9";                 ADDR $87F9; };
+LABEL   { NAME "r87FA";                 ADDR $87FA; };
+LABEL   { NAME "r882E";                 ADDR $882E; };
+LABEL   { NAME "w88BF";                 ADDR $88BF; };
+LABEL   { NAME "w8907";                 ADDR $8907; };
+LABEL   { NAME "w8908";                 ADDR $8908; };
+LABEL   { NAME "max_ready_option";      ADDR $890B; };
 LABEL   { NAME "enemy_vessels_str";     ADDR $8A31; };
 LABEL   { NAME "w8C97";                 ADDR $8C97; };
 
@@ -289,6 +359,9 @@ LABEL   { NAME "w8C97";                 ADDR $8C97; };
 # Zero Page
 
 LABEL   { NAME "zp1F";          ADDR $1F; };
+
+LABEL   { NAME "zp26";          ADDR $26; };
+LABEL   { NAME "zp27";          ADDR $27; };
 
 LABEL   { NAME "zp36";          ADDR $36; };
 LABEL   { NAME "zp37";          ADDR $37; };
@@ -299,6 +372,9 @@ LABEL   { NAME "dec_hi";        ADDR $3E; };
 LABEL   { NAME "hex_lo";        ADDR $3F; };
 LABEL   { NAME "hex_hi";        ADDR $40; };
 
+LABEL   { NAME "zp41";          ADDR $41; };
+LABEL   { NAME "zp42";          ADDR $42; };
+LABEL   { NAME "zp43";          ADDR $43; };
 LABEL   { NAME "zp46";          ADDR $46; };
 
 LABEL   { NAME "zp56";          ADDR $56; };
@@ -308,5 +384,3 @@ LABEL   { NAME "zp60";          ADDR $60; };
 LABEL   { NAME "zp61";          ADDR $61; };
 LABEL   { NAME "zp62";          ADDR $62; };
 LABEL   { NAME "zp63";          ADDR $63; };
-
-LABEL   { NAME "zpA2";          ADDR $A2; };

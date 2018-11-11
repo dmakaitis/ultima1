@@ -84,7 +84,6 @@ LABEL   { NAME "do_s167C";                      ADDR $1E50; };
 LABEL   { NAME "cache_x_y_and_update_cursor";   ADDR $1E83; };
 LABEL   { NAME "update_cursor";                 ADDR $1E8C; };
 LABEL   { NAME "get_random_number";             ADDR $1E9E; };  
-LABEL   { NAME "scan_input";                    ADDR $1ED5; };
 
 ########################
 # Jump targets

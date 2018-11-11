@@ -5,17 +5,21 @@ mi_main                                 := $7400
 
 mi_race_name_table                      := $7763;
 mi_weapon_table                         := $777C;
+mi_r77EC                                := $77EC;
 mi_attribute_table                      := $7842;
 mi_class_name_table                     := $7911;
 mi_transport_table                      := $7930;
 mi_command_table                        := $797F;
+mi_r7A51                                := $7A51;
 mi_r7A57                                := $7A57;
-mi_string_table                         := $7A7F;
-mi_string_table2                        := $7BDA;
+mi_world_monster_table                  := $7A7F;
+mi_land_name_table                      := $7BDA;
 mi_r7C18                                := $7C18;
 mi_r7C6C                                := $7C6C;
-mi_string_table3                        := $7CC0;
+mi_world_feature_table                  := $7CC0;
 
+mi_check_drive_status                   := $8175;
+mi_w81C1                                := $81C1;
 mi_current_attribute                    := $81C4;
 mi_command_table_override               := $81C7;
 mi_command_table_override_hi            := $81C8;
@@ -36,8 +40,9 @@ mi_player_equipped_spell                := $81EE;
 mi_player_equipped_weapon               := $81EF;
 mi_player_equipped_armor                := $81F0;
 mi_player_current_vehicle               := $81F1;
+mi_player_inventory_armor               := $81F2;
 mi_player_inventory_weapons             := $81F8;
-mi_player_8208                          := $8208;
+mi_player_inventory_spells              := $8208;
 mi_player_820B                          := $820B;
 mi_player_inventory_vehicles            := $8213;
 mi_player_821D                          := $821D;
@@ -82,57 +87,57 @@ mi_player_835b                          := $835B;
 mi_player_835c                          := $835C;
 mi_player_835d                          := $835D;
 
-mi_s83ed                                := $83ED;
-
-mi_number_padding                       := $85BE;
-
-mi_check_drive_status                   := $8175;
+mi_print_digit                          := $83CD;
 mi_print_char                           := $83D7;
+mi_print_tab                            := $83ED;
 mi_print_crlf_col_1                     := $83F3;
 mi_cursor_to_col_1                      := $83F6;
+
 mi_cursor_to_col_0                      := $8411;
-mi_s8416                                := $8416;
+mi_reduce_text_window_size              := $8416;
 mi_print_string_entry_x                 := $8426;
-mi_s842B                                := $842B;
+mi_print_first_string_entry             := $842B;
 mi_print_string_entry_x2                := $842D;
 mi_print_text_at_x_y                    := $848A;
 mi_print_text                           := $848E;
 mi_print_x_chars                        := $84B9;
-mi_s84C0                                := $84C0;
+mi_clear_screen_and_draw_border         := $84C0;
+
 mi_to_decimal_a_x                       := $8522;
 mi_print_short_int                      := $8582;
-mi_s85BF                                := $85BF;
-mi_s85C9                                := $85C9;
-mi_s85E1                                := $85E1;
-mi_s85E4                                := $85E4;
+mi_number_padding                       := $85BE;
+mi_div_a_by_10                          := $85BF;
+mi_get_random_number_a                  := $85C9;
+mi_reset_buffers_and_wait_for_input     := $85E1;
+mi_wait_for_input                       := $85E4;
 mi_decode_and_print_command_a           := $85FD;
+
 mi_j863A                                := $863A;
 mi_s863C                                := $863C;
 mi_s8678                                := $8678;
-mi_s8689                                := $8689;
+mi_display_stats                        := $8689;
 mi_update_stats                         := $86C6;
+
 mi_restore_text_area                    := $8701;
 mi_store_text_area                      := $870C;
-mi_s8717                                := $8717;
-mi_j874E                                := $874E;
-mi_j8766                                := $8766;
+mi_print_equipped_spell                 := $8717;
+mi_no_effect                            := $874E;
+mi_spell_failed                         := $8766;
 mi_cmd_invalid                          := $876A;
 mi_play_error_sound_and_reset_buffers   := $8772;
-mi_j8774                                := $8774;
+mi_play_sound_and_reset_buffers_a       := $8774;
 mi_reset_buffers                        := $8777;
-mi_s8787                                := $8787;
-mi_s87D0                                := $87D0;
+mi_do_nothing                           := $8787;
 mi_s8788                                := $8788;
 mi_s879F                                := $879F;
 mi_s87A1                                := $87A1;
+mi_get_item_to_ready                    := $87D0;
+
 mi_cmd_ztats                            := $890C;
+
 mi_print_player_name                    := $8BA1;
 mi_cmd_noise                            := $8BB9;
 mi_player_died                          := $8BCE;
+
 mi_load_ou_module                       := $8C5E;
 mi_load_module_a                        := $8C60;
-
-mi_r77EC                                := $77EC;
-mi_r7A51                                := $7A51;
-mi_w81C1                                := $81C1;
-mi_print_digit                          := $83CD;

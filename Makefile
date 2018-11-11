@@ -178,7 +178,7 @@ $(ORIG_SRC_OUT)/lo.s: $(ORIG_PRG_OUT)/lo.prg
 $(ORIG_SRC_OUT)/in.s: $(ORIG_PRG_OUT)/in.prg
 $(ORIG_SRC_OUT)/mi.s: $(ORIG_PRG_OUT)/mi.prg orig/mi.inc orig/st.inc
 $(ORIG_SRC_OUT)/ge.s: $(ORIG_PRG_OUT)/ge.prg orig/mi.inc orig/st.inc
-$(ORIG_SRC_OUT)/ge.s: $(ORIG_PRG_OUT)/ou.prg orig/mi.inc orig/st.inc
+$(ORIG_SRC_OUT)/ou.s: $(ORIG_PRG_OUT)/ou.prg orig/mi.inc orig/st.inc
 $(ORIG_SRC_OUT)/st.s: $(ORIG_PRG_OUT)/st.prg orig/st.inc
 
 ###########################################################
