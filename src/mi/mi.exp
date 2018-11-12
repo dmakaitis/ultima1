@@ -16,6 +16,7 @@ mi_div_a_by_10
 mi_do_nothing
 mi_get_item_to_ready
 mi_get_random_number_a
+mi_increase_high_bytes
 mi_j863A
 mi_land_name_table
 mi_load_module_a
@@ -26,10 +27,6 @@ mi_play_error_sound_and_reset_buffers
 mi_play_sound_and_reset_buffers_a
 mi_player_81E4
 mi_player_81E5
-mi_player_81EA
-mi_player_81EB
-mi_player_81EC
-mi_player_81ED
 mi_player_820B
 mi_player_821D
 mi_player_821E
@@ -62,6 +59,7 @@ mi_player_equipped_spell
 mi_player_equipped_weapon
 mi_player_experience
 mi_player_food
+mi_player_gems
 mi_player_hits
 mi_player_intelligence
 mi_player_inventory_spells
@@ -102,7 +100,6 @@ mi_reset_buffers
 mi_reset_buffers_and_wait_for_input
 mi_restore_text_area
 mi_s863C
-mi_s8678
 mi_s8788
 mi_s879F
 mi_s87A1
@@ -113,12 +110,6 @@ mi_to_decimal_a_x
 mi_transport_table
 mi_update_stats
 mi_w81C1
-mi_w81EE
-mi_w81EF
-mi_w81F0
-mi_w81F1
-mi_w81F8
-mi_w8213
 mi_wait_for_input
 mi_weapon_abbr_table
 mi_weapon_table

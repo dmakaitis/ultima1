@@ -15,23 +15,23 @@
 
 .import mi_cursor_to_col_0
 .import mi_print_char
+.import mi_print_digit
 .import mi_print_player_name
 .import mi_print_short_int
 .import mi_print_string_entry_x
 .import mi_print_text
 .import mi_print_text_at_x_y
 .import mi_print_x_chars
+.import mi_reduce_text_window_size
 .import mi_restore_text_area
 .import mi_store_text_area
+.import mi_to_decimal_a_x
 
 .import draw_border
 .import print_2_digits
-.import print_digit
 .import print_long_int
 .import mi_print_string_entry_x2
-.import reduce_text_window_size
 .import swap_screens_and_press_space
-.import to_decimal_a_x
 
 .import mi_player_class
 .import mi_player_current_vehicle
@@ -55,14 +55,14 @@
 .import mi_number_padding
 .import mi_race_name_table
 .import mi_selected_item
+.import mi_transport_table
+.import mi_weapon_table
 
 .import bm_addr_mask_cache
 
 .import armor_table
 .import gem_table
 .import spell_table
-.import vehicle_table
-.import mi_weapon_table
 
 dec_lo          := $3C
 dec_mid         := $3D
@@ -84,7 +84,7 @@ mi_cmd_ztats:
         jsr     mi_store_text_area                      ; Cache the view area so we can tweak it
 
         jsr     st_set_text_window_main                 ; Make the main viewport the text window, but indent all sides by one
-        jsr     reduce_text_window_size
+        jsr     mi_reduce_text_window_size
 
         ldx     #$0C
 
@@ -106,7 +106,7 @@ mi_cmd_ztats:
 
         ldx     mi_player_experience                    ; Level = floor(experience / 1000) + 1
         lda     mi_player_experience + 1
-        jsr     to_decimal_a_x
+        jsr     mi_to_decimal_a_x
         lda     dec_mid
         lsr     a
         lsr     a
@@ -165,7 +165,7 @@ mi_cmd_ztats:
 
         ldx     mi_player_money                         ; Convert money to decimal
         lda     mi_player_money + 1
-        jsr     to_decimal_a_x
+        jsr     mi_to_decimal_a_x
 
         lda     dec_lo                                  ; Display the ones digit as copper coins
         and     #$0F
@@ -176,7 +176,7 @@ mi_cmd_ztats:
         .asciiz "Copper pence...."
 
         lda     dec_lo
-        jsr     print_digit
+        jsr     mi_print_digit
 
 @no_copper:
         lda     dec_lo                                  ; Display the tens digit as silver coins
@@ -192,7 +192,7 @@ mi_cmd_ztats:
         .asciiz "Silver pieces..."
 
         pla
-        jsr     print_digit
+        jsr     mi_print_digit
 
 @no_silver:
         lda     dec_mid                                 ; Display hundreds and thousands digits as gold crowns
@@ -209,7 +209,7 @@ mi_cmd_ztats:
         lda     #'.'                                    ; Otherwise, add an extra pad character...
         jsr     mi_print_char
         lda     dec_mid                                 ; ...and print a one digit value
-        jsr     print_digit
+        jsr     mi_print_digit
         jmp     @no_gold
 
 @enemy_vessels_str:
@@ -251,7 +251,7 @@ mi_cmd_ztats:
         lda     mi_player_inventory_vehicles,x
         beq     @no_vehicle
         jsr     print_string_entry_and_short_a
-        .addr   vehicle_table
+        .addr   mi_transport_table
 @no_vehicle:
         ldx     string_entry
         inx

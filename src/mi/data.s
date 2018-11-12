@@ -9,13 +9,22 @@
 .export mi_attribute_table
 .export mi_class_name_table
 .export mi_command_table
+.export mi_land_name_table
 .export mi_race_name_table
+.export mi_transport_table
 .export mi_weapon_table
+.export mi_weapon_abbr_table
+.export mi_world_feature_table
+.export mi_world_monster_table
+
+.export mi_r7A51
+.export mi_r7A57
+.export mi_r7C18
+.export mi_r7C6C
 
 .export armor_table
 .export gem_table
 .export spell_table
-.export vehicle_table
 
 .export death_image
 
@@ -51,6 +60,7 @@ mi_weapon_table:
         .byte   "phazo",$F2
         .byte   "blaste",$F2
 
+mi_weapon_abbr_table:
         .byte   "hand",$F3
         .byte   "dagge",$F2
         .byte   "mac",$E5
@@ -112,7 +122,7 @@ mi_class_name_table:
         .byte   "wizar",$E4
         .byte   "thie",$E6
 
-vehicle_table:
+mi_transport_table:
         .byte   "foo",$F4
         .byte   "hors",$E5
         .byte   "car",$F4
@@ -158,15 +168,18 @@ gem_table:
         .byte   "Blue Ge",$ED
         .byte   "White Ge",$ED
 
-
-        .byte   $0A,$05,$04,$03,$02,$01,$04,$06
+mi_r7A51:
+        .byte   $0A,$05,$04,$03,$02,$01
+mi_r7A57:
+        .byte   $04,$06
         .byte   $08,$0A,$01,$02,$04,$06,$08,$02
         .byte   $04,$06,$08,$09,$0A,$02,$02,$03
         .byte   $03,$03,$04,$04,$04,$05,$05,$05
         .byte   $06,$06,$06,$07,$07,$07,$08,$08
-        .byte   $08,$09,$09,$09,$0A,$0A,$A0,$A0
-        .byte   $A0,$A0,$A0,$A0
+        .byte   $08,$09,$09,$09,$0A,$0A
 
+mi_world_monster_table:
+        .byte   $A0,$A0,$A0,$A0,$A0,$A0
 
         .byte   "Ness creatur",$E5
         .byte   "giant squi",$E4
@@ -209,12 +222,13 @@ gem_table:
         .byte   "daemo",$EE
         .byte   "balro",$EE
 
+mi_land_name_table:
         .byte   "Lord Britis",$E8
         .byte   "the Feudal Lord",$F3
         .byte   "the Dark Unknow",$EE
         .byte   "Danger and Despai",$F2
 
-
+mi_r7C18:
         .byte   $1F,$14,$03,$02,$06,$24,$16,$35
         .byte   $1E,$04,$2A,$0F,$3D,$20,$22,$36
         .byte   $15,$38,$1B,$38,$0F,$5E,$56,$7B
@@ -225,7 +239,9 @@ gem_table:
         .byte   $87,$B0,$9B,$95,$B7,$83,$89,$DF
         .byte   $D4,$C3,$C2,$C6,$E4,$D6,$F5,$DE
         .byte   $C4,$EA,$CF,$FD,$E0,$E2,$F6,$D5
-        .byte   $F8,$DB,$F8,$CF,$1E,$16,$3B,$1A
+        .byte   $F8,$DB,$F8,$CF
+mi_r7C6C:
+        .byte   $1E,$16,$3B,$1A
         .byte   $08,$03,$31,$1D,$13,$26,$34,$2B
         .byte   $1C,$1D,$38,$0F,$24,$2A,$08,$3C
         .byte   $36,$1F,$14,$03,$02,$06,$24,$35
@@ -237,7 +253,7 @@ gem_table:
         .byte   $3C,$0E,$22,$2C,$19,$0B,$14,$23
         .byte   $22,$07,$30,$1B,$15,$37,$03,$09
 
-
+mi_world_feature_table:
         .byte   "The Castle of Lord Britis",$E8
         .byte   "The Castle of the Lost Kin",$E7
         .byte   "The Tower of Knowledg",$E5

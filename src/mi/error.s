@@ -11,14 +11,38 @@
 
 .export mi_cmd_invalid
 .export mi_do_nothing
+.export mi_no_effect
 .export mi_play_error_sound_and_reset_buffers
+.export mi_play_sound_and_reset_buffers_a
 .export mi_reset_buffers
+.export mi_spell_failed
+
+.import mi_print_text
 
 .import move_cursor_back_to_last_character
 
         .setcpu "6502"
 
 .segment "CODE_ERROR"
+
+;-----------------------------------------------------------
+;-----------------------------------------------------------
+
+mi_no_effect:
+        jsr     mi_print_text
+        .byte   "}Hmmmm... no effect?"
+        .byte   $00
+
+
+
+;-----------------------------------------------------------
+;-----------------------------------------------------------
+
+mi_spell_failed:
+        lda     #$08
+        bne     mi_play_sound_and_reset_buffers_a
+
+
 
 ;-----------------------------------------------------------
 ;                      mi_cmd_invalid
@@ -45,6 +69,15 @@ mi_cmd_invalid:
 
 mi_play_error_sound_and_reset_buffers:
         lda     #$10                                    ; Play the error sound
+
+        ; Continued in mi_play_sound_and_reset_buffers_a
+
+
+
+;-----------------------------------------------------------
+;-----------------------------------------------------------
+
+mi_play_sound_and_reset_buffers_a:
         jsr     st_play_sound_a
 
         ; Continued in mi_reset_buffers

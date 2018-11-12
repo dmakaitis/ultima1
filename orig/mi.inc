@@ -32,10 +32,10 @@ mi_player_81E5                          := $81E5;
 mi_player_sound_flag                    := $81E7;
 mi_player_position_x                    := $81E8;
 mi_player_position_y                    := $81E9;
-mi_player_81EA                          := $81EA;
-mi_player_81EB                          := $81EB;
-mi_player_81EC                          := $81EC;
-mi_player_81ED                          := $81ED;
+mi_player_gems                          := $81EA;
+mi_player_gems_1                        := $81EB;
+mi_player_gems_2                        := $81EC;
+mi_player_gems_3                        := $81ED;
 mi_player_equipped_spell                := $81EE;
 mi_player_equipped_weapon               := $81EF;
 mi_player_equipped_armor                := $81F0;
@@ -114,7 +114,7 @@ mi_decode_and_print_command_a           := $85FD;
 
 mi_j863A                                := $863A;
 mi_s863C                                := $863C;
-mi_s8678                                := $8678;
+mi_increase_high_bytes                  := $8678;
 mi_display_stats                        := $8689;
 mi_update_stats                         := $86C6;
 

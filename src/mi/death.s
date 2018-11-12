@@ -11,6 +11,7 @@
 .export mi_player_died
 
 .import mi_print_player_name
+.import mi_print_tab
 .import mi_print_text
 .import mi_reset_buffers
 .import mi_update_stats
@@ -19,7 +20,6 @@
 .import mi_player_hits
 .import mi_player_money
 
-.import indent
 
 .import death_image
 .import bm_addr_mask_cache
@@ -39,7 +39,7 @@ DEST_PTR        := $62
 ;-----------------------------------------------------------
 
 mi_player_died:
-        jsr     indent                                  ; Inform the player they have died.
+        jsr     mi_print_tab                            ; Inform the player they have died.
         jsr     mi_print_player_name
         jsr     mi_print_text
 

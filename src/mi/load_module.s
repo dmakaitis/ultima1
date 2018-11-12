@@ -8,9 +8,8 @@
 
 .include "hello.inc"
 
+.export mi_load_module_a
 .export mi_load_ou_module
-
-.export load_module_a
 
 .import mi_check_drive_status
 .import mi_display_stats
@@ -38,7 +37,7 @@ mi_load_ou_module:
 
 
 ;-----------------------------------------------------------
-;                      load_module_a
+;                      mi_load_module_a
 ;
 ; Loads and begins execution of the module specified in the
 ; accumulator. Valid modules are:
@@ -55,7 +54,7 @@ mi_load_ou_module:
 ; create a new character.
 ;-----------------------------------------------------------
 
-load_module_a:
+mi_load_module_a:
         ldx     #$FF                                    ; Reset the stack
         txs
 

@@ -523,13 +523,13 @@ b90D1:  lda     #$0F
         lda     #$05
 L90D8:  jmp     j9262
 
-b90DB:  lda     mi_player_81EA
+b90DB:  lda     mi_player_gems
         beq     b90F3
-        lda     mi_player_81EB
+        lda     mi_player_gems + 1
         beq     b90F3
-        lda     mi_player_81EC
+        lda     mi_player_gems + 2
         beq     b90F3
-        lda     mi_player_81ED
+        lda     mi_player_gems + 3
         beq     b90F3
         lda     #$06
         bne     L90D8
@@ -558,10 +558,10 @@ b90F3:  jsr     mi_store_text_area
         .byte   "R  G  B  W||"
 
         .byte   $00
-        lda     mi_player_81EA
-        ora     mi_player_81EB
-        ora     mi_player_81EC
-        ora     mi_player_81ED
+        lda     mi_player_gems
+        ora     mi_player_gems + 1
+        ora     mi_player_gems + 2
+        ora     mi_player_gems + 3
         bne     b91CB
         jsr     mi_print_text
         .byte   $7F,$02
@@ -583,22 +583,22 @@ s91BB:  lda     #$60
         jsr     mi_reset_buffers_and_wait_for_input
         jmp     mi_wait_for_input
 
-b91CB:  lda     mi_player_81EA
+b91CB:  lda     mi_player_gems
         beq     b91D7
         ldx     #$59
         lda     #$20
         jsr     s923D
-b91D7:  lda     mi_player_81EB
+b91D7:  lda     mi_player_gems + 1
         beq     b91E3
         ldx     #$71
         lda     #$50
         jsr     s923D
-b91E3:  lda     mi_player_81EC
+b91E3:  lda     mi_player_gems + 2
         beq     b91EF
         ldx     #$89
         lda     #$60
         jsr     s923D
-b91EF:  lda     mi_player_81ED
+b91EF:  lda     mi_player_gems + 3
         beq     b91FB
         ldx     #$A1
         lda     #$10
@@ -1198,7 +1198,7 @@ b9795:  ldx     zp2C
         jsr     s97F6
         ldx     mi_player_current_vehicle
         bne     b97AA
-        jsr     mi_s8678
+        jsr     mi_increase_high_bytes
         ldx     #$00
 b97AA:  ldy     r97BD,x
         lda     r97C7,x

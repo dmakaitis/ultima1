@@ -7,15 +7,14 @@
 ;-------------------------------------------------------------------------------
 
 .export mi_print_short_int
+.export mi_to_decimal_a_x
 
 .export mi_number_padding
 
 .export print_long_int
-.export to_decimal_a_x
 
 .import mi_print_char
-
-.import print_digit
+.import mi_print_digit
 
 dec_lo          := $3C
 dec_mid         := $3D
@@ -28,7 +27,7 @@ hex_hi          := $40
 .segment "CODE_PRINT_INT"
 
 ;-----------------------------------------------------------
-;                      to_decimal_a_x
+;                     mi_to_decimal_a_x
 ;
 ; Converts a 16-bit hexadecimal number to decimal. The high
 ; byte of the number should be in the accumulator, and the
@@ -38,7 +37,7 @@ hex_hi          := $40
 ; into four bits in the output (in BCD format).
 ;-----------------------------------------------------------
 
-to_decimal_a_x:
+mi_to_decimal_a_x:
         stx     hex_lo                                  ; Store the hexadecimal number to convert
         sta     hex_hi
 
@@ -113,7 +112,7 @@ dec_addend_hi:
 ;-----------------------------------------------------------
 
 print_long_int:
-        jsr     to_decimal_a_x                          ; Convert the number to decimal
+        jsr     mi_to_decimal_a_x                       ; Convert the number to decimal
 
         inx                                             ; x will either contain 1 or 2, depending on number size
         bne     print_int                               ; branch always taken...
@@ -132,7 +131,7 @@ mi_print_short_int:
         tax                                             ; Move the number into the x register and...
         lda     #$00                                    ; ...put zero into the accumulator
 
-        jsr     to_decimal_a_x                          ; Now we can treat this like a 16-bit number
+        jsr     mi_to_decimal_a_x                       ; Now we can treat this like a 16-bit number
 
 print_int:
         sta     last_digit_printed                      ; last_digit_printed := 0 (accumulator always contains zero at this point)
@@ -178,7 +177,7 @@ print_int:
 @update_and_print:
         sta     last_digit_printed                      ; Print the digit
 
-@print: jmp     print_digit                             ; Go back for the next digit
+@print: jmp     mi_print_digit                          ; Go back for the next digit
 
 
 

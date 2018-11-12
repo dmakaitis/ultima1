@@ -29,11 +29,38 @@
 .export mi_player_random_seed
 .export mi_player_sex
 .export mi_player_sound_flag
+.export mi_player_stamina
 .export mi_player_strength
 .export mi_player_wisdom
 
 .export mi_player_position_x
 .export mi_player_position_y
+
+.export mi_player_81E4
+.export mi_player_81E5
+.export mi_player_820B
+.export mi_player_821D
+.export mi_player_821E
+.export mi_player_8226
+.export mi_player_8227
+.export mi_player_8228
+.export mi_player_8229
+.export mi_player_822A
+.export mi_player_8262
+.export mi_player_8263
+.export mi_player_8267
+.export mi_player_8268
+.export mi_player_826b
+.export mi_player_826c
+.export mi_player_826d
+.export mi_player_82bb
+.export mi_player_82bc
+.export mi_player_82bd
+.export mi_player_830c
+.export mi_player_830d
+.export mi_player_835b
+.export mi_player_835c
+.export mi_player_835d
 
 .export w824F
 .export w8250
@@ -44,7 +71,11 @@
 .segment "DATA_PLAYER"
 
 mi_player_save_data:
-        .byte   $CA,$01,$00,$00,$FF
+        .byte   $CA,$01
+mi_player_81E4:
+        .byte   $00
+mi_player_81E5:
+        .byte   $00,$FF
 mi_player_sound_flag:
         .byte   $FF
 mi_player_position_x:
@@ -66,11 +97,26 @@ mi_player_inventory_armor:
 mi_player_inventory_weapons:
         .byte   $01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01
 mi_player_inventory_spells:
-        .byte   $01,$03,$03,$03,$00,$03,$03,$03,$03,$03,$03
+        .byte   $01,$03,$03
+mi_player_820B:
+        .byte   $03,$00,$03,$03,$03,$03,$03,$03
 mi_player_inventory_vehicles:
-        .byte   $01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00
+        .byte   $01,$01,$01,$01,$01,$01,$00,$00,$00,$00
+mi_player_821D:
+        .byte   $00
+mi_player_821E:
         .byte   $00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$FF,$FF,$FF,$FF,$00
+        .byte   $00,$00,$00
+mi_player_8226:
+        .byte   $FF
+mi_player_8227:
+        .byte   $FF
+mi_player_8228:
+        .byte   $FF
+mi_player_8229:
+        .byte   $FF
+mi_player_822A:
+        .byte   $00
 mi_player_enemy_vessels:
         .byte   $00
 mi_player_sex:
@@ -106,10 +152,24 @@ mi_player_food:
         .word   $0059
 mi_player_experience:
         .word   $0237
-        .byte   $E8,$03,$E8,$03,$00,$FF
+        .byte   $E8,$03,$E8,$03
+mi_player_8262:
+        .byte   $00
+mi_player_8263:
+        .byte   $FF
 mi_player_random_seed:
         .word   $BEEF
-        .byte   $00,$00,$00,$00,$00,$00
+        .byte   $00
+mi_player_8267:
+        .byte   $00
+mi_player_8268:
+        .byte   $00,$00,$00
+mi_player_826b:
+        .byte   $00
+mi_player_826c:
+        .byte   $00
+mi_player_826d:
+        .byte   $00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
@@ -118,9 +178,13 @@ mi_player_random_seed:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00
+mi_player_82bb:
+        .byte   $00
+mi_player_82bc:
+        .byte   $00
+mi_player_82bd:
+        .byte   $00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
@@ -131,6 +195,9 @@ mi_player_random_seed:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
 mi_player_830c:
+        .byte   $00
+mi_player_830d:
+        .byte   $00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
@@ -139,9 +206,13 @@ mi_player_830c:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00
+mi_player_835b:
+        .byte   $00
+mi_player_835c:
+        .byte   $00
+mi_player_835d:
+        .byte   $00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00

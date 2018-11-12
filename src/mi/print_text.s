@@ -13,20 +13,21 @@
 .export mi_cursor_to_col_1
 .export mi_print_char
 .export mi_print_crlf_col_1
+.export mi_print_digit
+.export mi_print_first_string_entry
 .export mi_print_string_entry_x
 .export mi_print_string_entry_x2
+.export mi_print_tab
 .export mi_print_text
 .export mi_print_text_at_x_y
 .export mi_print_x_chars
+.export mi_reduce_text_window_size
 
 .export inc_then_read_ptr
-.export reduce_text_window_size
 .export rts_ptr
 
-.export indent
 
 .export clear_to_end_then_print_lfcr
-.export print_digit
 .export print_2_digits
 
 .import next_row_or_column
@@ -58,13 +59,15 @@ print_2_digits:
         lsr     a
         lsr     a
         lsr     a
-        jsr     print_digit
+        jsr     mi_print_digit
         pla
+
+        ; continued in mi_print_digit
 
 
 
 ;-----------------------------------------------------------
-;                        print_digit
+;                       mi_print_digit
 ;
 ; Prints the digit stored in the accumulator to the screen
 ; at the current cursor position, then advances the cursor
@@ -72,7 +75,7 @@ print_2_digits:
 ; top 4 bits in the accumulator are ignored).
 ;-----------------------------------------------------------
 
-print_digit:
+mi_print_digit:
         and     #$0F                                    ; Convert the digit to the appropriate character
         ora     #$30
 
@@ -131,13 +134,14 @@ print_char_or_esc:
         ; Continued in indent
 
 ;-----------------------------------------------------------
-;                          indent
+;                       mi_print_tab
 ;
 ; Indents the cursor position as if the $7F escape character
 ; was printed.
 ;-----------------------------------------------------------
 
-indent: lda     CUR_X                                   ; Handle code $7F
+mi_print_tab:
+        lda     CUR_X                                   ; Handle code $7F
         cmp     #$02
         bcc     mi_cursor_to_col_1
 
@@ -230,14 +234,14 @@ mi_cursor_to_col_0:
 
 
 ;-----------------------------------------------------------
-;                 reduce_text_window_size
+;                mi_reduce_text_window_size
 ;
 ; Reduces the size of the text window by moving all of the
 ; edges inward by one unit. Resets the cursor to the
 ; top-left of the new text window.
 ;-----------------------------------------------------------
 
-reduce_text_window_size:
+mi_reduce_text_window_size:
         inc     CUR_Y_MIN                               ; Shift top border down by one
 
         dec     CUR_Y_MAX                               ; Shift bottom border up by one
@@ -266,9 +270,21 @@ mi_print_string_entry_x:
         sec                                             ; w81AD := 0x80  (set the high bit)
         ror     w81AD
 
-        bit     a:zpA2
+        .byte   $2C     ; bit a:zpA2
 
         ; continued in mi_print_string_entry_x2
+
+
+
+;-----------------------------------------------------------
+;-----------------------------------------------------------
+
+mi_print_first_string_entry:
+        ldx     #$00
+
+        ; continued in mi_print_string_entry_x2
+
+
 
 ;-----------------------------------------------------------
 ;-----------------------------------------------------------

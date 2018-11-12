@@ -10,7 +10,7 @@
 .include "st.inc"
 .include "hello.inc"
 
-.import load_module_a
+.import mi_load_module_a
 
 .import reset_screen_swapping
 
@@ -65,7 +65,7 @@ do_mi_main:
         sta     VIC_VIDEO_ADR
 
         lda     #$00
-        jmp     load_module_a
+        jmp     mi_load_module_a
 
 
 

@@ -3,13 +3,24 @@
 
 .export mi_command_decode_table
 .export mi_command_table_override
-.export mi_get_item_to_ready
 .export mi_div_a_by_10
+.export mi_get_item_to_ready
+.export mi_get_random_number_a
+.export mi_increase_high_bytes
+.export mi_print_equipped_spell
+.export mi_reset_buffers_and_wait_for_input
 .export mi_selected_item
+.export mi_wait_for_input
 .export mi_s863C
+.export mi_j863A
+.export mi_s8788
+.export mi_s879F
+.export mi_s87A1
 
 .export bm_addr_mask_cache
+.export mi_w81C1
 
+.import mi_play_sound_and_reset_buffers_a
 .import mi_print_crlf_col_1
 .import mi_print_string_entry_x
 .import mi_print_string_entry_x2
@@ -53,7 +64,9 @@ zp46            := $46
 
         .byte   $2F,$55,$31,$2E,$50,$4C,$41,$59
         .byte   $45,$52,$2F,$55,$31,$2E,$56,$41
-        .byte   $52,$53,$00,$00,$00
+        .byte   $52,$53,$00
+mi_w81C1:
+        .byte   $00,$00
 
 bm_addr_mask_cache:
         .byte   $00
@@ -134,7 +147,14 @@ w85FC:  .byte   $40
 
 .segment "CODE_ZZZ3"
 
-        .byte   $18,$B0
+
+
+;-----------------------------------------------------------
+;-----------------------------------------------------------
+
+mi_j863A:
+        clc
+        .byte   $B0
 
 
 
@@ -179,14 +199,14 @@ mi_s863C:
         lda     w824F
         adc     w81C6
         sta     w824F
-        bcs     @increase_high_bytes
+        bcs     mi_increase_high_bytes
 
         cld                                             ; Put CPU back in binary mode
 
         rts
 
 
-@increase_high_bytes:
+mi_increase_high_bytes:
         sed
         sec
         ldx     #$00
@@ -207,20 +227,11 @@ mi_s863C:
 
 ;-----------------------------------------------------------
 
-        .byte   $AE,$EE,$81,$20,$2D,$84,$88,$78
-        .byte   $60
-
-
-
-.segment "CODE_ZZZ5"
-
-;-----------------------------------------------------------
-
-        .byte   $20,$8E,$84,$7D,$48,$6D,$6D,$6D
-        .byte   $6D,$2E,$2E,$2E,$20,$6E,$6F,$20
-        .byte   $65,$66,$66,$65,$63,$74,$3F,$00
-        .byte   $A9,$08,$D0,$0A
-
+mi_print_equipped_spell:
+        ldx     mi_player_equipped_spell
+        jsr     mi_print_string_entry_x2
+        .addr   spell_table
+        rts
 
 
 
