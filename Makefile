@@ -28,6 +28,7 @@ CIMAGE = $(BIN_OUT)/cimage
 DIMAGE = $(BIN_OUT)/dimage
 MAP2INC = $(BIN_OUT)/map2inc
 DMAP = $(BIN_OUT)/dmap
+CMAP = $(BIN_OUT)/cmap
 
 u1files: $(addprefix $(PRG_OUT)/, $(addsuffix .prg, $(U1FILES)))
 
@@ -120,20 +121,23 @@ verify: u1files $(addprefix $(ORIG_PRG_OUT)/, $(addsuffix .prg, $(U1FILES)))
 clean:
 	-rm -Rf build
 	-rm -Rf assets/*.png
+	-rm -Rf assets/*.txt
 
+st_assets = tiles
 lo_assets = font osibig
+ge_assets = map_british map_feudal_lords map_dark_unknown map_danger_and_despair
 in_assets = intro_studio intro_title intro_horse0 intro_horse1 intro_horse2 \
 			intro_horse3 intro_horse4 intro_horse5 intro_horse6 intro_backdrop \
 			intro_car intro_knight0 intro_knight1 intro_sword intro_sword_mask \
 			intro_sword_hand intro_hand intro_bird_body0 intro_bird_body1 \
 			intro_bird_body2 intro_bird_body3 intro_bird_head0 intro_bird_head1 \
 			intro_bird_head2 intro_bird_head3
-st_assets = tiles
 mi_assets = skull
 
-$(PRG_OBJ)/lo/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(lo_assets)))
-$(PRG_OBJ)/in/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(in_assets)))
 $(PRG_OBJ)/st/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(st_assets)))
+$(PRG_OBJ)/lo/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(lo_assets)))
+$(PRG_OBJ)/ge/main.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(ge_assets)))
+$(PRG_OBJ)/in/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(in_assets)))
 $(PRG_OBJ)/mi/data.o: $(addprefix $(ASSETS_OUT)/, $(addsuffix .bin, $(mi_assets)))
 
 $(PRG_OBJ)/%.o: src/%.s
@@ -163,6 +167,10 @@ $(MAP2INC): $(BIN_OBJ)/map2inc.o
 $(DMAP): $(BIN_OBJ)/dmap.o
 	@mkdir -p $(@D)
 	c++ -o $@ $(BIN_OBJ)/dmap.o
+
+$(CMAP): $(BIN_OBJ)/cmap.o
+	@mkdir -p $(@D)
+	c++ -o $@ $(BIN_OBJ)/cmap.o
 
 $(BIN_OBJ)/%.o: util/%.cpp
 	@mkdir -p $(@D)
@@ -208,7 +216,9 @@ pngassets =	font osibig intro_studio intro_title intro_horse0 intro_horse1 \
 			intro_bird_body2 intro_bird_body3 intro_bird_head0 intro_bird_head1 \
 			intro_bird_head2 intro_bird_head3 tiles skull
 
-assets: $(addprefix assets/, $(addsuffix .png, $(pngassets)))
+mapassets = british feudal_lords dark_unknown danger_and_despair
+
+assets: $(addprefix assets/, $(addsuffix .png, $(pngassets))) $(addprefix assets/map_, $(addsuffix .txt, $(mapassets)))
 
 assets/font.png: $(ORIG_PRG_OUT)/lo.prg $(DIMAGE)
 	$(DIMAGE) -q -i $< -o $@ -b -w 128 -s 2 -n 1024
@@ -297,16 +307,16 @@ assets/tiles.png: $(ORIG_PRG_OUT)/st.prg $(DIMAGE)
 assets/skull.png: $(ORIG_PRG_OUT)/mi.prg $(DIMAGE)
 	$(DIMAGE) -q -i $< -o $@ -w 72 -h 96 -s 5 -n 864 -b
 
-assets/british.txt: $(ORIG_PRG_OUT)/ge.prg $(DMAP)
+assets/map_british.txt: $(ORIG_PRG_OUT)/ge.prg $(DMAP)
 	$(DMAP) -i $< -o $@ -s 2403
 	
-assets/feudal_lords.txt: $(ORIG_PRG_OUT)/ge.prg $(DMAP)
+assets/map_feudal_lords.txt: $(ORIG_PRG_OUT)/ge.prg $(DMAP)
 	$(DMAP) -i $< -o $@ -s 3138
 	
-assets/dark_unknown.txt: $(ORIG_PRG_OUT)/ge.prg $(DMAP)
+assets/map_dark_unknown.txt: $(ORIG_PRG_OUT)/ge.prg $(DMAP)
 	$(DMAP) -i $< -o $@ -s 4019
 	
-assets/danger_and_despair.txt: $(ORIG_PRG_OUT)/ge.prg $(DMAP)
+assets/map_danger_and_despair.txt: $(ORIG_PRG_OUT)/ge.prg $(DMAP)
 	$(DMAP) -i $< -o $@ -s 4881
 	
 ###########################################################
@@ -378,3 +388,19 @@ $(ASSETS_OUT)/tiles.bin: assets/tiles.png $(CIMAGE)
 $(ASSETS_OUT)/skull.bin: assets/skull.png $(CIMAGE)
 	@mkdir -p $(@D)
 	$(CIMAGE) -qb -i $< -o $@
+
+$(ASSETS_OUT)/map_british.bin: assets/map_british.txt $(CMAP)
+	@mkdir -p $(@D)
+	$(CMAP) -i $< -o $@
+
+$(ASSETS_OUT)/map_feudal_lords.bin: assets/map_feudal_lords.txt $(CMAP)
+	@mkdir -p $(@D)
+	$(CMAP) -i $< -o $@
+
+$(ASSETS_OUT)/map_dark_unknown.bin: assets/map_dark_unknown.txt $(CMAP)
+	@mkdir -p $(@D)
+	$(CMAP) -i $< -o $@
+
+$(ASSETS_OUT)/map_danger_and_despair.bin: assets/map_danger_and_despair.txt $(CMAP)
+	@mkdir -p $(@D)
+	$(CMAP) -i $< -o $@

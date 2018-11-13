@@ -11,10 +11,8 @@ void writeMap(char *filename, int skip, std::ostream &out) {
 
 	int rowCount = 0;
 	int data = input.get();
-	int sourceCount = 0;
+	int sourceCount = 1;
 	while(data && !input.eof()) {
-		++sourceCount;
-
 		int reps = data >> 3;
 		int value = data & 0x07;
 
@@ -28,6 +26,7 @@ void writeMap(char *filename, int skip, std::ostream &out) {
 		}
 
 		data = input.get();
+        ++sourceCount;
 	}
 
 	std::cout << "Read " << sourceCount << " bytes." << std::endl;

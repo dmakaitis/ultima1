@@ -124,7 +124,7 @@ ou_main:
         lda     wBD00
         bne     b8CF0
         jsr     s9A10
-b8CF0:  jsr     s9840
+b8CF0:  jsr     decompress_continent_map
 
         lda     mi_player_hits                          ; If the player has no hit points...
         ora     mi_player_hits + 1
@@ -1466,7 +1466,8 @@ b983D:  jsr     s9A10
 ;-----------------------------------------------------------
 ;-----------------------------------------------------------
 
-s9840:  lda     mi_player_continent                     ; Make sure mi_player_continent is in the range 0-3
+decompress_continent_map:
+        lda     mi_player_continent                     ; Make sure mi_player_continent is in the range 0-3
         and     #$03
         sta     mi_player_continent
 
@@ -1488,7 +1489,7 @@ s9840:  lda     mi_player_continent                     ; Make sure mi_player_co
         ldy     #$00
 @copy_loop:
         lda     (zp36),y                                ; If the current source byte is zero...
-        beq     b9882                                   ; ...then ???
+        beq     @done_decompressing                     ; ...then we are done
 
         lsr     a                                       ; x := source / 8 (top five bits)
         lsr     a
@@ -1515,7 +1516,8 @@ s9840:  lda     mi_player_continent                     ; Make sure mi_player_co
         bne     @copy_loop
 
 
-b9882:  lda     mi_player_continent                     ; mi_player_continent_mask := mi_player_continent * 64
+@done_decompressing:
+        lda     mi_player_continent                     ; mi_player_continent_mask := mi_player_continent * 64
         lsr     a
         ror     a
         ror     a
