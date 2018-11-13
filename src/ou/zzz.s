@@ -76,9 +76,10 @@ TMP_PTR2        := $62
 ;-----------------------------------------------------------
 
 ou_main:
-        lda     #$30
+        lda     #$30                                    ; Expose all RAM
         sta     PROCESSOR_PORT
-        ldx     #$0D
+
+        ldx     #$0D                                    ; Copy 3328 bytes from $D000-$DCFF to $B000-$BCFF
         lda     #$00
         sta     TMP_PTR
         sta     TMP_PTR2
@@ -87,38 +88,52 @@ ou_main:
         lda     #$B0
         sta     TMP_PTR2 + 1
         ldy     #$00
-b8CB4:  lda     (TMP_PTR),y
+
+@loop_copy:
+        lda     (TMP_PTR),y
         sta     (TMP_PTR2),y
         iny
-        bne     b8CB4
+        bne     @loop_copy
         inc     TMP_PTR + 1
         inc     TMP_PTR2 + 1
         dex
-        bne     b8CB4
-        lda     #$36
+        bne     @loop_copy
+
+        lda     #$36                                    ; Enable I/O and KERNAL areas
         sta     PROCESSOR_PORT
-        lda     #$C1
+
+
+        lda     #$C1                                    ; Configure input options (fire = 'A')
         sta     st_joystick_fire_key_equiv
         lda     #$02
         sta     st_key_repeat_rate_10ths
-        lda     mi_player_position_x
+
+        lda     mi_player_position_x                    ; Copy player location into zero-page variables
         sta     POS_X
         lda     mi_player_position_y
         sta     POS_Y
-        lda     #$60
+
+        lda     #$60                                    ; Set up screen swapping
         sta     BM2_ADDR_MASK
         sta     BM_ADDR_MASK
         jsr     st_copy_screen_2_to_1
-        ldx     #$00
+
+        ldx     #$00                                    ; Use the default command table
         stx     mi_command_table_override + 1
+
         lda     wBD00
         bne     b8CF0
         jsr     s9A10
 b8CF0:  jsr     s9840
-        lda     mi_player_hits
+
+        lda     mi_player_hits                          ; If the player has no hit points...
         ora     mi_player_hits + 1
-        beq     b8D4E
-b8CFB:  ldx     #$FF
+        beq     b8D4E                                   ; ...then they are dead
+
+
+
+main_loop:
+        ldx     #$FF
         txs
         jsr     mi_print_text
         .byte   "|"
@@ -140,7 +155,7 @@ b8D07:  jsr     mi_update_stats
         lda     CUR_X
         cmp     #$02
         bcc     b8D07
-        bcs     b8CFB
+        bcs     main_loop
 b8D31:  jsr     mi_decode_and_print_command_a
         bcs     b8D45
         lda     command_routine_table,x
@@ -151,7 +166,7 @@ w8D43           := * + 1
 w8D44           := * + 2
         jsr     mi_do_nothing
 b8D45:  jsr     s9A2F
-        jmp     b8CFB
+        jmp     main_loop
 
 b8D4B:  jsr     mi_player_died
 b8D4E:  ldx     #$0A
@@ -191,7 +206,7 @@ b8DAD:  inc     mi_player_food
         jsr     mi_reset_buffers
         lda     #$0A
         jsr     st_queue_sound
-        jmp     b8CFB
+        jmp     main_loop
 
 
 
@@ -802,7 +817,7 @@ b92CB:  cpx     #$03
 
 b92F9:  jsr     s8DF6
         bcc     b9301
-        jmp     b8CFB
+        jmp     main_loop
 
 b9301:  lda     #$0A
         jsr     st_queue_sound
@@ -830,7 +845,7 @@ b9313:  jsr     mi_print_string_entry_x2
         .byte   "Failed!"
         .byte   $00
 j933D:  jsr     mi_spell_failed
-        jmp     b8CFB
+        jmp     main_loop
 
 b9343:  jsr     mi_print_text
         .byte   "Miss!"
@@ -1019,10 +1034,7 @@ b94BE:  stx     wA141
         lda     #$FF
         sta     mi_player_821E,y
         jsr     mi_print_text
-        .byte   "}A Quest is completed!"
-
-
-        .byte   $00
+        .asciiz "}A Quest is completed!"
         jsr     s95B9
 b9503:  ldx     wA141
         lda     rA121,x
@@ -1430,21 +1442,21 @@ b9810:  cmp     #$F6
         bcc     b9833
 b9814:  rts
 
-b9815:  inc     mi_player_81E4
+b9815:  inc     mi_player_continent
         lda     #$F6
         sta     POS_X
         bne     b983D
-b981E:  dec     mi_player_81E4
+b981E:  dec     mi_player_continent
         lda     #$48
         sta     POS_X
         bne     b983D
-b9827:  dec     mi_player_81E4
-        dec     mi_player_81E4
+b9827:  dec     mi_player_continent
+        dec     mi_player_continent
         lda     #$FB
         sta     POS_Y
         bne     b983D
-b9833:  inc     mi_player_81E4
-        inc     mi_player_81E4
+b9833:  inc     mi_player_continent
+        inc     mi_player_continent
         lda     #$43
         sta     POS_Y
 b983D:  jsr     s9A10
@@ -1454,52 +1466,67 @@ b983D:  jsr     s9A10
 ;-----------------------------------------------------------
 ;-----------------------------------------------------------
 
-s9840:  lda     mi_player_81E4
+s9840:  lda     mi_player_continent                     ; Make sure mi_player_continent is in the range 0-3
         and     #$03
-        sta     mi_player_81E4
-        asl     a
+        sta     mi_player_continent
+
+        asl     a                                       ; x := mi_player_continent * 2
         tax
-        lda     rB000,x
+
+        lda     rB000,x                                 ; source (zp36) := $B000 + word at ($B000 + x)
         adc     #$00
         sta     zp36
         lda     rB001,x
         adc     #$B0
         sta     zp37
-        lda     #$00
+
+        lda     #$00                                    ; target (zp38) := $6400
         sta     zp38
         lda     #$64
         sta     zp39
+
         ldy     #$00
-b9862:  lda     (zp36),y
-        beq     b9882
-        lsr     a
+@copy_loop:
+        lda     (zp36),y                                ; If the current source byte is zero...
+        beq     b9882                                   ; ...then ???
+
+        lsr     a                                       ; x := source / 8 (top five bits)
         lsr     a
         lsr     a
         tax
-        lda     (zp36),y
+        
+        lda     (zp36),y                                ; a : = 2 * (source % 8) (bottom three bits)
         and     #$07
         asl     a
-b986F:  sta     (zp38),y
+
+@write_next_byte:
+        sta     (zp38),y                                ; *zp38++ := a
         inc     zp38
-        bne     b9877
+        bne     @next_x
         inc     zp39
-b9877:  dex
-        bne     b986F
-        inc     zp36
-        bne     b9862
+
+@next_x:
+        dex                                             ; Write out x bytes
+        bne     @write_next_byte
+
+        inc     zp36                                    ; Advance source pointer
+        bne     @copy_loop
         inc     zp37
-        bne     b9862
-b9882:  lda     mi_player_81E4
+        bne     @copy_loop
+
+
+b9882:  lda     mi_player_continent                     ; mi_player_continent_mask := mi_player_continent * 64
         lsr     a
         ror     a
         ror     a
-        sta     mi_player_81E5
+        sta     mi_player_continent_mask
+
         ldx     mi_player_826b
         beq     b98AB
 b9890:  dex
         lda     mi_player_82bc,x
         and     #$C0
-        cmp     mi_player_81E5
+        cmp     mi_player_continent_mask
         bne     b98A8
         jsr     s9C79
         lda     (zp4C),y
@@ -1508,6 +1535,7 @@ b9890:  dex
         sta     (zp4C),y
 b98A8:  txa
         bne     b9890
+
 b98AB:  stx     zp3F
         ldx     POS_X
         ldy     POS_Y
@@ -1537,7 +1565,7 @@ b98DD:  sta     mi_player_8226,x
         jsr     s9916
         lda     mi_player_822A
         beq     b9910
-        lda     mi_player_821D
+        lda     mi_player_inventory_vehicles + 10
         cmp     #$07
         bcs     b9910
 b98F2:  jsr     st_get_random_number
@@ -1794,7 +1822,7 @@ b9ACB:  jsr     s9C77
         lda     zp2C
         sta     mi_player_826c,x
         lda     zp2D
-        ora     mi_player_81E5
+        ora     mi_player_continent_mask
         sta     mi_player_82bc,x
         jsr     s9C79
         lda     (zp4C),y
@@ -2063,7 +2091,7 @@ s9CA6:  cpx     #$40
         sta     mi_player_830c,x
         pha
         tya
-        ora     mi_player_81E5
+        ora     mi_player_continent_mask
         sta     mi_player_82bc,x
         lda     zp46
         sta     mi_player_826c,x
@@ -2089,7 +2117,7 @@ s9CD8:  ldx     POS_X
         bcs     b9CD7
         stx     zp46
         tya
-        ora     mi_player_81E5
+        ora     mi_player_continent_mask
         ldx     mi_player_826b
 b9CED:  dex
         bmi     b9CD7
@@ -2106,7 +2134,7 @@ b9CED:  dex
 
 s9CFC:  lda     mi_player_82bc,x
         and     #$C0
-        cmp     mi_player_81E5
+        cmp     mi_player_continent_mask
         bne     b9D0E
         jsr     s9C79
         lda     mi_player_835c,x
@@ -2153,28 +2181,35 @@ s9D44:  jsr     st_get_random_number
 ;-----------------------------------------------------------
 
 s9D50:  lda     #$00
-        cpy     #$40
-        bcs     b9D75
+
+        cpy     #$40                                    ; if x or y >= 64, then we're done
+        bcs     @done
         cpx     #$40
-        bcs     b9D75
-        tya
-        sta     w9D74
-        lsr     a
+        bcs     @done
+
+        tya                                             ; Cache the y value
+        sta     @restore_y + 1
+
+        lsr     a                                       ; zp4C := $6400 + (y << 6)
         sta     zp4D
         lda     #$00
         ror     a
         lsr     zp4D
         ror     a
         sta     zp4C
+
         lda     zp4D
         adc     #$64
         sta     zp4D
-        txa
+
+        txa                                             ; Read byte at zp4C + x
         tay
         lda     (zp4C),y
-w9D74           := * + 1
+
+@restore_y:
         ldy     #$00
-b9D75:  lsr     a
+
+@done:  lsr     a
         rts
 
 
@@ -2195,13 +2230,15 @@ s9D77:  ldx     POS_X
 
 cmd_inform_search:
         jsr     mi_print_tab
-        jsr     s9D77
+        jsr     s9D77                                   ; a := wA142 := tile at player location???
+
         cmp     #$03
         beq     b9DAD
+
         cmp     #$08
         bcc     b9DAF
         lda     POS_Y
-        ora     mi_player_81E5
+        ora     mi_player_continent_mask
         ldx     mi_player_826b
 b9D98:  cmp     mi_player_82bb,x
         bne     b9DAA
@@ -2223,7 +2260,7 @@ b9DAF:  sta     wA142
         ldx     wA142
         dex
         bne     b9DCA
-        ldx     mi_player_81E4
+        ldx     mi_player_continent
         jsr     mi_print_string_entry_x2
         .addr   mi_land_name_table
 b9DCA:  rts
@@ -2234,7 +2271,7 @@ b9DCB:  cmp     #$06
         .byte   "the city of "
 
         .byte   $00
-b9DDF:  lda     mi_player_81E5
+b9DDF:  lda     mi_player_continent_mask
         ora     POS_Y
         ldx     #$53
 b9DE6:  cmp     mi_r7C18,x

@@ -27,6 +27,7 @@ DA65 = /usr/local/bin/da65
 CIMAGE = $(BIN_OUT)/cimage
 DIMAGE = $(BIN_OUT)/dimage
 MAP2INC = $(BIN_OUT)/map2inc
+DMAP = $(BIN_OUT)/dmap
 
 u1files: $(addprefix $(PRG_OUT)/, $(addsuffix .prg, $(U1FILES)))
 
@@ -158,6 +159,10 @@ $(CIMAGE): $(BIN_OBJ)/cimage.o
 $(MAP2INC): $(BIN_OBJ)/map2inc.o
 	@mkdir -p $(@D)
 	c++ -o $@ $(BIN_OBJ)/map2inc.o
+
+$(DMAP): $(BIN_OBJ)/dmap.o
+	@mkdir -p $(@D)
+	c++ -o $@ $(BIN_OBJ)/dmap.o
 
 $(BIN_OBJ)/%.o: util/%.cpp
 	@mkdir -p $(@D)
@@ -292,6 +297,18 @@ assets/tiles.png: $(ORIG_PRG_OUT)/st.prg $(DIMAGE)
 assets/skull.png: $(ORIG_PRG_OUT)/mi.prg $(DIMAGE)
 	$(DIMAGE) -q -i $< -o $@ -w 72 -h 96 -s 5 -n 864 -b
 
+assets/british.txt: $(ORIG_PRG_OUT)/ge.prg $(DMAP)
+	$(DMAP) -i $< -o $@ -s 2403
+	
+assets/feudal_lords.txt: $(ORIG_PRG_OUT)/ge.prg $(DMAP)
+	$(DMAP) -i $< -o $@ -s 3138
+	
+assets/dark_unknown.txt: $(ORIG_PRG_OUT)/ge.prg $(DMAP)
+	$(DMAP) -i $< -o $@ -s 4019
+	
+assets/danger_and_despair.txt: $(ORIG_PRG_OUT)/ge.prg $(DMAP)
+	$(DMAP) -i $< -o $@ -s 4881
+	
 ###########################################################
 # The following rules compile assets for inclusion in
 # game files.

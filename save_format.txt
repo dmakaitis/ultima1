@@ -1,7 +1,25 @@
 File offset | Memory addr | Description
 ------------+-------------+------------------------------------------------------------------------
-$0000       | $81E2       | Header byte (always $CA)
+$0000-$0001 | $81E2-$81E3 | Header byte (always $CA)
+$0002       | $81E4       | Player world continent
 
+$0005       | $81E7       | Sound enable flag ($FF to enable, $00 to disable)
+$0006-$0007 | $81E8-$81E9 | Player world location (first byte X, second byte Y)
+$0008-$000B | $81EA-$81ED | Gem count (four gem types, one byte each)
+$000C       | $81EE       | Equipped spell
+$000D       | $81EF       | Equipped weapon
+$000E       | $81F0       | Equipped armor
+$000F       | $81F1       | Current vehicle
+$0010-$0015 | $81F2-$81F7 | Armor inventory (skin, leather, chain, plate, vacuum, reflect)
+$0016-$0025 | $81F8-$8207 | Weapon inventory (hands, dagger, mace, axe, rope, sword, great sword,
+            |             |     bow, amulet, wand, staff, triangle, pistol, light sword, phazor,
+            |             |     blaster)
+$0026-$0030 | $8208-$8212 | Spell inventory (prayer, open, unlock, magic missil, steal, ladder
+			|			  |     down, ladder up, blink, create, destroy, kill)
+$0031-$003B | $8213-$821F | Vehicle inventory (foot, horse, cart, raft, friggate, air car, shuttle,
+			|			  |     phantom, star cruiser, battle base, time machine)
+
+$0049       | $822B       | Enemy Vessels Count
 $004A       | $822C       | Sex (0 - Male, 1 - Female)
 $004B-$0058 | $822D-$823A | Name
 $0059-$005A | $823B-$823C | Hit points (max 9999)

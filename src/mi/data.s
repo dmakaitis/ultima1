@@ -98,7 +98,6 @@ spell_table:
         .byte   "Ope",$EE
         .byte   "Unloc",$EB
         .byte   "Magic Missil",$E5
-
         .byte   "Stea",$EC
         .byte   "Ladder Dow",$EE
         .byte   "Ladder U",$F0

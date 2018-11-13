@@ -25,10 +25,7 @@ mi_no_effect
 mi_number_padding
 mi_play_error_sound_and_reset_buffers
 mi_play_sound_and_reset_buffers_a
-mi_player_81E4
-mi_player_81E5
 mi_player_820B
-mi_player_821D
 mi_player_821E
 mi_player_8226
 mi_player_8227
@@ -52,6 +49,8 @@ mi_player_835c
 mi_player_835d
 mi_player_agility
 mi_player_class
+mi_player_continent
+mi_player_continent_mask
 mi_player_current_vehicle
 mi_player_died
 mi_player_equipped_armor

@@ -9,6 +9,8 @@
 .export mi_player_save_data
 .export mi_player_agility
 .export mi_player_class
+.export mi_player_continent
+.export mi_player_continent_mask
 .export mi_player_current_vehicle
 .export mi_player_enemy_vessels
 .export mi_player_equipped_armor
@@ -36,10 +38,7 @@
 .export mi_player_position_x
 .export mi_player_position_y
 
-.export mi_player_81E4
-.export mi_player_81E5
 .export mi_player_820B
-.export mi_player_821D
 .export mi_player_821E
 .export mi_player_8226
 .export mi_player_8227
@@ -72,38 +71,49 @@
 
 mi_player_save_data:
         .byte   $CA,$01
-mi_player_81E4:
+
+mi_player_continent:
         .byte   $00
-mi_player_81E5:
+mi_player_continent_mask:
         .byte   $00,$FF
+
 mi_player_sound_flag:
         .byte   $FF
+
 mi_player_position_x:
         .byte   $20
 mi_player_position_y:
         .byte   $20
+
 mi_player_gems:
         .byte   $00,$00,$00,$00
+
 mi_player_equipped_spell:
         .byte   $00
+
 mi_player_equipped_weapon:
         .byte   $00
+
 mi_player_equipped_armor:
         .byte   $00
+
 mi_player_current_vehicle:
         .byte   $00
+
 mi_player_inventory_armor:
         .byte   $01,$01,$01,$01,$01,$01
+
 mi_player_inventory_weapons:
         .byte   $01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01
+
 mi_player_inventory_spells:
         .byte   $01,$03,$03
 mi_player_820B:
         .byte   $03,$00,$03,$03,$03,$03,$03,$03
+
 mi_player_inventory_vehicles:
-        .byte   $01,$01,$01,$01,$01,$01,$00,$00,$00,$00
-mi_player_821D:
-        .byte   $00
+        .byte   $01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00
+
 mi_player_821E:
         .byte   $00,$00,$00,$00,$00
         .byte   $00,$00,$00
@@ -122,8 +132,7 @@ mi_player_enemy_vessels:
 mi_player_sex:
         .byte   $01
 mi_player_name:
-        .byte   $47,$6C,$69,$6E,$64,$61,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00
+        .byte   $47,$6C,$69,$6E,$64,$61,$00,$00,$00,$00,$00,$00,$00,$00
 mi_player_hits:
         .word   $0384
 mi_player_strength:
