@@ -49,17 +49,11 @@
 .export mi_player_8263
 .export mi_player_8267
 .export mi_player_8268
-.export mi_player_826b
-.export mi_player_826c
-.export mi_player_826d
-.export mi_player_82bb
-.export mi_player_82bc
-.export mi_player_82bd
-.export mi_player_830c
-.export mi_player_830d
-.export mi_player_835b
-.export mi_player_835c
-.export mi_player_835d
+.export mi_player_vehicle_count
+.export mi_player_vehicle_x_coords
+.export mi_player_vehicle_continent_y_coords
+.export mi_player_vehicle_types
+.export mi_player_vehicle_tiles
 
 .export w824F
 .export w8250
@@ -114,6 +108,8 @@ mi_player_820B:
 mi_player_inventory_vehicles:
         .byte   $01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00
 
+
+
 mi_player_821E:
         .byte   $00,$00,$00,$00,$00
         .byte   $00,$00,$00
@@ -127,6 +123,9 @@ mi_player_8229:
         .byte   $FF
 mi_player_822A:
         .byte   $00
+
+
+
 mi_player_enemy_vessels:
         .byte   $00
 mi_player_sex:
@@ -153,47 +152,47 @@ mi_player_race:
         .byte   $02,$00
 mi_player_class:
         .byte   $02,$00
+
+
+
 w824F:  .byte   $00
 w8250:  .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00
 w8259:  .byte   $95
+
+
+
 mi_player_food:
         .word   $0059
 mi_player_experience:
         .word   $0237
+
+
+
         .byte   $E8,$03,$E8,$03
 mi_player_8262:
         .byte   $00
 mi_player_8263:
         .byte   $FF
+
+
+
 mi_player_random_seed:
         .word   $BEEF
+
+
+
         .byte   $00
 mi_player_8267:
         .byte   $00
 mi_player_8268:
         .byte   $00,$00,$00
-mi_player_826b:
+
+
+
+mi_player_vehicle_count:
         .byte   $00
-mi_player_826c:
-        .byte   $00
-mi_player_826d:
-        .byte   $00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00
-mi_player_82bb:
-        .byte   $00
-mi_player_82bc:
-        .byte   $00
-mi_player_82bd:
-        .byte   $00,$00,$00,$00,$00,$00,$00
+mi_player_vehicle_x_coords:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
@@ -203,10 +202,8 @@ mi_player_82bd:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
-mi_player_830c:
-        .byte   $00
-mi_player_830d:
-        .byte   $00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+mi_player_vehicle_continent_y_coords:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
@@ -215,13 +212,9 @@ mi_player_830d:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00
-mi_player_835b:
-        .byte   $00
-mi_player_835c:
-        .byte   $00
-mi_player_835d:
-        .byte   $00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+mi_player_vehicle_types:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
@@ -230,5 +223,16 @@ mi_player_835d:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
-        .byte   $00,$00,$00,$00,$00,$00,$00
-        .byte   $00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+mi_player_vehicle_tiles:
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00

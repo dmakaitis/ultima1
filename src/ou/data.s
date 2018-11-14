@@ -10,7 +10,7 @@
 
 .export command_routine_table
 .export r9E5B_str
-.export r9E95
+.export blocked_messages
 .export r9EEC
 .export rA119
 .export rA121
@@ -76,7 +76,8 @@ r9E5B_str:
 
 
 
-r9E95:  .byte   "You can't walk on water",$A1
+blocked_messages:
+        .byte   "You can't walk on water",$A1
         .byte   "Mountains are impassable",$A1
         .byte   "Aircars can't pass woods",$A1
         .byte   "s like water",$A1
