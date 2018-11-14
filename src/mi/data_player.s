@@ -38,7 +38,6 @@
 .export mi_player_position_x
 .export mi_player_position_y
 
-.export mi_player_820B
 .export mi_player_821E
 .export mi_player_8226
 .export mi_player_8227
@@ -101,9 +100,7 @@ mi_player_inventory_weapons:
         .byte   $01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01
 
 mi_player_inventory_spells:
-        .byte   $01,$03,$03
-mi_player_820B:
-        .byte   $03,$00,$03,$03,$03,$03,$03,$03
+        .byte   $01,$03,$03,$03,$00,$03,$03,$03,$03,$03,$03
 
 mi_player_inventory_vehicles:
         .byte   $01,$01,$01,$01,$01,$01,$00,$00,$00,$00,$00

@@ -9,7 +9,7 @@
 .include "mi.inc"
 
 .export command_routine_table
-.export r9E5B_str
+.export tile_descriptions
 .export blocked_messages
 .export r9EEC
 .export rA119
@@ -69,7 +69,7 @@ command_routine_table_hi:= * + 1
 
 
 
-r9E5B_str:
+tile_descriptions:
         .byte   "You are at se",$E1
         .byte   "You are in the lands~of",$A0
         .byte   "You are in the wood",$F3

@@ -18,7 +18,7 @@
 .export cmd_xit
 
 .import command_routine_table
-.import r9E5B_str
+.import tile_descriptions
 .import blocked_messages
 .import r9EEC
 .import rA119
@@ -31,45 +31,42 @@
 .import wA144
 .import wA145
 
-r3888           := $3888
-continent_map   := $6400
-rB000           := $B000
-rB001           := $B001
-wBCFF           := $BCFF
-wBD00           := $BD00
-rBD01           := $BD01
+r3888                   := $3888
+continent_map           := $6400
+continent_addresses     := $B000
+wBD00                   := $BD00
 
-PROCESSOR_PORT  := $01
-POS_X           := $20
-POS_Y           := $21
-zp22            := $22
-zp23            := $23
-zp24            := $24
-zp25            := $25
-zp26            := $26
-zp27            := $27
-zp28            := $28
-zp29            := $29
-zp2C            := $2C
-zp2D            := $2D
-zp36            := $36
-zp37            := $37
-zp38            := $38
-zp39            := $39
-zp3A            := $3A
-zp3C            := $3C
-zp3D            := $3D
-zp3F            := $3F
-zp43            := $43
-zp44            := $44
-zp46            := $46
-zp47            := $47
-zp48            := $48
-zp49            := $49
-zp4C            := $4C
-zp4D            := $4D
-TMP_PTR         := $60
-TMP_PTR2        := $62
+PROCESSOR_PORT          := $01
+POS_X                   := $20
+POS_Y                   := $21
+zp22                    := $22
+zp23                    := $23
+zp24                    := $24
+zp25                    := $25
+zp26                    := $26
+zp27                    := $27
+zp28                    := $28
+zp29                    := $29
+zp2C                    := $2C
+zp2D                    := $2D
+zp36                    := $36
+zp37                    := $37
+zp38                    := $38
+zp39                    := $39
+zp3A                    := $3A
+zp3C                    := $3C
+zp3D                    := $3D
+zp3F                    := $3F
+zp43                    := $43
+zp44                    := $44
+zp46                    := $46
+zp47                    := $47
+zp48                    := $48
+zp49                    := $49
+zp4C                    := $4C
+zp4D                    := $4D
+TMP_PTR                 := $60
+TMP_PTR2                := $62
 
 .segment "ZZZ"
 
@@ -129,24 +126,28 @@ b8CF0:  jsr     decompress_continent_map
 
         lda     mi_player_hits                          ; If the player has no hit points...
         ora     mi_player_hits + 1
-        beq     b8D4E                                   ; ...then they are dead
+        beq     no_hits                                 ; ...then they are dead
 
 
 
 main_loop:
-        ldx     #$FF
+        ldx     #$FF                                    ; Reset stack
         txs
-        jsr     mi_print_text
-        .byte   "|"
-        .byte   $0E,$00
-        jsr     s9E0B
-b8D07:  jsr     mi_update_stats
-        lda     mi_player_hits
+
+        jsr     mi_print_text                           ; Prompt for input
+        .byte   "|",$0E,$00
+
+        jsr     set_avatar_vehicle_tile                 ; Make sure correct vehicle is displayed for the player
+
+b8D07:  jsr     mi_update_stats                         ; Update the display with player stats
+
+        lda     mi_player_hits                          ; If the player has no hit points...
         ora     mi_player_hits + 1
-        beq     b8D4B
-        lda     mi_player_food
+        beq     no_food_or_hits
+        lda     mi_player_food                          ; ...or food...
         ora     mi_player_food + 1
-        beq     b8D4B
+        beq     no_food_or_hits                         ; ...then they are dead
+
         jsr     s8DD0
         bne     b8D31
         ldy     #$05
@@ -157,6 +158,8 @@ b8D07:  jsr     mi_update_stats
         cmp     #$02
         bcc     b8D07
         bcs     main_loop
+
+
 b8D31:  jsr     mi_decode_and_print_command_a
         bcs     b8D45
         lda     command_routine_table,x
@@ -169,11 +172,16 @@ w8D44           := * + 2
 b8D45:  jsr     s9A2F
         jmp     main_loop
 
-b8D4B:  jsr     mi_player_died
-b8D4E:  ldx     #$0A
-b8D50:  jsr     st_delay_a_squared
+
+no_food_or_hits:
+        jsr     mi_player_died                          ; Inform the player they are dead
+
+no_hits:
+        ldx     #$0A                                    ; Delay for a time period
+@delay: jsr     st_delay_a_squared
         dex
-        bpl     b8D50
+        bpl     @delay
+
         jsr     s97E0
         stx     POS_X
         sty     POS_Y
@@ -195,12 +203,12 @@ b8D74:  sta     mi_player_inventory_weapons,x
         jsr     mi_print_text
         .asciiz "~Attempting resurrection!"
 b8DA0:  inc     mi_player_hits
-        jsr     s8DC5
+        jsr     update_stats_and_delay
         lda     mi_player_hits
         cmp     #$63
         bcc     b8DA0
 b8DAD:  inc     mi_player_food
-        jsr     s8DC5
+        jsr     update_stats_and_delay
         lda     mi_player_food
         cmp     #$63
         bcc     b8DAD
@@ -212,9 +220,18 @@ b8DAD:  inc     mi_player_food
 
 
 ;-----------------------------------------------------------
+;                  update_stats_and_delay
+;
+; Updates the screen with player stats, then delays for a
+; fixed time period.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
-s8DC5:  jsr     mi_update_stats
+update_stats_and_delay:
+        jsr     mi_update_stats
         lda     #$68
         jsr     st_delay_a_squared
         jmp     st_wait_for_raster
@@ -610,8 +627,10 @@ b909D:  and     #$07                                    ; If the tile is a time 
         lda     #$0A                                    ; ...then override the vehicle to be a time machine
 b90A5:  sta     mi_player_current_vehicle
         pha
-        jsr     remove_vehicle_at_player_location
-        jsr     s9E0B
+
+        jsr     remove_vehicle_at_player_location       ; Remove the vehicle from the world map
+
+        jsr     set_avatar_vehicle_tile
         jsr     st_draw_world
         pla
         cmp     #$03
@@ -1351,7 +1370,7 @@ b96EC:  jsr     mi_cursor_to_col_1                      ; Move the cursor to col
         stx     zp2C                                    ; Store where we want to move to in temporary locations
         sty     zp2D
 
-        lda     mi_player_current_vehicle               ; If the current vehicle is a shuttle or better...
+        lda     mi_player_current_vehicle               ; If the current vehicle is a shuttle or time machine...
         cmp     #$06
         bcc     @not_space_ship
 
@@ -1539,11 +1558,11 @@ decompress_continent_map:
         asl     a                                       ; x := mi_player_continent * 2
         tax
 
-        lda     rB000,x                                 ; source (zp36) := $B000 + word at ($B000 + x)
-        adc     #$00
+        lda     continent_addresses,x                   ; source (zp36) := continent_addresses + word at (continent_addresses + x)
+        adc     #<continent_addresses
         sta     zp36
-        lda     rB001,x
-        adc     #$B0
+        lda     continent_addresses + 1,x
+        adc     #>continent_addresses
         sta     zp37
 
         lda     #$00                                    ; target (zp38) := $6400
@@ -1691,7 +1710,7 @@ b9933:  dey
         bcc     b9949
         lda     #$12
 b9949:  tax
-        inc     mi_player_820B,x
+        inc     mi_player_inventory_vehicles - 8,x
 b994D:  tya
         bne     b9933
 b9950:  rts
@@ -1789,7 +1808,7 @@ b99DD:  lda     zp22
         adc     zp43
         ror     a
 b99FE:  ldx     mi_player_vehicle_count
-        sta     wBCFF,x
+        sta     wBD00 - 1,x
 b9A04:  rts
 
 r9A05:  .byte   $00,$0A,$14,$1E,$28,$32,$3C,$46
@@ -2107,7 +2126,7 @@ b9C66:  sta     mi_player_hits + 1
         jsr     mi_update_stats
         lda     #$02
         jsr     st_play_sound_a
-j9C71:  jsr     s9E0B
+j9C71:  jsr     set_avatar_vehicle_tile
         jmp     st_draw_world
 
 
@@ -2272,7 +2291,7 @@ b9D0E:  lda     mi_player_vehicle_types,x               ; zp3A := the removed ve
 
         dec     mi_player_vehicle_count                 ; Reduce the vehicle counter
 
-        bne     b9D3A                                   ; If no more vehicles are left...
+        bne     @next_vehicle                           ; If no more vehicles are left...
         rts                                             ; ...then we are done
 
 @loop:  lda     mi_player_vehicle_x_coords + 1,x        ; Shift all vehicle entries after the removed vehicle up
@@ -2284,11 +2303,12 @@ b9D0E:  lda     mi_player_vehicle_types,x               ; zp3A := the removed ve
         lda     mi_player_vehicle_tiles + 1,x
         sta     mi_player_vehicle_tiles,x
 
-        lda     rBD01,x
+        lda     wBD00 + 1,x
         sta     wBD00,x
 
         inx
-b9D3A:  cpx     mi_player_vehicle_count                 ; If that was not the last vehicle...
+@next_vehicle:
+        cpx     mi_player_vehicle_count                 ; If that was not the last vehicle...
         bcc     @loop                                   ; ...keep going
 
         ldx     zp46                                    ; x := the removed vehicle index
@@ -2387,53 +2407,59 @@ get_player_position_and_tile:
 
 cmd_inform_search:
         jsr     mi_print_tab
-        jsr     get_player_position_and_tile                                   ; a := wA142 := tile at player location???
+        jsr     get_player_position_and_tile            ; a := wA142 := tile at player location
 
-        cmp     #$03
-        beq     b9DAD
+        cmp     #$03                                    ; If the tile is mountains...
+        beq     @over_mountains                         ; ...treat it the same as plains
 
-        cmp     #$08
-        bcc     b9DAF
-        lda     POS_Y
+        cmp     #$08                                    ; If tile is a vehicle...
+        bcc     @cache_tile
+        lda     POS_Y                                   ; ...get the tile from the vehicle tile cache instead
         ora     mi_player_continent_mask
         ldx     mi_player_vehicle_count
-b9D98:  cmp     mi_player_vehicle_continent_y_coords - 1,x
-        bne     b9DAA
+@loop:  cmp     mi_player_vehicle_continent_y_coords - 1,x
+        bne     @next_vehicle
         ldy     mi_player_vehicle_x_coords - 1,x
         cpy     POS_X
-        bne     b9DAA
+        bne     @next_vehicle
         lda     mi_player_vehicle_tiles - 1,x
         lsr     a
-        bpl     b9DAF
-b9DAA:  dex
-        bne     b9D98
-b9DAD:  lda     #$01
-b9DAF:  sta     wA142
-        cmp     #$04
-        bcs     b9DCB
-        tax
+        bpl     @cache_tile
+@next_vehicle:  dex
+        bne     @loop
+
+@over_mountains:
+        lda     #$01                                    ; Treat tile as plains
+@cache_tile:
+        sta     wA142                                   ; Store tile in cache (wA142)
+
+        cmp     #$04                                    ; If the tile is water, plains, or forest...
+        bcs     @special_tile
+        tax                                             ; ...then inform the player as such
         jsr     mi_print_string_entry_x2
-        .addr   r9E5B_str
-        ldx     wA142
-        dex
-        bne     b9DCA
-        ldx     mi_player_continent
+        .addr   tile_descriptions
+
+        ldx     wA142                                   ; x := cached tile
+
+        dex                                             ; If tile is plains...
+        bne     @done
+        ldx     mi_player_continent                     ; ...append the continent name
         jsr     mi_print_string_entry_x2
         .addr   mi_land_name_table
-b9DCA:  rts
+@done:  rts
 
-b9DCB:  cmp     #$06
+@special_tile:
+        cmp     #$06                                    ; If the tile is a town...
         bne     b9DDF
-        jsr     mi_print_text
-        .byte   "the city of "
+        jsr     mi_print_text                           ; ...print prefix for the town name
+        .asciiz "the city of "
 
-        .byte   $00
 b9DDF:  lda     mi_player_continent_mask
         ora     POS_Y
         ldx     #$53
-b9DE6:  cmp     mi_r7C18,x
+b9DE6:  cmp     mi_world_feature_continent_y_coords,x
         bne     b9DF2
-        ldy     mi_r7C6C,x
+        ldy     mi_world_feature_x_coords,x
         cpy     POS_X
         beq     b9DF9
 b9DF2:  dex
@@ -2449,6 +2475,13 @@ b9DF9:  stx     mi_player_8262
 
 
 ;-----------------------------------------------------------
+;                  print_current_vehicle
+;
+; Prints the name of the players current vehicle.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
 print_current_vehicle:
@@ -2460,19 +2493,35 @@ print_current_vehicle:
 
 
 ;-----------------------------------------------------------
+;                 set_avatar_vehicle_tile
+;
+; Updates the avatar tile to the appropriate image for the
+; vehicle that the player is currently travelling in. If
+; the vehicle is invalid, automatically places the player
+; on foot.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
-s9E0B:  lda     mi_player_current_vehicle
+set_avatar_vehicle_tile:
+        lda     mi_player_current_vehicle               ; If vehicle ID >= 11...
         cmp     #$0B
-        bcc     b9E17
-        lda     #$00
+        bcc     @valid_vehicle
+        lda     #$00                                    ; ...then it is not valid - put player on foot
         sta     mi_player_current_vehicle
-b9E17:  cmp     #$07
-        bcc     b9E22
-        lda     #$0A
+
+@valid_vehicle:
+        cmp     #$07                                    ; If the player is in a time machine...
+        bcc     @not_time_machine
+        lda     #$0A                                    ; ...update the vehicle ID as such
         sta     mi_player_current_vehicle
         lda     #$07
-b9E22:  ora     #$08
+
+@not_time_machine:
+        ora     #$08                                    ; Convert vehicle ID to the corresponding tile image ID
         asl     a
         sta     st_avatar_tile
+
         rts

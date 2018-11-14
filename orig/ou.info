@@ -483,7 +483,7 @@ LABEL   { NAME "w9B3C";                     ADDR $9B3C; };
 LABEL   { NAME "w9D74";                     ADDR $9D74; };
 LABEL   { NAME "command_routine_table";     ADDR $9E29; };
 LABEL   { NAME "command_routine_table_hi";  ADDR $9E2A; };
-LABEL   { NAME "r9E5B_str";                 ADDR $9E5B; };
+LABEL   { NAME "tile_descriptions";         ADDR $9E5B; };
 LABEL   { NAME "r9E95";                     ADDR $9E95; };
 LABEL   { NAME "r9EEC";                     ADDR $9EEC; };
 LABEL   { NAME "rA119";                     ADDR $A119; };

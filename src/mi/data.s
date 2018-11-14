@@ -19,8 +19,8 @@
 
 .export mi_r7A51
 .export mi_r7A57
-.export mi_r7C18
-.export mi_r7C6C
+.export mi_world_feature_continent_y_coords
+.export mi_world_feature_x_coords
 
 .export armor_table
 .export gem_table
@@ -227,7 +227,7 @@ mi_land_name_table:
         .byte   "the Dark Unknow",$EE
         .byte   "Danger and Despai",$F2
 
-mi_r7C18:
+mi_world_feature_continent_y_coords:
         .byte   $1F,$14,$03,$02,$06,$24,$16,$35
         .byte   $1E,$04,$2A,$0F,$3D,$20,$22,$36
         .byte   $15,$38,$1B,$38,$0F,$5E,$56,$7B
@@ -239,7 +239,7 @@ mi_r7C18:
         .byte   $D4,$C3,$C2,$C6,$E4,$D6,$F5,$DE
         .byte   $C4,$EA,$CF,$FD,$E0,$E2,$F6,$D5
         .byte   $F8,$DB,$F8,$CF
-mi_r7C6C:
+mi_world_feature_x_coords:
         .byte   $1E,$16,$3B,$1A
         .byte   $08,$03,$31,$1D,$13,$26,$34,$2B
         .byte   $1C,$1D,$38,$0F,$24,$2A,$08,$3C

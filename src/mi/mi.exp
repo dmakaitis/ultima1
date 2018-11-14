@@ -25,7 +25,6 @@ mi_no_effect
 mi_number_padding
 mi_play_error_sound_and_reset_buffers
 mi_play_sound_and_reset_buffers_a
-mi_player_820B
 mi_player_821E
 mi_player_8226
 mi_player_8227
@@ -85,8 +84,8 @@ mi_print_text_at_x_y
 mi_print_x_chars
 mi_r7A51
 mi_r7A57
-mi_r7C18
-mi_r7C6C
+mi_world_feature_continent_y_coords
+mi_world_feature_x_coords
 mi_race_name_table
 mi_reduce_text_window_size
 mi_reset_buffers
