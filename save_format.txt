@@ -3,6 +3,7 @@ File offset | Memory addr | Description
 $0000-$0001 | $81E2-$81E3 | Header byte (always $CA)
 $0002       | $81E4       | Player world continent
 
+
 $0005       | $81E7       | Sound enable flag ($FF to enable, $00 to disable)
 $0006-$0007 | $81E8-$81E9 | Player world location (first byte X, second byte Y)
 $0008-$000B | $81EA-$81ED | Gem count (four gem types, one byte each)
@@ -16,9 +17,16 @@ $0016-$0025 | $81F8-$8207 | Weapon inventory (hands, dagger, mace, axe, rope, sw
             |             |     blaster)
 $0026-$0030 | $8208-$8212 | Spell inventory (prayer, open, unlock, magic missil, steal, ladder
 			|			  |     down, ladder up, blink, create, destroy, kill)
-$0031-$003B | $8213-$821F | Vehicle inventory (foot, horse, cart, raft, friggate, air car, shuttle,
+$0031-$003B | $8213-$821D | Vehicle inventory (foot, horse, cart, raft, friggate, air car, shuttle,
 			|			  |     phantom, star cruiser, battle base, time machine)
 
+
+$0044-$0047 | $8226-$8229 | Newly acquired vehicles. These will be placed on the world map relative
+            |             |     to the player next time the OU module is loaded (to the north,
+            |             |     west, east, or south of the player)
+$0048       | $822A       | New time machine flag. If set when the OU module is loaded, a new time
+            |             |     machine will be placed in a random location in the northwest corner
+            |             |     of the current continent
 $0049       | $822B       | Enemy Vessels Count
 $004A       | $822C       | Sex (0 - Male, 1 - Female)
 $004B-$0058 | $822D-$823A | Name
@@ -33,9 +41,22 @@ $0067-$0068 | $8249-$824A | Money
 $0069-$006A | $824B-$824C | Race (0 - Lizard, 1 - Human, 2 - Elf, 3 - Dwarf, 4 - Bobbit)
 $006B-$006C | $824D-$824E | Class (0 - Peasant, 1- Fighter, 2 - Cleric, 3 - Wizard, 4 - Thief)
 
+
 $0078-$0079 | $825A-$825B | Food (max 9999)
 $007A-$007B | $825C-$825D | Experience (max 9999)
 
+
+$0080       | $8262       | The index of the last world feature the player inspected or entered
+
+
+$0082-$0083 | $8264-$8265 | The random seed that is unique to each character
+
+
+$0089       | $826B       | Count of how many vehicles the player currently owns
+$008A-$00D9 | $826C-$82BB | Player vehicle X coordinates
+$00DA-$0129 | $82BC-$830B | Player vehicle continent and Y coordinates
+$012A-$0179 | $830C-$835B | Player vehicle types
+$017A-$01C9 | $835C-$83AB | Tiles that are under each player vehicle
 
 Example save file:
 
@@ -57,15 +78,15 @@ $00D0 : 0000 0000 0000 0000 0000 5c20 c2e1 c4ec
 $00E0 : f1f7 efd3 e7f3 e5d5 c281 9296 9372 6174
 $00F0 : b49d 8f8e 3d3d b0b8 b2b0 a99d 918b 84a1
 $0100 : a1a1 b1b1 b388 8888 8887 87bb a5bb bbbb
-$0120 : bbbb bbbb bb8c 8b8b 8b8b b285 0000 0000
-$0130 : 0000 0000 0000 0000 0000 161c 1e30 3858
-$0140 : 4c30 5048 4444 3830 1a20 4434 443c 4c44
-$0150 : 3048 3030 2828 4034 3030 3048 2430 3028
-$0160 : 2828 2020 201a 1a1a 1a3c 3c50 1a50 5050
-$0170 : 5050 5050 5024 2424 2424 241a 0000 0000
-$0180 : 0000 0000 0000 0000 0000 0002 0402 0402
-$0190 : 0204 0202 0202 0402 0200 0204 0204 0402
-$01A0 : 0202 0204 0000 0402 0402 0402 0002 0400
-$01B0 : 0000 0000 0002 0202 0202 0402 0002 0202
-$01C0 : 0202 0202 0200 0000 0000 0002 0000 0000
-$01D0 : 0000 0000 0000 0000 0000
+$0110 : bbbb bbbb bb8c 8b8b 8b8b b285 0000 0000
+$0120 : 0000 0000 0000 0000 0000 161c 1e30 3858
+$0130 : 4c30 5048 4444 3830 1a20 4434 443c 4c44
+$0140 : 3048 3030 2828 4034 3030 3048 2430 3028
+$0150 : 2828 2020 201a 1a1a 1a3c 3c50 1a50 5050
+$0160 : 5050 5050 5024 2424 2424 241a 0000 0000
+$0170 : 0000 0000 0000 0000 0000 0002 0402 0402
+$0180 : 0204 0202 0202 0402 0200 0204 0204 0402
+$0190 : 0202 0204 0000 0402 0402 0402 0002 0400
+$01A0 : 0000 0000 0002 0202 0202 0402 0002 0202
+$01B0 : 0202 0202 0200 0000 0000 0002 0000 0000
+$01C0 : 0000 0000 0000 0000 0000
