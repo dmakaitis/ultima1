@@ -39,12 +39,12 @@
 .export mi_player_position_y
 
 .export mi_player_821E
-.export mi_player_8226
-.export mi_player_8227
-.export mi_player_8228
-.export mi_player_8229
-.export mi_player_822A
-.export mi_player_8262
+.export mi_player_new_vehicle_north
+.export mi_player_new_vehicle_west
+.export mi_player_new_vehicle_east
+.export mi_player_new_vehicle_south
+.export mi_player_new_time_machine
+.export mi_player_world_feature
 .export mi_player_8263
 .export mi_player_8267
 .export mi_player_8268
@@ -110,15 +110,15 @@ mi_player_inventory_vehicles:
 mi_player_821E:
         .byte   $00,$00,$00,$00,$00
         .byte   $00,$00,$00
-mi_player_8226:
+mi_player_new_vehicle_north:
         .byte   $FF
-mi_player_8227:
+mi_player_new_vehicle_west:
         .byte   $FF
-mi_player_8228:
+mi_player_new_vehicle_east:
         .byte   $FF
-mi_player_8229:
+mi_player_new_vehicle_south:
         .byte   $FF
-mi_player_822A:
+mi_player_new_time_machine:
         .byte   $00
 
 
@@ -167,7 +167,7 @@ mi_player_experience:
 
 
         .byte   $E8,$03,$E8,$03
-mi_player_8262:
+mi_player_world_feature:
         .byte   $00
 mi_player_8263:
         .byte   $FF

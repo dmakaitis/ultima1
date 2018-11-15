@@ -25,7 +25,7 @@
 .import rA121
 .import rA129
 .import rA131
-.import rA143
+.import total_player_vechicles
 .import wA141
 .import wA142
 .import wA144
@@ -953,13 +953,13 @@ b9427:  jmp     mi_no_effect
 ;-----------------------------------------------------------
 ;-----------------------------------------------------------
 
-s942A:  lda     rA143
+s942A:  lda     total_player_vechicles
         cmp     #$35
         bcs     b943C
         jsr     get_tile
         cmp     #$03
         bcs     b943C
-        inc     rA143
+        inc     total_player_vechicles
         rts
 
 b943C:  lda     #$FF
@@ -989,7 +989,7 @@ cmd_enter:
         lda     wA142
         cmp     #$05
         bne     b9479
-        lda     mi_player_8262
+        lda     mi_player_world_feature
         ldx     #$07
 b9470:  cmp     rA119,x
         beq     b94BE
@@ -1005,24 +1005,24 @@ b9479:  cmp     #$04
         bne     b94BB
 b9486:  cmp     #$06
         bne     b94B9
-        jsr     s9916
+        jsr     update_player_vehicle_counters
         ldx     POS_X
         ldy     POS_Y
         dey
         jsr     s942A
-        sta     mi_player_8226
+        sta     mi_player_new_vehicle_north
         iny
         dex
         jsr     s942A
-        sta     mi_player_8227
+        sta     mi_player_new_vehicle_west
         inx
         inx
         jsr     s942A
-        sta     mi_player_8228
+        sta     mi_player_new_vehicle_east
         dex
         iny
         jsr     s942A
-        sta     mi_player_8229
+        sta     mi_player_new_vehicle_south
         lda     #$01
         sta     st_key_repeat_rate_10ths
         lda     #$03
@@ -1263,7 +1263,7 @@ b96B6:  ldx     POS_X
         bcc     b96C3
         lda     #$07
 b96C3:  ora     #$08
-        jsr     s9CA6
+        jsr     add_vehicle_to_map
         bcs     b968F
         lda     #$00
         sta     mi_player_current_vehicle
@@ -1548,6 +1548,14 @@ b983D:  jsr     s9A10
 
 
 ;-----------------------------------------------------------
+;                decompress_continent_map
+;
+; Decompresses the map for the current continent, and places
+; any player owned vehicles on the map.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
 decompress_continent_map:
@@ -1608,7 +1616,7 @@ decompress_continent_map:
         sta     mi_player_continent_mask
 
         ldx     mi_player_vehicle_count                 ; If the player has vehicles...
-        beq     b98AB
+        beq     @add_new_vehicles
 
 @next_vehicle:
         dex                                             ; ...place them on the map
@@ -1630,90 +1638,128 @@ decompress_continent_map:
         txa
         bne     @next_vehicle
 
-b98AB:  stx     zp3F
-        ldx     POS_X
+@add_new_vehicles:
+        stx     zp3F
+
+        ldx     POS_X                                   ; Place any new vehicles the player acquired to the north
         ldy     POS_Y
         dey
-        lda     mi_player_8226
-        jsr     s9C90
-        ldx     POS_X
+        lda     mi_player_new_vehicle_north
+        jsr     validate_then_add_vehicle_to_map
+
+        ldx     POS_X                                   ; Place any new vehicles the player acquired to the west
         ldy     POS_Y
         dex
-        lda     mi_player_8227
-        jsr     s9C90
-        ldx     POS_X
+        lda     mi_player_new_vehicle_west
+        jsr     validate_then_add_vehicle_to_map
+
+        ldx     POS_X                                   ; Place any new vehicles the player acquired to the east
         ldy     POS_Y
         inx
-        lda     mi_player_8228
-        jsr     s9C90
-        ldx     POS_X
+        lda     mi_player_new_vehicle_east
+        jsr     validate_then_add_vehicle_to_map
+
+        ldx     POS_X                                   ; Place any new vehicles the player acquired to the south
         ldy     POS_Y
         iny
-        lda     mi_player_8229
-        jsr     s9C90
-        ldx     #$03
+        lda     mi_player_new_vehicle_south
+        jsr     validate_then_add_vehicle_to_map
+
+        ldx     #$03                                    ; Update player data to remove any vehicles we just added
         lda     #$FF
-b98DD:  sta     mi_player_8226,x
+@loop_new_vehicles:
+        sta     mi_player_new_vehicle_north,x
         dex
-        bpl     b98DD
-        jsr     s9916
-        lda     mi_player_822A
+        bpl     @loop_new_vehicles
+
+        jsr     update_player_vehicle_counters
+
+        lda     mi_player_new_time_machine              ; If the player just acquired a time machine...
         beq     b9910
-        lda     mi_player_inventory_vehicles + 10
+
+        lda     mi_player_inventory_vehicles + 10       ; ...and the player does not already have seven time machines...
         cmp     #$07
         bcs     b9910
-b98F2:  jsr     st_get_random_number
+
+@find_new_location:
+        jsr     st_get_random_number                    ; ...then randomly place it on the map in the top-left corner
         and     #$07
         tay
         iny
+
         jsr     st_get_random_number
         and     #$07
         tax
         inx
-        jsr     get_tile
+
+        jsr     get_tile                                ; If the randomly picked location is a plains tile...
         cmp     #$02
-        beq     b990B
+        beq     b990B                                   ; ...place the time machine there.
+
         dec     zp3F
-        bne     b98F2
-b990B:  lda     #$0F
-        jsr     s9CA6
-b9910:  lda     #$00
-        sta     mi_player_822A
+        bne     @find_new_location
+
+b990B:  lda     #$0F                                    ; Add the time machine to the map
+        jsr     add_vehicle_to_map
+
+b9910:  lda     #$00                                    ; Clear the add time machine flag
+        sta     mi_player_new_time_machine
+
         rts
 
 
 
 ;-----------------------------------------------------------
+;            update_player_vehicle_counters
+;
+; Updates all the vehicle counts in the player save data.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
-s9916:  lda     #$00
+update_player_vehicle_counters:
+        lda     #$00                                    ; Reset all player vehicle counts to zero
         ldx     #$0A
-b991A:  sta     mi_player_inventory_vehicles,x
+@loop_reset:
+        sta     mi_player_inventory_vehicles,x
         dex
-        bne     b991A
-        sta     rA143
-        ldx     mi_player_current_vehicle
-        beq     b992E
-        inc     mi_player_inventory_vehicles,x
-        inc     rA143
-b992E:  ldy     mi_player_vehicle_count
-        beq     b9950
-b9933:  dey
-        lda     mi_player_vehicle_types,y
-        cmp     #$20
-        bcs     b994D
+        bne     @loop_reset
+
+        sta     total_player_vechicles
+
+        ldx     mi_player_current_vehicle               ; If the player is currently in a vehicle...
+        beq     @not_in_vehicle
+        inc     mi_player_inventory_vehicles,x          ; ...update its counter
+        inc     total_player_vechicles
+
+@not_in_vehicle:
+        ldy     mi_player_vehicle_count                 ; If the player owns any vehicles (that they are not in)...
+        beq     @done
+@loop:  dey                                             ; ...update their counters
+
+        lda     mi_player_vehicle_types,y               ; Get the next vehicle type ID
+
+        cmp     #$20                                    ; Skip any vehicles where the type ID is out of range
+        bcs     @skip
         cmp     #$12
-        bcc     b994D
-        inc     rA143
+        bcc     @skip
+
+        inc     total_player_vechicles
+
         lsr     a
-        cmp     #$0F
-        bcc     b9949
-        lda     #$12
-b9949:  tax
+        cmp     #$0F                                    ; If the vehicle is a time machine...
+        bcc     @not_time_machine
+        lda     #$12                                    ; ...tweak the ID value accordingly
+
+@not_time_machine:
+        tax                                             ; Update the vehicle counter
         inc     mi_player_inventory_vehicles - 8,x
-b994D:  tya
-        bne     b9933
-b9950:  rts
+@skip:  tya
+        bne     @loop
+
+@done:  rts
 
 
 
@@ -1792,7 +1838,7 @@ b99C1:  jsr     s9D44
         rts
 
 b99DD:  lda     zp22
-        jsr     s9CA6
+        jsr     add_vehicle_to_map
         bcs     b9A04
         lda     mi_player_experience + 1
         ldx     mi_player_8267
@@ -2173,12 +2219,25 @@ get_vehicle_location_in_memory:
 
 
 ;-----------------------------------------------------------
+;            validate_then_add_vehicle_to_map
+;
+; Ensures that the accumulator holds a valid vehicle tile
+; ID, then calls add_vehicle_to_map. If it does not, then
+; this does nothing.
+;
+; Input:
+;       a - vehicle tile ID
+;       x - x coordinate
+;       y - y coordinate
+;
+; Output:
 ;-----------------------------------------------------------
 
-s9C90:  cmp     #$08
+validate_then_add_vehicle_to_map:
+        cmp     #$08                                    ; If a >= 8 and < 16
         bcc     done
         cmp     #$10
-        bcc     s9CA6
+        bcc     add_vehicle_to_map                      ; ...then call add_vehicle_to_map
         rts
 
         .byte   $48,$20,$D2,$97,$68,$4C,$A6,$9C
@@ -2187,30 +2246,51 @@ s9C90:  cmp     #$08
 
 
 ;-----------------------------------------------------------
+;                    add_vehicle_to_map
+;
+; Adds a player vehicle to the map and to the player save
+; data. If the player already owns 80 vehicles, then this
+; does nothing.
+;
+; Input:
+;       a - vehicle tile ID
+;       x - x coordinate
+;       y - y coordinate
+;
+; Output:
 ;-----------------------------------------------------------
 
-s9CA6:  cpx     #$40
+add_vehicle_to_map:
+        cpx     #$40                                    ; Make sure coordinates are in correct range
         bcs     done
         cpy     #$40
         bcs     done
-        stx     zp46
-        ldx     mi_player_vehicle_count
+
+        stx     zp46                                    ; Cache the X coordinate to free the x register
+
+        ldx     mi_player_vehicle_count                 ; If the player already owns 80 vehicles...
         cpx     #$50
-        bcs     done
-        asl     a
+        bcs     done                                    ; ...then we are done
+
+        asl     a                                       ; Store the vehicle type
         sta     mi_player_vehicle_types,x
-        pha
+
+        pha                                             ; Store the vehicle location
         tya
         ora     mi_player_continent_mask
         sta     mi_player_vehicle_continent_y_coords,x
         lda     zp46
         sta     mi_player_vehicle_x_coords,x
-        jsr     get_vehicle_location_in_memory
+
+        jsr     get_vehicle_location_in_memory          ; Get the tile at the vehicle location and store it
         lda     (zp4C),y
         sta     mi_player_vehicle_tiles,x
-        pla
+
+        pla                                             ; Update the map with the new vehicle tile
         sta     (zp4C),y
-        inc     mi_player_vehicle_count
+
+        inc     mi_player_vehicle_count                 ; Update the vehicle count
+
         clc
 done:   rts
 
@@ -2450,24 +2530,28 @@ cmd_inform_search:
 
 @special_tile:
         cmp     #$06                                    ; If the tile is a town...
-        bne     b9DDF
+        bne     @find_feature
         jsr     mi_print_text                           ; ...print prefix for the town name
         .asciiz "the city of "
 
-b9DDF:  lda     mi_player_continent_mask
-        ora     POS_Y
+@find_feature:
+        lda     mi_player_continent_mask                ; Go through all the world features and find the one
+        ora     POS_Y                                   ; whose location matches the players
         ldx     #$53
-b9DE6:  cmp     mi_world_feature_continent_y_coords,x
-        bne     b9DF2
+@loop_features:
+        cmp     mi_world_feature_continent_y_coords,x
+        bne     @next_feature
         ldy     mi_world_feature_x_coords,x
         cpy     POS_X
-        beq     b9DF9
-b9DF2:  dex
-        bpl     b9DE6
-        stx     mi_player_8262
+        beq     @print_feature
+@next_feature:
+        dex
+        bpl     @loop_features
+        stx     mi_player_world_feature
         rts
 
-b9DF9:  stx     mi_player_8262
+@print_feature:
+        stx     mi_player_world_feature
         jsr     mi_print_string_entry_x2
         .addr   mi_world_feature_table
         rts

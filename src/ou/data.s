@@ -16,7 +16,7 @@
 .export rA121
 .export rA129
 .export rA131
-.export rA143
+.export total_player_vechicles
 .export wA141
 .export wA142
 .export wA144
@@ -164,6 +164,9 @@ rA131:  .byte   $01,$01,$01,$01,$00,$01,$01,$03
         .byte   $00,$00,$00,$01,$03,$01,$03,$03
 wA141:  .byte   $00
 wA142:  .byte   $00
-rA143:  .byte   $DE
+
+total_player_vechicles:
+        .byte   $DE
+
 wA144:  .byte   $02
 wA145:  .byte   $4E,$06,$AB,$09,$19
