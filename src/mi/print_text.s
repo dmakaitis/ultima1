@@ -270,7 +270,7 @@ mi_print_string_entry_x:
         sec                                             ; w81AD := 0x80  (set the high bit)
         ror     w81AD
 
-        .byte   $2C     ; bit a:zpA2
+        .byte   $2C     ; bit a:zpA2                    ; This is a BIT opcode that causes the process to skip the following LDX opcode...
 
         ; continued in mi_print_string_entry_x2
 

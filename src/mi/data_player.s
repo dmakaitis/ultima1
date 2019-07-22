@@ -46,13 +46,13 @@
 .export mi_player_new_time_machine
 .export mi_player_world_feature
 .export mi_player_8263
-.export mi_player_8267
-.export mi_player_8268
-.export mi_player_vehicle_count
-.export mi_player_vehicle_x_coords
-.export mi_player_vehicle_continent_y_coords
-.export mi_player_vehicle_types
-.export mi_player_vehicle_tiles
+.export mi_player_target_type
+.export mi_player_target_index
+.export mi_player_mob_count
+.export mi_player_mob_x_coords
+.export mi_player_mob_continent_y_coords
+.export mi_player_mob_types
+.export mi_player_mob_tiles
 
 .export w824F
 .export w8250
@@ -180,16 +180,23 @@ mi_player_random_seed:
 
 
         .byte   $00
-mi_player_8267:
+
+
+
+mi_player_target_type:
         .byte   $00
-mi_player_8268:
-        .byte   $00,$00,$00
-
-
-
-mi_player_vehicle_count:
+mi_player_target_index:
         .byte   $00
-mi_player_vehicle_x_coords:
+
+
+
+        .byte   $00,$00
+
+
+
+mi_player_mob_count:
+        .byte   $00
+mi_player_mob_x_coords:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
@@ -200,7 +207,7 @@ mi_player_vehicle_x_coords:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
-mi_player_vehicle_continent_y_coords:
+mi_player_mob_continent_y_coords:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
@@ -211,7 +218,7 @@ mi_player_vehicle_continent_y_coords:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
-mi_player_vehicle_types:
+mi_player_mob_types:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
@@ -222,7 +229,7 @@ mi_player_vehicle_types:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
-mi_player_vehicle_tiles:
+mi_player_mob_tiles:
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00
         .byte   $00,$00,$00,$00,$00,$00,$00,$00

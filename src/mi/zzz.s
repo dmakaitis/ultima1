@@ -16,6 +16,7 @@
 .export mi_s8788
 .export mi_s879F
 .export mi_s87A1
+.export mi_r882E
 
 .export bm_addr_mask_cache
 .export mi_w81C1
@@ -299,7 +300,7 @@ b87E0:  txa
         lda     r87F9,y
         pha
         jsr     mi_print_string_entry_x2
-        .addr   r882E
+        .addr   mi_r882E
         jsr     st_clear_to_end_of_text_row_a
         inc     CUR_X
 r87F5:  rts
@@ -335,7 +336,8 @@ j881F:  lda     mi_player_equipped_armor
         sta     mi_player_equipped_armor
         rts
 
-r882E:  .byte   "nothin"
+mi_r882E:
+        .byte   "nothin"
         .byte   $E7
         .byte   "spell"
         .byte   $BA

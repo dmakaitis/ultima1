@@ -24,7 +24,7 @@
 .import rA119
 .import rA121
 .import rA129
-.import rA131
+.import weapon_ranges
 .import total_player_vechicles
 .import wA141
 .import wA142
@@ -34,7 +34,7 @@
 r3888                   := $3888
 continent_map           := $6400
 continent_addresses     := $B000
-wBD00                   := $BD00
+mob_hit_points          := $BD00
 
 PROCESSOR_PORT          := $01
 POS_X                   := $20
@@ -58,7 +58,7 @@ zp3C                    := $3C
 zp3D                    := $3D
 zp3F                    := $3F
 zp43                    := $43
-zp44                    := $44
+zp_mob_index                    := $44
 zp46                    := $46
 zp47                    := $47
 zp48                    := $48
@@ -119,7 +119,7 @@ ou_main:
         ldx     #$00                                    ; Use the default command table
         stx     mi_command_table_override + 1
 
-        lda     wBD00
+        lda     mob_hit_points
         bne     b8CF0
         jsr     s9A10
 b8CF0:  jsr     decompress_continent_map
@@ -148,7 +148,7 @@ b8D07:  jsr     mi_update_stats                         ; Update the display wit
         ora     mi_player_food + 1
         beq     no_food_or_hits                         ; ...then they are dead
 
-        jsr     s8DD0
+        jsr     read_key
         bne     b8D31
         ldy     #$05
         lda     #$50
@@ -239,14 +239,25 @@ update_stats_and_delay:
 
 
 ;-----------------------------------------------------------
+;                         read_key
+;
+; Waits for keyboard input from the user. Returns if no key
+; is pressed for 128 screen update cycles (about 2 seconds).
+;
+; Input:
+;
+; Output:
+;    a - the key pressed by the user, or 0 if no key was
+;        pressed.
 ;-----------------------------------------------------------
 
-s8DD0:  ldx     #$80
-b8DD2:  jsr     st_draw_world_and_get_input
-        bne     b8DDA
+read_key:
+        ldx     #$80
+@loop:  jsr     st_draw_world_and_get_input
+        bne     @done
         dex
-        bne     b8DD2
-b8DDA:  tax
+        bne     @loop
+@done:  tax
         rts
 
 
@@ -266,253 +277,395 @@ cmd_pass:
 
 
 ;-----------------------------------------------------------
+;                      read_direction
+;
+; Waits for the user to press a direction key and returns 
+; the entered direction.
+;
+; Input:
+;
+; Output:
+;    carry - set if no valid direction was entered
+;    zp22  - player x coordinate
+;    zp23  - player y coordinate
+;    zp24  - target x vector
+;    zp25  - target y vector
 ;-----------------------------------------------------------
 
-s8DF6:  jsr     mi_print_text
-        .byte   ": "
-        .byte   $00
-        jsr     s8DD0
-        ldx     #$03
-b8E01:  cmp     mi_command_decode_table,x
-        bne     b8E35
-        stx     zp24
-        jsr     mi_print_string_entry_x2
+read_direction:
+        jsr     mi_print_text
+        .asciiz ": "
+
+        jsr     read_key
+
+        ldx     #$03                                    ; Check which direction key was pressed
+@loop:  cmp     mi_command_decode_table,x
+        bne     @next_x
+
+        stx     zp24                                    ; Cache the direction
+
+        jsr     mi_print_string_entry_x2                ; Print the selected direction
         .addr   mi_command_table
-        ldx     POS_X
+
+        ldx     POS_X                                   ; Cache the player location
         ldy     POS_Y
         stx     zp22
         sty     zp23
+
         ldx     #$00
         ldy     #$00
-        dec     zp24
-        bmi     b8E2C
-        dec     zp24
-        bmi     b8E2F
-        dec     zp24
-        bmi     b8E32
-        dex
-b8E26:  stx     zp24
+
+        dec     zp24                                    ; North?
+        bmi     @is_north
+
+        dec     zp24                                    ; South?
+        bmi     @is_south
+
+        dec     zp24                                    ; East?
+        bmi     @is_east
+
+        dex                                             ; Must be west
+
+@store_target_direction:
+        stx     zp24
         sty     zp25
         clc
         rts
 
-b8E2C:  dey
-        bne     b8E26
-b8E2F:  iny
-        bne     b8E26
-b8E32:  inx
-        bne     b8E26
-b8E35:  dex
-        bpl     b8E01
-        jsr     mi_print_first_string_entry
-        rol     r3888
+@is_north:
+        dey
+        bne     @store_target_direction
+
+@is_south:
+        iny
+        bne     @store_target_direction
+
+@is_east:
+        inx
+        bne     @store_target_direction
+
+@next_x:
+        dex
+        bpl     @loop
+
+        jsr     mi_print_first_string_entry             ; Print "nothing"
+        .addr   mi_r882E
+
+        sec
         rts
 
 
 
 ;-----------------------------------------------------------
+;                        get_target
+;
+; Gets the target of an action given a starting coordinate,
+; direction, and range.
+;
+; Input:
+;    zp22  - start x coordinate
+;    zp23  - start y coordinate
+;    zp24  - target x vector
+;    zp25  - target y vector
+;    wA145 - range
+;
+; Output:
+;    a     - target tile
+;    carry - set if no target was found
 ;-----------------------------------------------------------
 
-s8E3F:  lda     zp22
+get_target:
+        lda     zp22                                    ; Update target X coordinate
         clc
         adc     zp24
         sta     zp22
         tax
-        lda     zp23
+
+        lda     zp23                                    ; Update target Y coordinate
         clc
         adc     zp25
         sta     zp23
         tay
+
         jsr     get_tile
         cmp     #$03
-        beq     b8E61
-        jsr     s8E62
-        bcc     b8E61
-        dec     wA145
-        bne     s8E3F
+        beq     @done
+
+        jsr     get_target_mob
+        bcc     @done
+
+        dec     wA145                                   ; Loop until we're out of range
+        bne     get_target
         sec
-b8E61:  rts
+
+@done:  rts
 
 
 
 ;-----------------------------------------------------------
+;                      get_target_mob
+;
+; Retrieves information about the target mob.
+;
+; Input:
+;    zp22  - target x coordinate
+;    zp23  - target y coordinate
+;
+; Output:
+;    a                      - target tile
+;    y                      - the x coordinate of the target
+;    carry                  - set if no target was found
+;    mi_player_target_type  - the target mob type
+;    mi_player_target_index - the index of the target mob
+;    zp4C                   - Address of the world map row 
+;                             where the target is located
 ;-----------------------------------------------------------
 
-s8E62:  ldx     mi_player_vehicle_count
-        beq     b8E97
-b8E67:  dex
-        lda     mi_player_vehicle_x_coords,x
+get_target_mob:
+        ldx     mi_player_mob_count
+        beq     @done
+
+@loop:  dex
+
+        lda     mi_player_mob_x_coords,x
         cmp     zp22
-        bne     b8E94
-        lda     mi_player_vehicle_continent_y_coords,x
+        bne     @next_x
+
+        lda     mi_player_mob_continent_y_coords,x
         and     #$3F
         cmp     zp23
-        bne     b8E94
-        lda     mi_player_vehicle_types,x
+        bne     @next_x
+
+        lda     mi_player_mob_types,x                   ; Make sure mob type is between 0x20 and 0x5a
         cmp     #$20
-        bcc     b8E94
+        bcc     @next_x        
         cmp     #$5A
-        bcs     b8E94
-        lsr     a
+        bcs     @next_x
+
+        lsr     a                                       ; Store the target type and index
         lsr     a
         adc     #$FE
-        sta     mi_player_8267
-        stx     zp44
-        stx     mi_player_8268
-        jsr     get_vehicle_location_in_memory
+        sta     mi_player_target_type
+        stx     zp_mob_index
+        stx     mi_player_target_index
+
+        jsr     get_mob_location_in_memory              ; Retrieve mob location on map in memory
         clc
         rts
 
-b8E94:  txa
-        bne     b8E67
-b8E97:  sec
+@next_x:
+        txa
+        bne     @loop
+
+@done:  sec
         rts
 
 
 
 ;-----------------------------------------------------------
+;                         cmd_attack
+;
+; Handler for the attack command.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
 cmd_attack:
-        jsr     mi_print_text
-        .byte   "with "
-        .byte   $00
+        jsr     mi_print_text                           ; Write the weapon used to attack
+        .asciiz "with "
+
         ldx     mi_player_equipped_weapon
         jsr     mi_print_string_entry_x2
         .addr   mi_weapon_abbr_table
+
         ldx     mi_player_equipped_weapon
-        lda     rA131,x
-        bne     b8EB5
+        lda     weapon_ranges,x
+        bne     @valid_weapon
         jmp     mi_cmd_invalid
 
-b8EB5:  sta     wA145
-        jsr     s8DF6
-        bcc     b8EC9
+@valid_weapon:
+        sta     wA145                                   ; Get direction from user
+        jsr     read_direction
+        bcc     @valid_direction
         rts
 
-b8EBE:  jsr     mi_print_text
-        .byte   "~Miss!"
-        .byte   $00
+@no_target:
+        jsr     mi_print_text                           ; Tell the user they missed
+        .asciiz "~Miss!"
         rts
 
-b8EC9:  lda     #$06
+@valid_direction:
+        lda     #$06
         jsr     st_queue_sound
-        jsr     s8E3F
-        bcs     b8EBE
-        lda     #$5E
+
+        jsr     get_target
+        bcs     @no_target
+
+        lda     #$5E                                    ; Draw attack icon on target
         sta     (zp4C),y
         jsr     st_draw_world
-        jsr     s9C77
-        lda     mi_player_vehicle_types,x
+
+        jsr     get_cached_mob_location_in_memory       ; Restore mob icon on target
+        lda     mi_player_mob_types,x
         sta     (zp4C),y
-        lda     mi_player_agility
-        clc
+
+        lda     mi_player_agility                       ; Check random number against 128 + player agility
+        clc                                             ; to see if they hit or miss
         adc     #$80
         sta     zp43
         jsr     st_get_random_number
         cmp     zp43
-        bcc     b8EFF
-        jsr     mi_print_text
-        .byte   "~Missed"
-        .byte   $00
-        jmp     s8FE7
+        bcc     @is_hit
 
-b8EFF:  lda     mi_player_equipped_weapon
-        asl     a
-        asl     a
+        jsr     mi_print_text
+        .asciiz "~Missed"
+
+        jmp     print_target_name
+
+@is_hit:
+        lda     mi_player_equipped_weapon               ; Get random number in range of 1 to 
+        asl     a                                       ; (8 * wpn_id + strength / 2) + 1
+        asl     a                                       ; to determine damage
         asl     a
         adc     mi_player_strength
         jsr     mi_get_random_number_a
         lsr     a
         clc
         adc     #$01
+
 j8F0F:  sta     mi_w81C1
+
         lda     #$00
         sta     mi_number_padding
-        ldx     zp44
-        lda     wBD00,x
+
+        ldx     zp_mob_index
+        lda     mob_hit_points,x
         sec
         sbc     mi_w81C1
-        beq     b8F51
-        bcc     b8F51
-        sta     wBD00,x
-        jsr     mi_print_text
-        .byte   "~Hit"
-        .byte   $00
-        jsr     s8FE7
-        lda     CUR_X
+        beq     do_target_killed
+        bcc     do_target_killed
+        sta     mob_hit_points,x
+
+        jsr     mi_print_text                           ; Tell the player that they hit the target
+        .asciiz "~Hit"
+
+        jsr     print_target_name
+
+        lda     CUR_X                                   ; If the cursor is too far to the right, skip to the next line
         cmp     #$15
-        bcc     b8F3B
+        bcc     @print_damage
         jsr     mi_print_crlf_col_1
-b8F3B:  lda     mi_w81C1
+
+@print_damage:
+        lda     mi_w81C1                                ; Print the amount of damage done
         jsr     mi_print_short_int
         jsr     mi_print_text
-        .byte   " damage"
-        .byte   $00
-s8F4C:  lda     #$02
+        .asciiz " damage"
+
+        ; continued in play_hit_target_sound
+
+
+
+;-----------------------------------------------------------
+;                    play_hit_target_sound
+;
+; Handler for the attack command.
+;
+; Input:
+;
+; Output:
+;-----------------------------------------------------------
+
+play_hit_target_sound:
+        lda     #$02                                    ; Play hit target sound and return
         jmp     st_play_sound_a
 
-b8F51:  jsr     mi_print_text
-        .byte   "~Killed"
-        .byte   $00
-        jsr     s8FE7
-        jsr     s8F4C
-        ldx     mi_player_8267
-        ldy     mi_r7A51,x
-        lda     r9A05,y
+
+
+do_target_killed:
+        jsr     mi_print_text                           ; Tell the player that they killed their target
+        .asciiz "~Killed"
+
+        jsr     print_target_name
+        jsr     play_hit_target_sound
+
+        ldx     mi_player_target_type                   ; x := mob type
+        ldy     mi_mob_treasure_table,x                 ; y := potential treasure
+        lda     mob_xp_table,y                          ; a := experience
         lsr     a
-        cmp     #$02
-        bcc     b8F73
+
+        cmp     #$02                                    ; Generate random number based on experience table
+        bcc     @update_player_xp
         jsr     mi_get_random_number_a
-b8F73:  adc     mi_player_experience
+
+@update_player_xp:
+        adc     mi_player_experience                    ; Grant the player experience points
         sta     mi_player_experience
-        bcc     b8F7E
+        bcc     @calculate_treasure
         inc     mi_player_experience + 1
-b8F7E:  tya
+
+@calculate_treasure:
+        tya                                             ; Generate random treasure in range of 10 + (0 -> 4 * treasure)
         asl     a
         asl     a
         jsr     mi_get_random_number_a
         clc
         adc     #$0A
-        pha
+
+        pha                                             ; Print the treasure amount for the user
         tax
         lda     #$00
         jsr     mi_to_decimal_a_x
         lda     zp3C
         and     #$0F
-        beq     b8FA0
-        jsr     s8FD4_txt
-        .byte   "copper! "
-        .byte   $00
-b8FA0:  lda     zp3C
+        beq     @print_silver
+        jsr     print_digit_and_text
+        .asciiz "copper! "
+
+@print_silver:
+        lda     zp3C
         lsr     a
         lsr     a
         lsr     a
         lsr     a
-        beq     b8FB4
-        jsr     s8FD4_txt
-        .byte   "silver! "
-        .byte   $00
-b8FB4:  lda     zp3D
-        beq     b8FC1
-        jsr     s8FD4_txt
-        .byte   "gold!"
-        .byte   $00
-b8FC1:  pla
+        beq     @print_gold
+        jsr     print_digit_and_text
+        .asciiz "silver! "
+
+@print_gold:
+        lda     zp3D
+        beq     @update_player_money
+        jsr     print_digit_and_text
+        .asciiz "gold!"
+
+@update_player_money:
+        pla
         clc
         adc     mi_player_money
         sta     mi_player_money
-        bcc     b8FCE
+        bcc     @done
         inc     mi_player_money + 1
-b8FCE:  jsr     s9024
+
+@done:  jsr     s9024
         jmp     j8FFF
 
 
 
 ;-----------------------------------------------------------
+;                   print_digit_and_text
+;
+; Prints the digit stored in the accumulator followed by
+; the text immediately following the call to this method.
+;
+; Input:
+;    a - the digit to print
+;
+; Output:
 ;-----------------------------------------------------------
 
-s8FD4_txt:
+print_digit_and_text:
         pha
         lda     CUR_X
         cmp     #$15
@@ -526,33 +679,45 @@ b8FDE:  pla
 
 
 ;-----------------------------------------------------------
+;                     print_target_name
+;
+; Prints the name of the player's target preceeded by the
+; word "the" and followed by an exclamation point.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
-s8FE7:  jsr     mi_print_text
-        .byte   " the "
-        .byte   $00
-        ldx     mi_player_8267
+print_target_name:
+        jsr     mi_print_text
+        .asciiz " the "
+
+        ldx     mi_player_target_type
         jsr     mi_print_string_entry_x2
         .addr   mi_world_monster_table
+
         jsr     mi_print_text
-        .byte   "! "
-        .byte   $00
+        .asciiz "! "
+
         rts
 
-j8FFF:  ldx     mi_player_8268
-        cpx     mi_player_vehicle_count
+
+
+j8FFF:  ldx     mi_player_target_index
+        cpx     mi_player_mob_count
         bcs     b9022
-        lda     mi_player_vehicle_types,x
+        lda     mi_player_mob_types,x
         cmp     #$20
         bcc     b9022
         cmp     #$5A
         bcs     b9022
         jsr     remove_player_vehicle_x
         ldx     #$00
-        stx     mi_player_8267
-        stx     zp44
+        stx     mi_player_target_type
+        stx     zp_mob_index
         dex
-        stx     mi_player_8268
+        stx     mi_player_target_index
         clc
         rts
 
@@ -827,7 +992,7 @@ b92CB:  cpx     #$03
         .byte   $00
         jmp     mi_spell_failed
 
-b92F9:  jsr     s8DF6
+b92F9:  jsr     read_direction
         bcc     b9301
         jmp     main_loop
 
@@ -864,13 +1029,13 @@ b9343:  jsr     mi_print_text
         .byte   $00
         jmp     j933D
 
-b934F:  jsr     s8E3F
+b934F:  jsr     get_target
         bcs     b9343
         lda     #$5C
         sta     (zp4C),y
         jsr     st_draw_world
-        jsr     s9C77
-        lda     mi_player_vehicle_types,x
+        jsr     get_cached_mob_location_in_memory
+        lda     mi_player_mob_types,x
         sta     (zp4C),y
         lda     mi_player_equipped_spell
         cmp     #$03
@@ -1169,7 +1334,7 @@ b95E3:  cpx     #$05
 b95F2:  jsr     mi_print_text
         .byte   "lasers"
         .byte   $00
-j95FC:  jsr     s8DF6
+j95FC:  jsr     read_direction
         bcc     b960D
         rts
 
@@ -1182,13 +1347,13 @@ b960D:  lda     #$0C
         jsr     st_queue_sound
         lda     #$03
         sta     wA145
-        jsr     s8E3F
+        jsr     get_target
         bcs     b9602
         lda     #$5E
         sta     (zp4C),y
         jsr     st_draw_world
-        jsr     s9C77
-        lda     mi_player_vehicle_types,x
+        jsr     get_cached_mob_location_in_memory
+        lda     mi_player_mob_types,x
         sta     (zp4C),y
         jsr     st_get_random_number
         cmp     #$33
@@ -1196,10 +1361,10 @@ b960D:  lda     #$0C
         jsr     mi_print_text
         .byte   "~Missed"
         .byte   $00
-        jmp     s8FE7
+        jmp     print_target_name
 
 b9640:  ldx     mi_player_current_vehicle
-        lda     r9A05,x
+        lda     mob_xp_table,x
         jsr     mi_get_random_number_a
         adc     #$1E
         jmp     j8F0F
@@ -1229,7 +1394,7 @@ b965B:  jsr     save_selected_character
 ;-----------------------------------------------------------
 
 cmd_ready:
-        jsr     s8DD0
+        jsr     read_key
         jmp     mi_get_item_to_ready
 
 
@@ -1466,7 +1631,7 @@ b96EC:  jsr     mi_cursor_to_col_1                      ; Move the cursor to col
         stx     POS_X
         sty     POS_Y
 
-        jsr     s97F6
+        jsr     check_and_update_continent
         ldx     mi_player_current_vehicle
         bne     b97AA
         jsr     mi_increase_high_bytes
@@ -1507,43 +1672,69 @@ b97F5:  rts
 
 
 ;-----------------------------------------------------------
+;                 check_and_update_continent
+;
+; Checks to see if the player has moved past the edge of
+; the current continent, and if so, moves them to the next
+; continent.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
-s97F6:  lda     POS_X
-        bmi     b9800
-        cmp     #$4A
-        bcc     b9806
-        bcs     b9815
-b9800:  cmp     #$F6
-        bcs     b9806
-        bcc     b981E
-b9806:  lda     POS_Y
-        bmi     b9810
-        cmp     #$4A
-        bcc     b9814
-        bcs     b9827
-b9810:  cmp     #$F6
-        bcc     b9833
-b9814:  rts
+check_and_update_continent:
+        lda     POS_X
+        bmi     @x_coord_is_negative
+        cmp     #$4A                                    ; If x coordinate >= 74 (10 past right edge)...
+        bcc     @check_y_coordinate
+        bcs     @next_continent                         ; ...go to the next continent
 
-b9815:  inc     mi_player_continent
-        lda     #$F6
-        sta     POS_X
-        bne     b983D
-b981E:  dec     mi_player_continent
-        lda     #$48
-        sta     POS_X
-        bne     b983D
-b9827:  dec     mi_player_continent
-        dec     mi_player_continent
-        lda     #$FB
-        sta     POS_Y
-        bne     b983D
-b9833:  inc     mi_player_continent
+@x_coord_is_negative:
+        cmp     #$F6                                    ; If x coordinate < -10...
+        bcs     @check_y_coordinate
+        bcc     @previous_continent                     ; ...go to the previous continent
+
+@check_y_coordinate:
+        lda     POS_Y
+        bmi     @y_coord_is_negative
+        cmp     #$4A                                    ; If the y coordinate >= 74 (10 past bottom edge)...
+        bcc     @stay_same_continent
+        bcs     @skip_previous_continent                ; ...skip back two continents
+
+@y_coord_is_negative:
+        cmp     #$F6                                    ; If y coordinate < -10...
+        bcc     @skip_next_continent                    ; ...skip ahead two continents
+
+@stay_same_continent:
+        rts
+
+@next_continent:
         inc     mi_player_continent
-        lda     #$43
+        lda     #$F6                                    ; Put player off the west coast
+        sta     POS_X
+        bne     @done
+
+@previous_continent:
+        dec     mi_player_continent
+        lda     #$48                                    ; Put player off the east coast
+        sta     POS_X
+        bne     @done
+
+@skip_previous_continent:
+        dec     mi_player_continent
+        dec     mi_player_continent
+        lda     #$FB                                    ; Put player off the north coast
         sta     POS_Y
-b983D:  jsr     s9A10
+        bne     @done
+
+@skip_next_continent:
+        inc     mi_player_continent
+        inc     mi_player_continent
+        lda     #$43                                    ; Put player off the south coast
+        sta     POS_Y
+
+@done:  jsr     s9A10
 
 
 
@@ -1615,23 +1806,23 @@ decompress_continent_map:
         ror     a
         sta     mi_player_continent_mask
 
-        ldx     mi_player_vehicle_count                 ; If the player has vehicles...
+        ldx     mi_player_mob_count                 ; If the player has vehicles...
         beq     @add_new_vehicles
 
 @next_vehicle:
         dex                                             ; ...place them on the map
 
-        lda     mi_player_vehicle_continent_y_coords,x  ; If the vehicle is not on the current continent...
+        lda     mi_player_mob_continent_y_coords,x      ; If the vehicle is not on the current continent...
         and     #$C0
         cmp     mi_player_continent_mask
         bne     @wrong_continent                        ; ...skip it
         
-        jsr     get_vehicle_location_in_memory
+        jsr     get_mob_location_in_memory
 
         lda     (zp4C),y                                ; Copy the tile in the location into the character data
-        sta     mi_player_vehicle_tiles,x
+        sta     mi_player_mob_tiles,x
 
-        lda     mi_player_vehicle_types,x               ; Place the vehicle on the map
+        lda     mi_player_mob_types,x                   ; Place the vehicle on the map
         sta     (zp4C),y
 
 @wrong_continent:
@@ -1735,11 +1926,11 @@ update_player_vehicle_counters:
         inc     total_player_vechicles
 
 @not_in_vehicle:
-        ldy     mi_player_vehicle_count                 ; If the player owns any vehicles (that they are not in)...
+        ldy     mi_player_mob_count                 ; If the player owns any vehicles (that they are not in)...
         beq     @done
 @loop:  dey                                             ; ...update their counters
 
-        lda     mi_player_vehicle_types,y               ; Get the next vehicle type ID
+        lda     mi_player_mob_types,y               ; Get the next vehicle type ID
 
         cmp     #$20                                    ; Skip any vehicles where the type ID is out of range
         bcs     @skip
@@ -1766,7 +1957,7 @@ update_player_vehicle_counters:
 ;-----------------------------------------------------------
 ;-----------------------------------------------------------
 
-s9951:  lda     mi_player_vehicle_count
+s9951:  lda     mi_player_mob_count
         cmp     #$41
         bcs     b9987
         jsr     st_get_random_number
@@ -1801,7 +1992,7 @@ b9988:  ldy     #$00
         bcc     b9996
         ldy     #$01
 b9996:  sty     zp23
-        stx     mi_player_8267
+        stx     mi_player_target_type
         txa
         asl     a
         adc     #$10
@@ -1841,9 +2032,9 @@ b99DD:  lda     zp22
         jsr     add_vehicle_to_map
         bcs     b9A04
         lda     mi_player_experience + 1
-        ldx     mi_player_8267
+        ldx     mi_player_target_type
         ldy     mi_r7A57,x
-        adc     r9A05,y
+        adc     mob_xp_table,y
         lsr     a
         cmp     #$05
         bcc     b99FE
@@ -1853,11 +2044,14 @@ b99DD:  lda     zp22
         sec
         adc     zp43
         ror     a
-b99FE:  ldx     mi_player_vehicle_count
-        sta     wBD00 - 1,x
+b99FE:  ldx     mi_player_mob_count
+        sta     mob_hit_points - 1,x
 b9A04:  rts
 
-r9A05:  .byte   $00,$0A,$14,$1E,$28,$32,$3C,$46
+
+
+mob_xp_table:
+        .byte   $00,$0A,$14,$1E,$28,$32,$3C,$46
         .byte   $50,$5A,$64
 
 
@@ -1865,10 +2059,10 @@ r9A05:  .byte   $00,$0A,$14,$1E,$28,$32,$3C,$46
 ;-----------------------------------------------------------
 ;-----------------------------------------------------------
 
-s9A10:  ldx     mi_player_vehicle_count
+s9A10:  ldx     mi_player_mob_count
         beq     b9A27
 b9A15:  dex
-        lda     mi_player_vehicle_types,x
+        lda     mi_player_mob_types,x
         cmp     #$20
         bcc     b9A24
         cmp     #$5A
@@ -1876,9 +2070,9 @@ b9A15:  dex
         jsr     remove_player_vehicle_x
 b9A24:  txa
         bne     b9A15
-b9A27:  stx     mi_player_8267
+b9A27:  stx     mi_player_target_type
         dex
-        stx     wBD00
+        stx     mob_hit_points
         rts
 
 
@@ -1887,17 +2081,17 @@ b9A27:  stx     mi_player_8267
 ;-----------------------------------------------------------
 
 s9A2F:  jsr     s9951
-        ldx     mi_player_vehicle_count
+        ldx     mi_player_mob_count
         beq     b9A4C
 b9A37:  dex
-        stx     zp44
-        lda     mi_player_vehicle_types,x
+        stx     zp_mob_index
+        lda     mi_player_mob_types,x
         cmp     #$20
         bcc     b9A48
         cmp     #$5A
         bcs     b9A48
         jsr     s9B3E
-b9A48:  ldx     zp44
+b9A48:  ldx     zp_mob_index
         bne     b9A37
 b9A4C:  rts
 
@@ -1907,8 +2101,8 @@ j9A58:  jsr     st_get_random_number
         ldx     mi_player_current_vehicle
         cmp     r9A4D,x
         bcc     b9A4C
-        ldx     zp44
-        lda     mi_player_vehicle_types,x
+        ldx     zp_mob_index
+        lda     mi_player_mob_types,x
         ldy     #$00
         cmp     #$30
         bcc     b9A7A
@@ -1922,7 +2116,7 @@ b9A7A:  sty     wA144
         lda     #$00
         sta     zp24
         sta     zp25
-        lda     mi_player_vehicle_x_coords,x
+        lda     mi_player_mob_x_coords,x
         sta     zp22
         lda     POS_X
         bmi     b9A96
@@ -1932,8 +2126,8 @@ b9A7A:  sty     wA144
         inc     zp24
         bcs     b9A98
 b9A96:  dec     zp24
-b9A98:  lda     mi_player_vehicle_continent_y_coords,x
-        and     #$3F
+b9A98:  lda     mi_player_mob_continent_y_coords,x
+               and     #$3F
 b9A9D:  sta     zp23
         lda     POS_Y
         bmi     b9AAD
@@ -1956,18 +2150,18 @@ b9AB9:  ldx     zp22
         bcc     b9ACB
         jsr     s9AEE
         bcs     b9AED
-b9ACB:  jsr     s9C77
-        lda     mi_player_vehicle_tiles,x
+b9ACB:  jsr     get_cached_mob_location_in_memory
+        lda     mi_player_mob_tiles,x
         sta     (zp4C),y
         lda     zp2C
-        sta     mi_player_vehicle_x_coords,x
+        sta     mi_player_mob_x_coords,x
         lda     zp2D
         ora     mi_player_continent_mask
-        sta     mi_player_vehicle_continent_y_coords,x
-        jsr     get_vehicle_location_in_memory
+        sta     mi_player_mob_continent_y_coords,x
+        jsr     get_mob_location_in_memory
         lda     (zp4C),y
-        sta     mi_player_vehicle_tiles,x
-        lda     mi_player_vehicle_types,x
+        sta     mi_player_mob_tiles,x
+        lda     mi_player_mob_types,x
         sta     (zp4C),y
 b9AED:  rts
 
@@ -2034,16 +2228,16 @@ b9B3D:  rts
 ;-----------------------------------------------------------
 ;-----------------------------------------------------------
 
-s9B3E:  ldx     zp44
-        lda     mi_player_vehicle_x_coords,x
+s9B3E:  ldx     zp_mob_index
+        lda     mi_player_mob_x_coords,x
         sta     zp22
         sec
         sbc     POS_X
         jsr     s9B2B
         sty     zp48
         sta     zp24
-        lda     mi_player_vehicle_continent_y_coords,x
-        and     #$3F
+        lda     mi_player_mob_continent_y_coords,x
+               and     #$3F
         sta     zp23
         sec
         sbc     POS_Y
@@ -2064,7 +2258,7 @@ b9B70:  cpy     #$02
         bcc     b9BAF
         cpy     #$04
         bcs     b9B8B
-        lda     mi_player_vehicle_types,x
+        lda     mi_player_mob_types,x
         cmp     #$28
         beq     b9B8E
         cmp     #$2C
@@ -2093,13 +2287,13 @@ b9B93:  sec
         dec     wA145
         bne     b9B93
 b9BAF:  jsr     mi_print_tab
-        ldx     zp44
-        stx     mi_player_8268
-        lda     mi_player_vehicle_types,x
+        ldx     zp_mob_index
+        stx     mi_player_target_index
+        lda     mi_player_mob_types,x
         lsr     a
         lsr     a
         adc     #$FE
-        sta     mi_player_8267
+        sta     mi_player_target_type
         tax
         jsr     mi_print_string_entry_x
         .addr   mi_world_monster_table
@@ -2148,8 +2342,8 @@ b9C20:  jsr     mi_print_text
         cmp     #$15
         bcc     b9C32
         jsr     mi_print_crlf_col_1
-b9C32:  ldx     mi_player_8267
-        lda     mi_r7A51,x
+b9C32:  ldx     mi_player_target_type
+        lda     mi_mob_treasure_table,x
         asl     a
         jsr     mi_get_random_number_a
         clc
@@ -2178,42 +2372,59 @@ j9C71:  jsr     set_avatar_vehicle_tile
 
 
 ;-----------------------------------------------------------
-;-----------------------------------------------------------
-
-s9C77:  ldx     zp44
-
-
-
-;-----------------------------------------------------------
-;               get_vehicle_location_in_memory
+;           get_cached_mob_location_in_memory
 ;
-; Retrieves the memory location of the specified vehicle on
+; Retrieves the memory location of the cached mob on
 ; the world map. After calling this method, '(zp4C),y' will
-; point to the tile on the world map where the vehicle is
+; point to the tile on the world map where the mob is
 ; located.
 ;
 ; Input:
-;       x - vehicle entry index
+;       zp_mob_index - mob entry index
 ;
 ; Output:
-;       y - the x coordinate of the vehicle
-;    zp4C - Address of the world map row where the vehicle
+;       y - the x coordinate of the mob
+;    zp4C - Address of the world map row where the mob
 ;           is located
 ;-----------------------------------------------------------
 
-get_vehicle_location_in_memory:
+get_cached_mob_location_in_memory:
+        ldx     zp_mob_index
+
+        ; continued in get_mob_location_in_memory
+
+
+
+;-----------------------------------------------------------
+;                get_mob_location_in_memory
+;
+; Retrieves the memory location of the specified mob on
+; the world map. After calling this method, '(zp4C),y' will
+; point to the tile on the world map where the mob is
+; located.
+;
+; Input:
+;       x - mob entry index
+;
+; Output:
+;       y - the x coordinate of the mob
+;    zp4C - Address of the world map row where the mob
+;           is located
+;-----------------------------------------------------------
+
+get_mob_location_in_memory:
         lda     #$00                                    ; zp4C := 0
         sta     zp4C
 
-        lda     mi_player_vehicle_continent_y_coords,x
-        and     #$3F
+        lda     mi_player_mob_continent_y_coords,x
+               and     #$3F
         lsr     a
         ror     zp4C
         lsr     a
         ror     zp4C
         adc     #$64
         sta     zp4D
-        ldy     mi_player_vehicle_x_coords,x
+        ldy     mi_player_mob_x_coords,x
         rts
 
 
@@ -2268,28 +2479,28 @@ add_vehicle_to_map:
 
         stx     zp46                                    ; Cache the X coordinate to free the x register
 
-        ldx     mi_player_vehicle_count                 ; If the player already owns 80 vehicles...
+        ldx     mi_player_mob_count                 ; If the player already owns 80 vehicles...
         cpx     #$50
         bcs     done                                    ; ...then we are done
 
         asl     a                                       ; Store the vehicle type
-        sta     mi_player_vehicle_types,x
+        sta     mi_player_mob_types,x
 
         pha                                             ; Store the vehicle location
         tya
         ora     mi_player_continent_mask
-        sta     mi_player_vehicle_continent_y_coords,x
-        lda     zp46
-        sta     mi_player_vehicle_x_coords,x
+        sta     mi_player_mob_continent_y_coords,x
+               lda     zp46
+        sta     mi_player_mob_x_coords,x
 
-        jsr     get_vehicle_location_in_memory          ; Get the tile at the vehicle location and store it
+        jsr     get_mob_location_in_memory          ; Get the tile at the vehicle location and store it
         lda     (zp4C),y
-        sta     mi_player_vehicle_tiles,x
+        sta     mi_player_mob_tiles,x
 
         pla                                             ; Update the map with the new vehicle tile
         sta     (zp4C),y
 
-        inc     mi_player_vehicle_count                 ; Update the vehicle count
+        inc     mi_player_mob_count                 ; Update the vehicle count
 
         clc
 done:   rts
@@ -2324,13 +2535,13 @@ remove_vehicle_at_player_location:
         tya
         ora     mi_player_continent_mask                ; a := mi_player_continent_mask | player y coordinate
 
-        ldx     mi_player_vehicle_count                 ; Find the appropriate vehicle location entry in the player save data
+        ldx     mi_player_mob_count                 ; Find the appropriate vehicle location entry in the player save data
 @loop:
         dex
         bmi     done
-        cmp     mi_player_vehicle_continent_y_coords,x  ; If the y coordinate/continent does not match...
+        cmp     mi_player_mob_continent_y_coords,x      ; If the y coordinate/continent does not match...
         bne     @loop
-        ldy     mi_player_vehicle_x_coords,x            ; ...and the x coordinate does not match
+        ldy     mi_player_mob_x_coords,x            ; ...and the x coordinate does not match
         cpy     zp46
         bne     @loop                                   ; ...then keep looking
 
@@ -2355,40 +2566,40 @@ remove_vehicle_at_player_location:
 ;-----------------------------------------------------------
 
 remove_player_vehicle_x:
-        lda     mi_player_vehicle_continent_y_coords,x  ; If the vehicle is on the current continent...
+        lda     mi_player_mob_continent_y_coords,x      ; If the vehicle is on the current continent...
         and     #$C0
         cmp     mi_player_continent_mask
         bne     b9D0E
 
-        jsr     get_vehicle_location_in_memory          ; ...restore the original tile on the world map
-        lda     mi_player_vehicle_tiles,x
+        jsr     get_mob_location_in_memory          ; ...restore the original tile on the world map
+        lda     mi_player_mob_tiles,x
         sta     (zp4C),y
 
-b9D0E:  lda     mi_player_vehicle_types,x               ; zp3A := the removed vehicle type
+b9D0E:  lda     mi_player_mob_types,x               ; zp3A := the removed vehicle type
         sta     zp3A
 
         stx     zp46                                    ; zp46 := the removed vehicle index
 
-        dec     mi_player_vehicle_count                 ; Reduce the vehicle counter
+        dec     mi_player_mob_count                 ; Reduce the vehicle counter
 
         bne     @next_vehicle                           ; If no more vehicles are left...
         rts                                             ; ...then we are done
 
-@loop:  lda     mi_player_vehicle_x_coords + 1,x        ; Shift all vehicle entries after the removed vehicle up
-        sta     mi_player_vehicle_x_coords,x
-        lda     mi_player_vehicle_continent_y_coords + 1,x
-        sta     mi_player_vehicle_continent_y_coords,x
-        lda     mi_player_vehicle_types + 1,x
-        sta     mi_player_vehicle_types,x
-        lda     mi_player_vehicle_tiles + 1,x
-        sta     mi_player_vehicle_tiles,x
+@loop:  lda     mi_player_mob_x_coords + 1,x        ; Shift all vehicle entries after the removed vehicle up
+        sta     mi_player_mob_x_coords,x
+        lda     mi_player_mob_continent_y_coords + 1,x
+        sta     mi_player_mob_continent_y_coords,x
+        lda     mi_player_mob_types + 1,x
+        sta     mi_player_mob_types,x
+        lda     mi_player_mob_tiles + 1,x
+        sta     mi_player_mob_tiles,x
 
-        lda     wBD00 + 1,x
-        sta     wBD00,x
+        lda     mob_hit_points + 1,x
+        sta     mob_hit_points,x
 
         inx
 @next_vehicle:
-        cpx     mi_player_vehicle_count                 ; If that was not the last vehicle...
+        cpx     mi_player_mob_count                 ; If that was not the last vehicle...
         bcc     @loop                                   ; ...keep going
 
         ldx     zp46                                    ; x := the removed vehicle index
@@ -2496,13 +2707,13 @@ cmd_inform_search:
         bcc     @cache_tile
         lda     POS_Y                                   ; ...get the tile from the vehicle tile cache instead
         ora     mi_player_continent_mask
-        ldx     mi_player_vehicle_count
-@loop:  cmp     mi_player_vehicle_continent_y_coords - 1,x
+        ldx     mi_player_mob_count
+@loop:  cmp     mi_player_mob_continent_y_coords - 1    ,x
         bne     @next_vehicle
-        ldy     mi_player_vehicle_x_coords - 1,x
+        ldy     mi_player_mob_x_coords - 1,x
         cpy     POS_X
         bne     @next_vehicle
-        lda     mi_player_vehicle_tiles - 1,x
+        lda     mi_player_mob_tiles - 1,x
         lsr     a
         bpl     @cache_tile
 @next_vehicle:  dex

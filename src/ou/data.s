@@ -15,7 +15,7 @@
 .export rA119
 .export rA121
 .export rA129
-.export rA131
+.export weapon_ranges
 .export total_player_vechicles
 .export wA141
 .export wA142
@@ -40,7 +40,6 @@
 .data
 
 command_routine_table:
-command_routine_table_hi:= * + 1
         .addr   cmd_north
         .addr   cmd_south
         .addr   cmd_east
@@ -160,7 +159,8 @@ r9EEC:  .byte   $7E,$7E,$7E,$7F,$07,$54,$68,$65
 rA119:  .byte   $42,$41,$2D,$2C,$18,$17,$03,$02
 rA121:  .byte   $00,$03,$04,$03,$00,$05,$02,$06
 rA129:  .byte   $FF,$06,$FF,$04,$FF,$02,$FF,$00
-rA131:  .byte   $01,$01,$01,$01,$00,$01,$01,$03
+weapon_ranges:
+        .byte   $01,$01,$01,$01,$00,$01,$01,$03
         .byte   $00,$00,$00,$01,$03,$01,$03,$03
 wA141:  .byte   $00
 wA142:  .byte   $00

@@ -17,7 +17,7 @@
 .export mi_world_feature_table
 .export mi_world_monster_table
 
-.export mi_r7A51
+.export mi_mob_treasure_table
 .export mi_r7A57
 .export mi_world_feature_continent_y_coords
 .export mi_world_feature_x_coords
@@ -167,7 +167,7 @@ gem_table:
         .byte   "Blue Ge",$ED
         .byte   "White Ge",$ED
 
-mi_r7A51:
+mi_mob_treasure_table:
         .byte   $0A,$05,$04,$03,$02,$01
 mi_r7A57:
         .byte   $04,$06
