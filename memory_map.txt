@@ -7,10 +7,10 @@
 |          $0023 : ??? (OU)                                                                                            |
 |          $0024 : zzz??? (ST/OU)                                                                                      |
 |          $0025 : zzz??? (ST/OU)                                                                                      |
-|          $0026 : zzz??? (ST)                                                                                         |
-|          $0027 : zzz??? (ST)                                                                                         |
-|          $0028 : zzz??? (ST)                                                                                         |
-|          $0029 : zzz??? (ST)                                                                                         |
+|          $0026 : draw line start X (ST)                                                                              |
+|          $0027 : draw line start Y (ST)                                                                              |
+|          $0028 : draw line end X (ST)                                                                                |
+|          $0029 : draw line end Y (ST)                                                                                |
 |          $002A : sound/zzz??? (ST)                                                                                   |
 |          $002B : sound/zzz??? (ST)                                                                                   |
 |          $002C : ??? (OU)                                                                                            |

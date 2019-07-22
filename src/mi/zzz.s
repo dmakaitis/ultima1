@@ -52,8 +52,8 @@
 .import w8250
 .import w8259
 
-zp26            := $26
-zp27            := $27
+DRAW_START_X    := $26
+DRAW_START_Y    := $27
 zp41            := $41
 zp42            := $42
 zp43            := $43
@@ -255,23 +255,23 @@ mi_s8788:
 mi_s879F:
         lda     #$60
 mi_s87A1:
-        jsr     st_s168B
+        jsr     st_set_draw_color
         jsr     s87C9
         ldx     #$04
         ldy     #$12
-        stx     zp26
-        sty     zp27
+        stx     DRAW_START_X
+        sty     DRAW_START_Y
         ldx     #$FA
-        jsr     st_s1691
-        ldx     zp26
+        jsr     st_draw_line_x_y
+        ldx     DRAW_START_X
         ldy     #$6D
-        jsr     st_s1691
+        jsr     st_draw_line_x_y
         ldx     #$04
-        ldy     zp27
-        jsr     st_s1691
-        ldx     zp26
+        ldy     DRAW_START_Y
+        jsr     st_draw_line_x_y
+        ldx     DRAW_START_X
         ldy     #$12
-        jsr     st_s1691
+        jsr     st_draw_line_x_y
 s87C9:  lda     BM_ADDR_MASK
         eor     BM2_ADDR_MASK
         sta     BM_ADDR_MASK

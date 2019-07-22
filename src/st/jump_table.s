@@ -36,10 +36,10 @@
 .export st_play_sound_a
 .export st_queue_sound
 .export st_play_next_sound
-.export st_s168B
-.export st_s168E
-.export st_s1691
-.export st_s1694
+.export st_set_draw_color
+.export st_draw_pixel
+.export st_draw_line_x_y
+.export st_draw_line
 .export st_do_nothing4
 .export st_do_nothing5
 .export st_wait_for_raster
@@ -70,10 +70,10 @@
 .import wait_for_input
 .import wait_for_raster
 
-.import do_s168B
-.import do_s168E
-.import do_s1691
-.import do_s1694
+.import do_set_draw_color
+.import do_draw_pixel
+.import do_draw_line_x_y
+.import do_draw_line
 
 .import do_nothing
 .import do_nothing2
@@ -173,17 +173,17 @@ st_queue_sound:
 st_play_next_sound:
         jmp     play_next_sound
 
-st_s168B:
-        jmp     do_s168B
+st_set_draw_color:
+        jmp     do_set_draw_color
 
-st_s168E:
-        jmp     do_s168E
+st_draw_pixel:
+        jmp     do_draw_pixel
 
-st_s1691:
-        jmp     do_s1691
+st_draw_line_x_y:
+        jmp     do_draw_line_x_y
 
-st_s1694:
-        jmp     do_s1694
+st_draw_line:
+        jmp     do_draw_line
 
 st_do_nothing4:
         jmp     do_nothing4

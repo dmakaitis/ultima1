@@ -52,10 +52,10 @@ st_play_sound_a
 st_queue_sound
 st_play_next_sound
 
-st_s168B
-st_s168E
-st_s1691
-st_s1694
+st_set_draw_color
+st_draw_pixel
+st_draw_line_x_y
+st_draw_line
 
 st_do_nothing4
 st_do_nothing5

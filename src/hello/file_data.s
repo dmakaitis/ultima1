@@ -40,17 +40,17 @@ read_filenames:
         .byte   "FI"
 
         .byte   "GE"                                    ; Character generator code
-        .byte   "OU"
-        .byte   "DN"
-        .byte   "TW"
+        .byte   "OU"                                    ; Outdoor module
+        .byte   "DN"                                    ; Dungeon module
+        .byte   "TW"                                    ; Town module
 
-        .byte   "CA"
-        .byte   "SP"
-        .byte   "TM"
+        .byte   "CA"                                    ; Castle module
+        .byte   "SP"                                    ; Space module
+        .byte   "TM"                                    ; Time machine module
         .byte   "ST"                                    ; Screen and Text routines
 
         .byte   "IN"                                    ; Displays Ultima I intro animation
-        .byte   "MI"
+        .byte   "MI"                                    ; Common code library
         .byte   "LO"                                    ; Displays Origin logo and loads intro
         .byte   "PR"                                    ; PR is for copy protection - reading this file should fail
 

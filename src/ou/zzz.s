@@ -43,10 +43,10 @@ zp22                    := $22
 zp23                    := $23
 zp24                    := $24
 zp25                    := $25
-zp26                    := $26
-zp27                    := $27
-zp28                    := $28
-zp29                    := $29
+DRAW_START_X            := $26
+DRAW_START_Y            := $27
+DRAW_END_X              := $28
+DRAW_END_Y              := $29
 zp2C                    := $2C
 zp2D                    := $2D
 zp36                    := $36
@@ -768,6 +768,7 @@ cmd_board:
         jsr     mi_cursor_to_col_1                      ; ...then they have to get out first.
         jsr     mi_print_text
         .asciiz "X-it thy craft first!"
+
         jmp     mi_play_error_sound_and_reset_buffers
 
 @not_in_vehicle:
@@ -776,7 +777,7 @@ cmd_board:
         cmp     #$10                                    ; If there is no vehicle currently at the player location...
         bcs     @no_vehicle_found
         cmp     #$08
-        bcs     b909D
+        bcs     @vehicle_found
 @no_vehicle_found:
         jsr     mi_cursor_to_col_1                      ; ...then there is nothing for them to board here
         jsr     mi_print_text
@@ -785,47 +786,61 @@ cmd_board:
 
 
 
-b909D:  and     #$07                                    ; If the tile is a time machine...
+@vehicle_found:
+        and     #$07                                    ; If the tile is a time machine...
         cmp     #$07
-        bcc     b90A5
+        bcc     @update_player_vehicle
 
         lda     #$0A                                    ; ...then override the vehicle to be a time machine
-b90A5:  sta     mi_player_current_vehicle
+
+@update_player_vehicle:
+        sta     mi_player_current_vehicle
         pha
 
         jsr     remove_vehicle_at_player_location       ; Remove the vehicle from the world map
 
         jsr     set_avatar_vehicle_tile
         jsr     st_draw_world
+
         pla
-        cmp     #$03
-        bcs     b90C4
+
+        cmp     #$03                                    ; If the vehicle is a horse or cart, print that the player is mounting it
+        bcs     @print_vehicle_name
         jsr     mi_cursor_to_col_1
         jsr     mi_print_text
         .asciiz "Mount "
-b90C4:  jsr     print_current_vehicle
+
+@print_vehicle_name:
+        jsr     print_current_vehicle                   ; Print the vehicle name
+
         lda     mi_player_current_vehicle
         cmp     #$06
-        beq     b90D1
-        bcs     b90DB
+        beq     @board_space_shuttle
+        bcs     @board_time_machine
         rts
 
-b90D1:  lda     #$0F
+@board_space_shuttle:
+        lda     #$0F                                    ; Change keyboard repeat rate and...
         sta     st_key_repeat_rate_10ths
-        lda     #$05
-b90D8:  jmp     j9262
+        lda     #$05                                    ; ...load the SP module
+@load_module:
+        jmp     load_module_a
 
-b90DB:  lda     mi_player_gems
-        beq     b90F3
+@board_time_machine:
+        lda     mi_player_gems                          ; Check if the player has all gems
+        beq     @missing_gem
         lda     mi_player_gems + 1
-        beq     b90F3
+        beq     @missing_gem
         lda     mi_player_gems + 2
-        beq     b90F3
+        beq     @missing_gem
         lda     mi_player_gems + 3
-        beq     b90F3
-        lda     #$06
-        bne     b90D8
-b90F3:  jsr     mi_store_text_area
+        beq     @missing_gem
+
+        lda     #$06                                    ; Load the TM module
+        bne     @load_module
+
+@missing_gem:
+        jsr     mi_store_text_area                      ; Describe the time machine
         jsr     st_clear_main_viewport
         jsr     st_set_text_window_main
         sta     BM2_ADDR_MASK
@@ -835,17 +850,20 @@ b90F3:  jsr     mi_store_text_area
         .byte   $03,"Entering the craft, thou dost|",$7F
         .byte   $03,"remark upon four holes marked:||",$7F
         .byte   $0D,"o  o  o  o|",$7F
-        .byte   $0D,"R  G  B  W||",$00
+        .byte   $0D,"R  G  B  W||"
+        .byte   $00
 
-        lda     mi_player_gems
+        lda     mi_player_gems                          ; Does the player have ANY gems?
         ora     mi_player_gems + 1
         ora     mi_player_gems + 2
         ora     mi_player_gems + 3
-        bne     b91CB
-        jsr     mi_print_text
+        bne     do_describe_missing_gems
+
+        jsr     mi_print_text                           ; The player has no gems, so give no hints
         .byte   $7F
         .byte   $02,"Thou canst not determine how to|",$7F
-        .byte   $02,"operate the craft at this time.",$00
+        .byte   $02,"operate the craft at this time."
+        .byte   $00
 
 
 
@@ -859,103 +877,158 @@ s91BB:  lda     #$60
         jsr     mi_reset_buffers_and_wait_for_input
         jmp     mi_wait_for_input
 
-b91CB:  lda     mi_player_gems
-        beq     b91D7
-        ldx     #$59
-        lda     #$20
-        jsr     s923D
-b91D7:  lda     mi_player_gems + 1
-        beq     b91E3
-        ldx     #$71
-        lda     #$50
-        jsr     s923D
-b91E3:  lda     mi_player_gems + 2
-        beq     b91EF
-        ldx     #$89
-        lda     #$60
-        jsr     s923D
-b91EF:  lda     mi_player_gems + 3
-        beq     b91FB
-        ldx     #$A1
-        lda     #$10
-        jsr     s923D
-b91FB:  jsr     mi_print_text
-        .byte   $7F,$05
-        .byte   "Thou hast not all the gems|"
 
 
+;-----------------------------------------------------------
+;                 do_describe_missing_gems
+;
+;
+; Input:
+;
+; Output:
+;-----------------------------------------------------------
 
-        .byte   $7F,$04
-        .byte   "needed to operate thy craft!"
+do_describe_missing_gems:
+        lda     mi_player_gems                          ; If the player has a red gem, draw it
+        beq     @no_red_gems
+        ldx     #$59                                    ; x := 89
+        lda     #$20                                    ; Red
+        jsr     draw_gem_a_x
 
+@no_red_gems:
+        lda     mi_player_gems + 1                      ; If the player has a green gem, draw it
+        beq     @no_green_gems
+        ldx     #$71                                    ; x := 113
+        lda     #$50                                    ; Green
+        jsr     draw_gem_a_x
 
+@no_green_gems:
+        lda     mi_player_gems + 2                      ; If the player has a blue gem, draw it
+        beq     @no_blue_gems
+        ldx     #$89                                    ; x := 137
+        lda     #$60                                    ; Blue
+        jsr     draw_gem_a_x
 
+@no_blue_gems:
+        lda     mi_player_gems + 3                      ; If the player has a white gem, draw it
+        beq     @no_white_gems
+        ldx     #$A1                                    ; x := 161
+        lda     #$10                                    ; White
+        jsr     draw_gem_a_x
+
+@no_white_gems:
+        jsr     mi_print_text                           ; Tell the player they're missing some gems
+        .byte   $7F,$05,"Thou hast not all the gems|"
+        .byte   $7F,$04,"needed to operate thy craft!"
         .byte   $00
+
         jmp     s91BB
 
 
 
 ;-----------------------------------------------------------
+;                      draw_gem_a_x
+;
+; Draws a gem of the given color at the given location. Gems
+; are drawn as a 4x6 colored square.
+;
+; Input:
+;    a - color
+;    x - x coordinate
+;
+; Output:
 ;-----------------------------------------------------------
 
-s923D:  stx     zp46
+draw_gem_a_x:
+        stx     zp46                                    ; zp46 := x
+
+        inx                                             ; x += 4
         inx
         inx
         inx
-        inx
-        stx     zp47
-        ldy     #$39
-        sty     zp27
-        jsr     st_s168B
-        jsr     s924F
+
+        stx     zp47                                    ; zp47 := x
+
+        ldy     #$39                                    ; DRAW_START_Y := 57
+        sty     DRAW_START_Y
+        jsr     st_set_draw_color
+        jsr     draw_three_gem_lines
+
+        ; continued in draw_three_gem_lines below
+
+
+;-----------------------------------------------------------
+;-----------------------------------------------------------
+
+draw_three_gem_lines:
+        jsr     draw_gem_line
+        jsr     draw_gem_line
+
+        ; continued in draw_gem_line below
 
 
 
 ;-----------------------------------------------------------
 ;-----------------------------------------------------------
 
-s924F:  jsr     s9255
-        jsr     s9255
+draw_gem_line:
+        ldx     zp46                                    ; DRAW_START_X := zp46
+        stx     DRAW_START_X
+        ldx     zp47                                    ; x := zp47
+        inc     DRAW_START_Y                            ; DRAW_START_Y++
+        ldy     DRAW_START_Y                            ; y := DRAW_START_Y
+        jmp     st_draw_line_x_y
 
 
 
 ;-----------------------------------------------------------
+;                      load_module_a
+;
+; Stores the player outdoor data into a cache at $D000, then
+; loads the module specified in the accumulator.
+;
+; Input:
+;    a - the module to load.
+;
+; Output:
 ;-----------------------------------------------------------
 
-s9255:  ldx     zp46
-        stx     zp26
-        ldx     zp47
-        inc     zp27
-        ldy     zp27
-        jmp     st_s1691
-
-j9262:  ldx     POS_X
+load_module_a:
+        ldx     POS_X                                   ; Store player position
         ldy     POS_Y
         stx     mi_player_position_x
         sty     mi_player_position_y
+
         pha
+
         lda     #$30
         sta     PROCESSOR_PORT
-        ldx     #$0D
+
+        ldx     #$0D                                    ; Set temp pointers to $B000 and $D000
         lda     #$00
         sta     TMP_PTR
         sta     TMP_PTR2
+
         lda     #$B0
         sta     TMP_PTR + 1
         lda     #$D0
         sta     TMP_PTR2 + 1
-        ldy     #$00
-b9283:  lda     (TMP_PTR),y
+
+        ldy     #$00                                    ; Copy from $B000 to $D000
+@loop:  lda     (TMP_PTR),y
         sta     (TMP_PTR2),y
         iny
-        bne     b9283
+        bne     @loop
         inc     TMP_PTR + 1
         inc     TMP_PTR2 + 1
         dex
-        bne     b9283
+        bne     @loop
+
         lda     #$36
         sta     PROCESSOR_PORT
+
         pla
+
         jmp     mi_load_module_a
 
 
@@ -1193,7 +1266,7 @@ b9486:  cmp     #$06
         lda     #$03
         bne     b94BB
 b94B9:  lda     #$02
-b94BB:  jmp     j9262
+b94BB:  jmp     load_module_a
 
 b94BE:  stx     wA141
         jsr     mi_s8788
@@ -2001,28 +2074,28 @@ b9996:  sty     zp23
         sbc     #$09
         bpl     b99A9
         lda     #$00
-b99A9:  sta     zp26
+b99A9:  sta     DRAW_START_X
         lda     POS_X
         adc     #$09
-        sta     zp28
+        sta     DRAW_END_X
         lda     POS_Y
         sbc     #$04
         bpl     b99B9
         lda     #$00
-b99B9:  sta     zp27
+b99B9:  sta     DRAW_START_Y
         lda     POS_Y
         adc     #$04
-        sta     zp29
+        sta     DRAW_END_Y
 b99C1:  jsr     s9D44
         cmp     zp23
         bne     b99C1
-        cpx     zp26
+        cpx     DRAW_START_X
         bcc     b99DD
-        cpx     zp28
+        cpx     DRAW_END_X
         bcs     b99DD
-        cpy     zp27
+        cpy     DRAW_START_Y
         bcc     b99DD
-        cpy     zp29
+        cpy     DRAW_END_Y
         bcs     b99DD
         dec     zp3A
         bne     b99C1
