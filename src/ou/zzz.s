@@ -1630,20 +1630,31 @@ cmd_fire:
 
 
 ;-----------------------------------------------------------
+;                       cmd_quit_save
+;
+; Handler for the Quit and Save command.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
 cmd_quit_save:
-        ldx     POS_X
+        ldx     POS_X                                   ; Store the current player location on the continent
         ldy     POS_Y
         stx     mi_player_position_x
         sty     mi_player_position_y
+
         jsr     mi_store_text_area
-b965B:  jsr     save_selected_character
+
+@retry:
+        jsr     save_selected_character                 ; Keep saving until it works
         jsr     mi_check_drive_status
-        bcs     b965B
-        jsr     mi_print_text
-        .byte   " saved."
-        .byte   $00
+        bcs     @retry
+
+        jsr     mi_print_text                           ; Let the player know they're saved.
+        .asciiz " saved."
+
         jmp     st_clear_to_end_of_text_row_a
 
 
