@@ -2952,6 +2952,13 @@ get_player_position_and_tile:
 
 
 ;-----------------------------------------------------------
+;                      cmd_inform_search
+;
+; Command handler for the Inform and Search command.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
 cmd_inform_search:
@@ -2966,7 +2973,7 @@ cmd_inform_search:
         lda     POS_Y                                   ; ...get the tile from the vehicle tile cache instead
         ora     mi_player_continent_mask
         ldx     mi_player_mob_count
-@loop:  cmp     mi_player_mob_continent_y_coords - 1    ,x
+@loop:  cmp     mi_player_mob_continent_y_coords - 1,x
         bne     @next_vehicle
         ldy     mi_player_mob_x_coords - 1,x
         cpy     POS_X
@@ -2980,10 +2987,11 @@ cmd_inform_search:
 @over_mountains:
         lda     #$01                                    ; Treat tile as plains
 @cache_tile:
-        sta     tile_cache                              ; Store tile in cache (tile_cache)
+        sta     tile_cache                              ; Store tile in cache
 
         cmp     #$04                                    ; If the tile is water, plains, or forest...
         bcs     @special_tile
+
         tax                                             ; ...then inform the player as such
         jsr     mi_print_string_entry_x2
         .addr   tile_descriptions
@@ -2992,14 +3000,19 @@ cmd_inform_search:
 
         dex                                             ; If tile is plains...
         bne     @done
+
         ldx     mi_player_continent                     ; ...append the continent name
         jsr     mi_print_string_entry_x2
         .addr   mi_land_name_table
+
 @done:  rts
+
+
 
 @special_tile:
         cmp     #$06                                    ; If the tile is a town...
         bne     @find_feature
+
         jsr     mi_print_text                           ; ...print prefix for the town name
         .asciiz "the city of "
 
@@ -3019,10 +3032,14 @@ cmd_inform_search:
         stx     mi_player_world_feature
         rts
 
+
+
 @print_feature:
         stx     mi_player_world_feature
+
         jsr     mi_print_string_entry_x2
         .addr   mi_world_feature_table
+
         rts
 
 
