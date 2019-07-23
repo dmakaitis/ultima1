@@ -485,16 +485,22 @@ cmd_attack:
         bne     @valid_weapon
         jmp     mi_cmd_invalid
 
+
+
 @valid_weapon:
         sta     wA145                                   ; Get direction from user
         jsr     read_direction
         bcc     @valid_direction
         rts
 
+
+
 @no_target:
         jsr     mi_print_text                           ; Tell the user they missed
         .asciiz "~Miss!"
         rts
+
+
 
 @valid_direction:
         lda     #$06
@@ -535,7 +541,8 @@ cmd_attack:
         clc
         adc     #$01
 
-j8F0F:  sta     mi_w81C1
+do_damage_to_target:
+        sta     mi_w81C1
 
         lda     #$00
         sta     mi_number_padding
@@ -649,7 +656,7 @@ do_target_killed:
         inc     mi_player_money + 1
 
 @done:  jsr     s9024
-        jmp     j8FFF
+        jmp     remove_player_target
 
 
 
@@ -704,7 +711,8 @@ print_target_name:
 
 
 
-j8FFF:  ldx     mi_player_target_index
+remove_player_target:
+        ldx     mi_player_target_index
         cpx     mi_player_mob_count
         bcs     b9022
         lda     mi_player_mob_types,x
@@ -1034,157 +1042,210 @@ load_module_a:
 
 
 ;-----------------------------------------------------------
+;                       cmd_cast
+;
+; Handler for the cast spell command.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
 cmd_cast:
         jsr     mi_print_equipped_spell
-        ldx     mi_player_equipped_spell
-        bne     b92A4
-        jmp     j93BA
 
-b92A4:  lda     mi_player_inventory_spells,x
-        bne     b92CB
+        ldx     mi_player_equipped_spell                ; Is the player casting Prayer?
+        bne     @check_spell_inventory
+
+        jmp     @cast_prayer
+
+
+
+@check_spell_inventory:
+        lda     mi_player_inventory_spells,x            ; Does the player have the spell in inventory?
+        bne     @has_spell
+
         jsr     mi_print_text
-        .byte   "~You've used up that spell!"
-
-
-
-        .byte   $00
+        .asciiz "~You've used up that spell!"
         jmp     mi_spell_failed
 
-b92CB:  cpx     #$03
-        beq     b92F9
-        cpx     #$0A
-        beq     b92F9
+
+
+@has_spell:
+        cpx     #$03                                    ; Are they casting Magic Missile?
+        beq     @not_dungeon_spell
+        cpx     #$0A                                    ; ...or are they casting Kill?
+        beq     @not_dungeon_spell
+
         dec     mi_player_inventory_spells,x
+
         jsr     mi_print_text
-        .byte   "~Failed, dungeon spell only!"
-
-
-
-        .byte   $00
+        .asciiz "~Failed, dungeon spell only!"
         jmp     mi_spell_failed
 
-b92F9:  jsr     read_direction
-        bcc     b9301
-        jmp     main_loop
 
-b9301:  lda     #$0A
+
+@not_dungeon_spell:
+        jsr     read_direction                          ; Get the direction from the player
+        bcc     @do_cast_spell
+        jmp     main_loop                               ; If no direction picked, cancel
+
+
+
+@do_cast_spell:
+        lda     #$0A                                    ; Play the cast spell sound
         jsr     st_queue_sound
-        ldx     mi_player_equipped_spell
+
+        ldx     mi_player_equipped_spell                ; Update spell inventory
         dec     mi_player_inventory_spells,x
-        cpx     #$0A
+
+        cpx     #$0A                                    ; Print the appropriate spell incantation
         ldx     #$00
-        bcc     b9313
+        bcc     @print_incantation
         inx
-b9313:  jsr     mi_print_string_entry_x2
-        .addr   r9394
+@print_incantation:
+        jsr     mi_print_string_entry_x2
+        .addr   @spell_incantations
+
         ldx     #$03
         stx     wA145
-        dex
+
+        dex                                             ; Is the player a cleric?
         cpx     mi_player_class
-        beq     b934F
-        lda     #$80
+        beq     @spell_hit
+
+        lda     #$80                                    ; Use player's wisdom to check if they hit (roll under 128 + wisdom)
         clc
         adc     mi_player_wisdom
         sta     zp43
         jsr     st_get_random_number
         cmp     zp43
-        bcc     b934F
+        bcc     @spell_hit
+
         jsr     mi_print_text
-        .byte   "Failed!"
-        .byte   $00
-j933D:  jsr     mi_spell_failed
+        .asciiz "Failed!"
+
+@spell_failed:
+        jsr     mi_spell_failed
         jmp     main_loop
 
-b9343:  jsr     mi_print_text
-        .byte   "Miss!"
-        .byte   $00
-        jmp     j933D
 
-b934F:  jsr     get_target
-        bcs     b9343
-        lda     #$5C
+
+@spell_missed:
+        jsr     mi_print_text
+        .asciiz "Miss!"
+        jmp     @spell_failed
+
+
+
+@spell_hit:
+        jsr     get_target                              ; Is there a valid target?
+        bcs     @spell_missed
+
+        lda     #$5C                                    ; Display spell hit icon on target
         sta     (zp4C),y
         jsr     st_draw_world
-        jsr     get_cached_mob_location_in_memory
+
+        jsr     get_cached_mob_location_in_memory       ; Restore mob icon on target
         lda     mi_player_mob_types,x
         sta     (zp4C),y
-        lda     mi_player_equipped_spell
+
+        lda     mi_player_equipped_spell                ; Did they cast kill or magic missle?
         cmp     #$03
-        beq     b936F
-        lda     #$FF
-        jmp     j8F0F
+        beq     @hit_with_magic_missile
 
-b936F:  lda     mi_player_intelligence
-        jsr     mi_get_random_number_a
+        lda     #$FF                                    ; Kill always hits for 255 damage...
+        jmp     do_damage_to_target
+
+
+
+@hit_with_magic_missile:
+        lda     mi_player_intelligence                  ; Roll random number in range of (1..int)
+        jsr     mi_get_random_number_a                  ; (result stored in zp43)
         inc     zp43
+
         lda     zp43
-        ldx     mi_player_equipped_weapon
+
+        ldx     mi_player_equipped_weapon               ; Is the current weapon an amulet, wand, staff, or triangle?
         cpx     #$08
-        bcc     b9391
+        bcc     @do_damage
         cpx     #$0C
-        bcs     b9391
-        asl     a
-        cpx     #$09
-        beq     b9391
-        clc
+        bcs     @do_damage
+
+        asl     a                                       ; Double the damage
+
+        cpx     #$09                                    ; If the weapon is not a wand...
+        beq     @do_damage
+
+        clc                                             ; Add the random number again (total of triple damage)
         adc     zp43
-        cpx     #$08
-        bne     b9391
-        lsr     a
-b9391:  jmp     j8F0F
 
-r9394:  .byte   "~"
-        .byte   $22
-        .byte   "DELCIO-ERE-UI!"
+        cpx     #$08                                    ; Is the weapon an amulet?
+        bne     @do_damage
 
-        .byte   $22,$A0
-        .byte   "~"
-        .byte   $22
-        .byte   "INTERFICIO-NUNC!"
+        lsr     a                                       ; Double the damage again (total of six times damage)
 
-        .byte   $22,$A0
-j93BA:  jsr     mi_print_text
-        .byte   "~"
-        .byte   $22
-        .byte   "POTENTIS-LAUDIS!"
+@do_damage:
+        jmp     do_damage_to_target
 
-        .byte   $22,$00
-        lda     #$0A
-        jsr     st_queue_sound
-        ldy     #$0F
-        lda     mi_player_hits + 1
-        bne     b93F4
-        cpy     mi_player_hits
-        bcc     b93F4
-        beq     b93F4
-        sty     mi_player_hits
-b93E7:  jsr     mi_print_text
-        .byte   " Shazam!"
-        .byte   $00
-        rts
 
-b93F4:  lda     mi_player_food + 1
-        bne     b9405
-        cpy     mi_player_food
-        bcc     b9405
-        beq     b9405
-        sty     mi_player_food
-        bne     b93E7
-b9405:  jsr     st_get_random_number
-        and     #$03
-        bne     b9427
-        jsr     j8FFF
-        bcs     b9427
+
+@spell_incantations:
+        .byte   "~",$22,"DELCIO-ERE-UI!",$22,$A0
+        .byte   "~",$22,"INTERFICIO-NUNC!",$22,$A0
+
+
+
+@cast_prayer:
         jsr     mi_print_text
-        .byte   "~Monster removed!"
+        .byte   "~",$22,"POTENTIS-LAUDIS!",$22,$00
 
+        lda     #$0A                                    ; Spell spell casting sound
+        jsr     st_queue_sound
 
-        .byte   $00
+        ldy     #$0F                                    ; If the player has less than 15 hitpoints...
+        lda     mi_player_hits + 1
+        bne     @check_food
+        cpy     mi_player_hits
+        bcc     @check_food
+        beq     @check_food
+
+        sty     mi_player_hits                          ; ...set their hitpoints to 15
+
+@shazam:
+        jsr     mi_print_text
+        .asciiz " Shazam!"
+
         rts
 
-b9427:  jmp     mi_no_effect
+@check_food:
+        lda     mi_player_food + 1                      ; If the player has less than 15 food...
+        bne     @attempt_remove_monster
+        cpy     mi_player_food
+        bcc     @attempt_remove_monster
+        beq     @attempt_remove_monster
+
+        sty     mi_player_food                          ; ...set their food to 15
+
+        bne     @shazam
+
+@attempt_remove_monster:
+        jsr     st_get_random_number                    ; 25% chance to work...
+        and     #$03
+        bne     @no_effect
+
+        jsr     remove_player_target                    ; Remove the target the player last attacked, if they still exist
+        bcs     @no_effect
+
+        jsr     mi_print_text
+        .asciiz "~Monster removed!"
+
+        rts
+
+
+
+@no_effect:
+        jmp     mi_no_effect
 
 
 
@@ -1534,7 +1595,7 @@ b9640:  ldx     mi_player_current_vehicle
         lda     mob_xp_table,x
         jsr     mi_get_random_number_a
         adc     #$1E
-        jmp     j8F0F
+        jmp     do_damage_to_target
 
 
 
