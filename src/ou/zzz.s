@@ -1660,6 +1660,13 @@ cmd_quit_save:
 
 
 ;-----------------------------------------------------------
+;                        cmd_ready
+;
+; Command handler for the Ready command.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
 cmd_ready:
@@ -1669,38 +1676,57 @@ cmd_ready:
 
 
 ;-----------------------------------------------------------
+;                         cmd_xit
+;
+; Handler for the 'X-it command.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
-cmd_xit:lda     mi_player_current_vehicle
-        bne     b9688
+cmd_xit:
+        lda     mi_player_current_vehicle               ; Is the player currently in a vehicle?
+        bne     @check_terrain
+        
         jsr     mi_print_text
-        .byte   " what"
-        .byte   $00
+        .asciiz " what"
+
         jmp     mi_cmd_invalid
 
-b9688:  jsr     get_player_position_and_tile
+
+
+@check_terrain:
+        jsr     get_player_position_and_tile            ; Is the player currently over water, plains, or forest?
         cmp     #$03
-        bcc     b96B6
-b968F:  jsr     mi_cursor_to_col_1
+        bcc     @do_xit
+
+@xit_failed:
+        jsr     mi_cursor_to_col_1
         jsr     mi_print_text
-        .byte   "Thou canst not leave it here!"
+        .asciiz "Thou canst not leave it here!"
 
-
-
-        .byte   $00
         jmp     mi_play_error_sound_and_reset_buffers
 
-b96B6:  ldx     POS_X
+
+
+@do_xit:
+        ldx     POS_X
         ldy     POS_Y
-        lda     mi_player_current_vehicle
+
+        lda     mi_player_current_vehicle               ; Make sure vehicle is in range of 0-7
         cmp     #$07
-        bcc     b96C3
+        bcc     @put_vehicle_on_map
         lda     #$07
-b96C3:  ora     #$08
+
+@put_vehicle_on_map:
+        ora     #$08
         jsr     add_vehicle_to_map
-        bcs     b968F
-        lda     #$00
+        bcs     @xit_failed
+
+        lda     #$00                                    ; Set the current vehicle to "on foot"
         sta     mi_player_current_vehicle
+
         rts
 
 
@@ -2075,7 +2101,7 @@ decompress_continent_map:
         ror     a
         sta     mi_player_continent_mask
 
-        ldx     mi_player_mob_count                 ; If the player has vehicles...
+        ldx     mi_player_mob_count                     ; If the player has vehicles...
         beq     @add_new_vehicles
 
 @next_vehicle:
@@ -2195,11 +2221,11 @@ update_player_vehicle_counters:
         inc     total_player_vechicles
 
 @not_in_vehicle:
-        ldy     mi_player_mob_count                 ; If the player owns any vehicles (that they are not in)...
+        ldy     mi_player_mob_count                     ; If the player owns any vehicles (that they are not in)...
         beq     @done
 @loop:  dey                                             ; ...update their counters
 
-        lda     mi_player_mob_types,y               ; Get the next vehicle type ID
+        lda     mi_player_mob_types,y                   ; Get the next vehicle type ID
 
         cmp     #$20                                    ; Skip any vehicles where the type ID is out of range
         bcs     @skip
@@ -2748,7 +2774,7 @@ add_vehicle_to_map:
 
         stx     zp46                                    ; Cache the X coordinate to free the x register
 
-        ldx     mi_player_mob_count                 ; If the player already owns 80 vehicles...
+        ldx     mi_player_mob_count                     ; If the player already owns 80 vehicles...
         cpx     #$50
         bcs     done                                    ; ...then we are done
 
@@ -2762,14 +2788,14 @@ add_vehicle_to_map:
                lda     zp46
         sta     mi_player_mob_x_coords,x
 
-        jsr     get_mob_location_in_memory          ; Get the tile at the vehicle location and store it
+        jsr     get_mob_location_in_memory              ; Get the tile at the vehicle location and store it
         lda     (zp4C),y
         sta     mi_player_mob_tiles,x
 
         pla                                             ; Update the map with the new vehicle tile
         sta     (zp4C),y
 
-        inc     mi_player_mob_count                 ; Update the vehicle count
+        inc     mi_player_mob_count                     ; Update the vehicle count
 
         clc
 done:   rts
@@ -2804,13 +2830,13 @@ remove_vehicle_at_player_location:
         tya
         ora     mi_player_continent_mask                ; a := mi_player_continent_mask | player y coordinate
 
-        ldx     mi_player_mob_count                 ; Find the appropriate vehicle location entry in the player save data
+        ldx     mi_player_mob_count                     ; Find the appropriate vehicle location entry in the player save data
 @loop:
         dex
         bmi     done
         cmp     mi_player_mob_continent_y_coords,x      ; If the y coordinate/continent does not match...
         bne     @loop
-        ldy     mi_player_mob_x_coords,x            ; ...and the x coordinate does not match
+        ldy     mi_player_mob_x_coords,x                ; ...and the x coordinate does not match
         cpy     zp46
         bne     @loop                                   ; ...then keep looking
 
@@ -2840,21 +2866,21 @@ remove_player_vehicle_x:
         cmp     mi_player_continent_mask
         bne     b9D0E
 
-        jsr     get_mob_location_in_memory          ; ...restore the original tile on the world map
+        jsr     get_mob_location_in_memory              ; ...restore the original tile on the world map
         lda     mi_player_mob_tiles,x
         sta     (zp4C),y
 
-b9D0E:  lda     mi_player_mob_types,x               ; zp3A := the removed vehicle type
+b9D0E:  lda     mi_player_mob_types,x                   ; zp3A := the removed vehicle type
         sta     zp3A
 
         stx     zp46                                    ; zp46 := the removed vehicle index
 
-        dec     mi_player_mob_count                 ; Reduce the vehicle counter
+        dec     mi_player_mob_count                     ; Reduce the vehicle counter
 
         bne     @next_vehicle                           ; If no more vehicles are left...
         rts                                             ; ...then we are done
 
-@loop:  lda     mi_player_mob_x_coords + 1,x        ; Shift all vehicle entries after the removed vehicle up
+@loop:  lda     mi_player_mob_x_coords + 1,x            ; Shift all vehicle entries after the removed vehicle up
         sta     mi_player_mob_x_coords,x
         lda     mi_player_mob_continent_y_coords + 1,x
         sta     mi_player_mob_continent_y_coords,x
@@ -2868,7 +2894,7 @@ b9D0E:  lda     mi_player_mob_types,x               ; zp3A := the removed vehicl
 
         inx
 @next_vehicle:
-        cpx     mi_player_mob_count                 ; If that was not the last vehicle...
+        cpx     mi_player_mob_count                     ; If that was not the last vehicle...
         bcc     @loop                                   ; ...keep going
 
         ldx     zp46                                    ; x := the removed vehicle index
