@@ -600,7 +600,7 @@ do_target_killed:
 
         ldx     mi_player_target_type                   ; x := mob type
         ldy     mi_mob_treasure_table,x                 ; y := potential treasure
-        lda     mob_xp_table,y                          ; a := experience
+        lda     mob_data_table,y                        ; a := experience
         lsr     a
 
         cmp     #$02                                    ; Generate random number based on experience table
@@ -1541,59 +1541,89 @@ delay_for_e6_squared:
 
 
 ;-----------------------------------------------------------
+;                         cmd_fire
+;
+; Handler for the Fire command.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
 cmd_fire:
         ldx     mi_player_current_vehicle
-        cpx     #$04
-        bne     b95E3
-        jsr     mi_print_text
-        .byte   "cannons"
-        .byte   $00
-        jmp     j95FC
 
-b95E3:  cpx     #$05
-        beq     b95F2
+        cpx     #$04                                    ; Is the player in a frigate?
+        bne     @is_aircar
+
         jsr     mi_print_text
-        .byte   "what"
-        .byte   $00
+        .asciiz "cannons"
+
+        jmp     @get_direction
+
+
+
+@is_aircar:
+        cpx     #$05                                    ; Is the player in an aircar?
+        beq     @fire_lasers
+
+        jsr     mi_print_text                           ; No other vehicle has a weapon...
+        .asciiz "what"
+
         jmp     mi_cmd_invalid
 
-b95F2:  jsr     mi_print_text
-        .byte   "lasers"
-        .byte   $00
-j95FC:  jsr     read_direction
-        bcc     b960D
+
+
+@fire_lasers:
+        jsr     mi_print_text
+        .asciiz "lasers"
+
+@get_direction:
+        jsr     read_direction
+        bcc     @do_fire
         rts
 
-b9602:  jsr     mi_print_text
+
+
+@no_target_found:
+        jsr     mi_print_text
         .byte   "~Miss!"
         .byte   $00
         rts
 
-b960D:  lda     #$0C
+
+
+@do_fire:
+        lda     #$0C                                    ; Play the fire cannon sound
         jsr     st_queue_sound
-        lda     #$03
+
+        lda     #$03                                    ; Find the target in the given direction
         sta     wA145
         jsr     get_target
-        bcs     b9602
-        lda     #$5E
+        bcs     @no_target_found
+
+        lda     #$5E                                    ; Display the attack icon over the target
         sta     (zp4C),y
         jsr     st_draw_world
         jsr     get_cached_mob_location_in_memory
-        lda     mi_player_mob_types,x
+
+        lda     mi_player_mob_types,x                   ; Restore the mob icon
         sta     (zp4C),y
-        jsr     st_get_random_number
+
+        jsr     st_get_random_number                    ; 20% chance to miss...
         cmp     #$33
-        bcs     b9640
+        bcs     @target_hit
+
         jsr     mi_print_text
-        .byte   "~Missed"
-        .byte   $00
+        .asciiz "~Missed"
         jmp     print_target_name
 
-b9640:  ldx     mi_player_current_vehicle
-        lda     mob_xp_table,x
-        jsr     mi_get_random_number_a
+
+
+@target_hit:
+        ldx     mi_player_current_vehicle               ; Calculate the damage to the target
+        lda     mob_data_table,x                        ; Look up maximum damage for vehicle
+        jsr     mi_get_random_number_a                  ; Get a random number in the appropriate range, then add 30
         adc     #$1E
         jmp     do_damage_to_target
 
@@ -2262,7 +2292,7 @@ b99DD:  lda     zp22
         lda     mi_player_experience + 1
         ldx     mi_player_target_type
         ldy     mi_r7A57,x
-        adc     mob_xp_table,y
+        adc     mob_data_table,y
         lsr     a
         cmp     #$05
         bcc     b99FE
@@ -2278,7 +2308,7 @@ b9A04:  rts
 
 
 
-mob_xp_table:
+mob_data_table:
         .byte   $00,$0A,$14,$1E,$28,$32,$3C,$46
         .byte   $50,$5A,$64
 
