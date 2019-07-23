@@ -20,14 +20,14 @@
 .import command_routine_table
 .import tile_descriptions
 .import blocked_messages
-.import r9EEC
-.import rA119
-.import rA121
-.import rA129
+.import signpost_text
+.import world_signposts
+.import signpost_attributes
+.import signpost_quests
 .import weapon_ranges
 .import total_player_vechicles
-.import wA141
-.import wA142
+.import signpost_cache
+.import tile_cache
 .import wA144
 .import wA145
 
@@ -58,7 +58,7 @@ zp3C                    := $3C
 zp3D                    := $3D
 zp3F                    := $3F
 zp43                    := $43
-zp_mob_index                    := $44
+zp_mob_index            := $44
 zp46                    := $46
 zp47                    := $47
 zp48                    := $48
@@ -1189,198 +1189,292 @@ b9427:  jmp     mi_no_effect
 
 
 ;-----------------------------------------------------------
+;                 get_new_vehicle_tile_x_y
+;
+; Retrieves the tile at the given location if a new vehicle
+; can be placed there, or return #$FF if a new vehicle can
+; not be placed there.
+;
+; Input:
+;    x - continent x position
+;    y - continent y position
+;
+; Output:
+;    a - tile type at position, or #$FF if a vehicle can not
+;        be placed at the location.
 ;-----------------------------------------------------------
 
-s942A:  lda     total_player_vechicles
+get_new_vehicle_tile_x_y:
+        lda     total_player_vechicles                  ; Can the player own any more vehicles?
         cmp     #$35
-        bcs     b943C
-        jsr     get_tile
+        bcs     @invalid_location
+
+        jsr     get_tile                                ; Is the tile water or grass?
         cmp     #$03
-        bcs     b943C
+        bcs     @invalid_location
         inc     total_player_vechicles
         rts
 
-b943C:  lda     #$FF
+@invalid_location:
+        lda     #$FF
         rts
 
-b943F:  jmp     mi_cmd_invalid
+
+
+invalid_enter_target:
+        jmp     mi_cmd_invalid
 
 
 
 ;-----------------------------------------------------------
+;                          cmd_enter
+;
+; Handler for the Enter command.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
 cmd_enter:
-        ldx     POS_X
+        ldx     POS_X                                   ; Store player position
         ldy     POS_Y
         stx     mi_player_position_x
         sty     mi_player_position_y
-        jsr     get_player_position_and_tile
-        cmp     #$04
-        bcc     b943F
+
+        jsr     get_player_position_and_tile            ; Get tile at current player location
+
+        cmp     #$04                                    ; Can the tile be entered (only tiles 4-7)?
+        bcc     invalid_enter_target
         cmp     #$08
-        bcs     b943F
-        jsr     mi_print_text
-        .byte   "ing..."
-        .byte   $00
-        jsr     cmd_inform_search
-        lda     wA142
+        bcs     invalid_enter_target
+
+        jsr     mi_print_text                           ; Tell the player what they're entering
+        .asciiz "ing..."
+
+        jsr     cmd_inform_search                       ; Display the name of the current location
+
+        lda     tile_cache                              ; Is the tile a signpost?
         cmp     #$05
-        bne     b9479
-        lda     mi_player_world_feature
+        bne     @check_castle
+
+        lda     mi_player_world_feature                 ; Figure out which signpost
         ldx     #$07
-b9470:  cmp     rA119,x
-        beq     b94BE
+@signpost_loop:
+        cmp     world_signposts,x
+        beq     @enter_signpost
         dex
-        bpl     b9470
+        bpl     @signpost_loop
         rts
 
-b9479:  cmp     #$04
-        bne     b9486
-        lda     #$01
+@check_castle:
+        cmp     #$04                                    ; Is the tile a castle?
+        bne     @check_towne
+
+        lda     #$01                                    ; Change keyboard repeat rate
         sta     st_key_repeat_rate_10ths
-        lda     #$04
-        bne     b94BB
-b9486:  cmp     #$06
-        bne     b94B9
+        lda     #$04                                    ; Load the CA module
+        bne     @load_module
+
+@check_towne:
+        cmp     #$06                                    ; Is the tile a towne?
+        bne     @load_dungeon
+
         jsr     update_player_vehicle_counters
-        ldx     POS_X
+
+        ldx     POS_X                                   ; Look up the tiles at locations where new vehicles could potentially be placed
         ldy     POS_Y
         dey
-        jsr     s942A
+        jsr     get_new_vehicle_tile_x_y
         sta     mi_player_new_vehicle_north
         iny
         dex
-        jsr     s942A
+        jsr     get_new_vehicle_tile_x_y
         sta     mi_player_new_vehicle_west
         inx
         inx
-        jsr     s942A
+        jsr     get_new_vehicle_tile_x_y
         sta     mi_player_new_vehicle_east
         dex
         iny
-        jsr     s942A
+        jsr     get_new_vehicle_tile_x_y
         sta     mi_player_new_vehicle_south
-        lda     #$01
-        sta     st_key_repeat_rate_10ths
-        lda     #$03
-        bne     b94BB
-b94B9:  lda     #$02
-b94BB:  jmp     load_module_a
 
-b94BE:  stx     wA141
-        jsr     mi_s8788
-        ldx     wA141
+        lda     #$01                                    ; Change keyboard repeat rate
+        sta     st_key_repeat_rate_10ths
+        lda     #$03                                    ; Load the TW module
+        bne     @load_module
+
+@load_dungeon:
+        lda     #$02                                    ; Load the DN module
+@load_module:
+        jmp     load_module_a
+
+
+
+@enter_signpost:
+        stx     signpost_cache
+        jsr     mi_set_main_view_text_area
+        ldx     signpost_cache
+
         jsr     mi_print_string_entry_x2
-        .addr   r9EEC
+        .addr   signpost_text
+
         jsr     mi_restore_text_area
         jsr     mi_reset_buffers
-        ldx     wA141
-        ldy     rA129,x
-        bmi     b9503
-        lda     mi_player_821E,y
-        beq     b9503
-        bmi     b9503
-        lda     #$FF
-        sta     mi_player_821E,y
-        jsr     mi_print_text
+
+        ldx     signpost_cache                          ; Is there a possible quest for this signpost?
+        ldy     signpost_quests,x
+        bmi     @no_signpost_quest
+
+        lda     mi_player_signpost_quests,y             ; Is the player currently on this quest?
+        beq     @no_signpost_quest
+        bmi     @no_signpost_quest
+
+        lda     #$FF                                    ; If so, flag the quest as completed
+        sta     mi_player_signpost_quests,y
+
+        jsr     mi_print_text                           ; Let the player know
         .asciiz "}A Quest is completed!"
-        jsr     s95B9
-b9503:  ldx     wA141
-        lda     rA121,x
-        bne     b9568
+        jsr     flash_main_view_text_border
+
+@no_signpost_quest:
+        ldx     signpost_cache
+        lda     signpost_attributes,x
+        bne     @raise_attribute
         cpx     #$04
-        bne     j955C
-        cpx     mi_player_8263
-        beq     b9520
-        ldx     #$00
-b9516:  inx
+        bne     @done
+        cpx     mi_player_last_signpost
+        beq     @no_effect
+
+        ldx     #$00                                    ; Find the first weapon the player does not own
+@next_weapon:
+        inx
         lda     mi_player_inventory_weapons,x
-        beq     b9526
+        beq     @give_player_weapon
         cpx     #$0F
-        bcc     b9516
-b9520:  jsr     mi_no_effect
-        jmp     j955C
+        bcc     @next_weapon
 
-b9526:  lda     #$01
+@no_effect:
+        jsr     mi_no_effect
+        jmp     @done
+
+@give_player_weapon:
+        lda     #$01
         sta     mi_player_inventory_weapons,x
-        stx     zp46
-        jsr     mi_print_text
-        .byte   "~You find a"
 
-        .byte   $00
+        stx     zp46                                    ; Tell the player what they found...
+        jsr     mi_print_text
+        .asciiz "~You find a"
         ldx     zp46
+
         cpx     #$03
-        beq     b9546
+        beq     @print_n
         cpx     #$08
-        bne     b954B
-b9546:  lda     #$6E
+        bne     @print_weapon_name
+
+@print_n:
+        lda     #$6E
         jsr     mi_print_char
-b954B:  inc     CUR_X
+
+@print_weapon_name:
+        inc     CUR_X
         ldx     zp46
         jsr     mi_print_string_entry_x2
         .addr   mi_weapon_table
+
         lda     #$21
         jsr     mi_print_char
-j9559:  jsr     s95B9
-j955C:  lda     wA141
-        sta     mi_player_8263
+
+@flash_border_and_finish:
+        jsr     flash_main_view_text_border
+@done:  lda     signpost_cache
+        sta     mi_player_last_signpost
         jmp     mi_reset_buffers_and_wait_for_input
 
-b9565:  jmp     b9520
+@branch_no_effect:
+        jmp     @no_effect
 
-b9568:  cpx     mi_player_8263
-        beq     b9565
+@raise_attribute:
+        cpx     mi_player_last_signpost                 ; Do nothing if the player hasn't been to another signpost yet
+        beq     @branch_no_effect
+
         sta     zp46
         asl     a
         tax
         lda     mi_player_hits,x
         sta     zp47
-        sec
+
+        sec                                             ; Is the attribute already at 99?
         lda     #$63
         sbc     mi_player_hits,x
-        bcc     b9565
-        adc     #$08
+        bcc     @branch_no_effect
+
+        adc     #$08                                    ; Increase attribute by (99 + 8 - current value) / 10
         jsr     mi_div_a_by_10
         adc     mi_player_hits,x
-        cmp     #$63
-        bcc     b958C
+        cmp     #$63                                    ; Cap it at 99
+        bcc     @update_attribute
         lda     #$63
-b958C:  sta     mi_player_hits,x
-        sec
-        sbc     zp47
-        beq     b9565
-        pha
-        jsr     mi_print_text
-        .byte   "}Thou dost gain "
+@update_attribute:
+        sta     mi_player_hits,x
 
-        .byte   $00
+        sec                                             ; Did it actually increase?
+        sbc     zp47
+        beq     @branch_no_effect
+
+        pha                                             ; If so, inform the player by how much
+        jsr     mi_print_text
+        .asciiz "}Thou dost gain "
         pla
+        
         jsr     mi_print_digit
+        
         inc     CUR_X
         ldx     zp46
         jsr     mi_print_string_entry_x2
         .addr   mi_attribute_table
-        jmp     j9559
+        
+        jmp     @flash_border_and_finish
 
 
 
 ;-----------------------------------------------------------
+;                flash_main_view_text_border
+;
+; Highlights the main view text border in white, plays a
+; sound, then restores the border color to blue.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
-s95B9:  lda     #$10
-        jsr     mi_s87A1
+flash_main_view_text_border:
+        lda     #$10                                    ; Draw main view text border in white
+        jsr     mi_draw_main_view_text_border
+
         lda     #$0A
         jsr     st_play_sound_a
-        jsr     s95C9
-        jsr     mi_s879F
+
+        jsr     delay_for_e6_squared
+
+        jsr     mi_draw_main_view_text_border_blue      ; Change main view text color to blue
 
 
 
 ;-----------------------------------------------------------
+;                  delay_for_e6_squared
+;
+; Pauses the game briefly.
+;
+; Input:
+;
+; Output:
 ;-----------------------------------------------------------
 
-s95C9:  lda     #$E6
+delay_for_e6_squared:
+        lda     #$E6
         jmp     st_delay_a_squared
 
 
@@ -2754,14 +2848,14 @@ get_tile:
 ;       a - tile under the player
 ;       x - x coordinate of player
 ;       y - y coordinate of player
-;   wA142 - tile under the player
+;   tile_cache - tile under the player
 ;-----------------------------------------------------------
 
 get_player_position_and_tile:
         ldx     POS_X
         ldy     POS_Y
         jsr     get_tile
-        sta     wA142
+        sta     tile_cache
         rts
 
 
@@ -2771,7 +2865,7 @@ get_player_position_and_tile:
 
 cmd_inform_search:
         jsr     mi_print_tab
-        jsr     get_player_position_and_tile            ; a := wA142 := tile at player location
+        jsr     get_player_position_and_tile            ; a := tile_cache := tile at player location
 
         cmp     #$03                                    ; If the tile is mountains...
         beq     @over_mountains                         ; ...treat it the same as plains
@@ -2795,7 +2889,7 @@ cmd_inform_search:
 @over_mountains:
         lda     #$01                                    ; Treat tile as plains
 @cache_tile:
-        sta     wA142                                   ; Store tile in cache (wA142)
+        sta     tile_cache                              ; Store tile in cache (tile_cache)
 
         cmp     #$04                                    ; If the tile is water, plains, or forest...
         bcs     @special_tile
@@ -2803,7 +2897,7 @@ cmd_inform_search:
         jsr     mi_print_string_entry_x2
         .addr   tile_descriptions
 
-        ldx     wA142                                   ; x := cached tile
+        ldx     tile_cache                              ; x := cached tile
 
         dex                                             ; If tile is plains...
         bne     @done

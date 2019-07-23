@@ -25,8 +25,8 @@ mi_no_effect
 mi_number_padding
 mi_play_error_sound_and_reset_buffers
 mi_play_sound_and_reset_buffers_a
-mi_player_821E
-mi_player_8263
+mi_player_signpost_quests
+mi_player_last_signpost
 mi_player_target_type
 mi_player_target_index
 mi_player_agility
@@ -90,9 +90,9 @@ mi_reset_buffers
 mi_reset_buffers_and_wait_for_input
 mi_restore_text_area
 mi_s863C
-mi_s8788
-mi_s879F
-mi_s87A1
+mi_set_main_view_text_area
+mi_draw_main_view_text_border_blue
+mi_draw_main_view_text_border
 mi_r882E
 mi_selected_item
 mi_spell_failed

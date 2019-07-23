@@ -155,8 +155,8 @@ RANGE   { START $9E01;  END $9E07;  TYPE Code; };
 RANGE   { START $9E08;  END $9E09;  TYPE AddrTable; };
 RANGE   { START $9E0A;  END $9E28;  TYPE Code; };
 RANGE   { START $9E29;  END $9E5A;  TYPE AddrTable; };  # JSR addresses start here...
-RANGE   { START $9E5B;  END $9EEB;  TYPE TextTable; };
-RANGE   { START $9EEC;  END $A149;  TYPE ByteTable; };
+RANGE   { START $9E5B;  END $A118;  TYPE TextTable; };
+RANGE   { START $A119;  END $A149;  TYPE ByteTable; };
 
 ########################
 # Subroutines

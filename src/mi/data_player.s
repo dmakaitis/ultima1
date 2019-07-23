@@ -38,14 +38,14 @@
 .export mi_player_position_x
 .export mi_player_position_y
 
-.export mi_player_821E
+.export mi_player_signpost_quests
 .export mi_player_new_vehicle_north
 .export mi_player_new_vehicle_west
 .export mi_player_new_vehicle_east
 .export mi_player_new_vehicle_south
 .export mi_player_new_time_machine
 .export mi_player_world_feature
-.export mi_player_8263
+.export mi_player_last_signpost
 .export mi_player_target_type
 .export mi_player_target_index
 .export mi_player_mob_count
@@ -107,9 +107,8 @@ mi_player_inventory_vehicles:
 
 
 
-mi_player_821E:
-        .byte   $00,$00,$00,$00,$00
-        .byte   $00,$00,$00
+mi_player_signpost_quests:
+        .byte   $00,$00,$00,$00,$00,$00,$00,$00
 mi_player_new_vehicle_north:
         .byte   $FF
 mi_player_new_vehicle_west:
@@ -169,7 +168,7 @@ mi_player_experience:
         .byte   $E8,$03,$E8,$03
 mi_player_world_feature:
         .byte   $00
-mi_player_8263:
+mi_player_last_signpost:
         .byte   $FF
 
 

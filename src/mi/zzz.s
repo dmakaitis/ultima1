@@ -13,9 +13,9 @@
 .export mi_wait_for_input
 .export mi_s863C
 .export mi_j863A
-.export mi_s8788
-.export mi_s879F
-.export mi_s87A1
+.export mi_set_main_view_text_area
+.export mi_draw_main_view_text_border_blue
+.export mi_draw_main_view_text_border
 .export mi_r882E
 
 .export bm_addr_mask_cache
@@ -241,23 +241,28 @@ mi_print_equipped_spell:
 ;-----------------------------------------------------------
 ;-----------------------------------------------------------
 
-mi_s8788:
+mi_set_main_view_text_area:
         jsr     mi_store_text_area
-        lda     #$04
+
+        lda     #$04                                    ; Change text window to (4, 4) to (36, 16)
         sta     CUR_Y_MIN
         sta     CUR_X_OFF
         lda     #$10
         sta     CUR_Y_MAX
         lda     #$20
         sta     CUR_X_MAX
-        jsr     st_clear_text_window
+
+        jsr     st_clear_text_window                    ; Clear the view
         jsr     mi_print_crlf_col_1
-mi_s879F:
-        lda     #$60
-mi_s87A1:
+
+mi_draw_main_view_text_border_blue:
+        lda     #$60                                    ; Set color to blue
+mi_draw_main_view_text_border:
         jsr     st_set_draw_color
-        jsr     s87C9
-        ldx     #$04
+
+        jsr     toggle_screen_swapping
+
+        ldx     #$04                                    ; Draw a border around the text area
         ldy     #$12
         stx     DRAW_START_X
         sty     DRAW_START_Y
@@ -272,7 +277,9 @@ mi_s87A1:
         ldx     DRAW_START_X
         ldy     #$12
         jsr     st_draw_line_x_y
-s87C9:  lda     BM_ADDR_MASK
+
+toggle_screen_swapping:
+        lda     BM_ADDR_MASK
         eor     BM2_ADDR_MASK
         sta     BM_ADDR_MASK
         rts
